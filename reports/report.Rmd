@@ -1,0 +1,30 @@
+---
+title: "Project Proposal"
+author: "Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: tango
+    theme: cerulean 
+    toc: yes 
+    number_sections: no
+    toc_float: true 
+    toc_collapsed: false 
+    code_folding: hide
+    toc_depth: 3
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+options(htmltools.dir.version =FALSE)
+```
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+source(here::here("scripts/setup.R"))
+```
+
+```{r child = c('1_goals_impacts.Rmd',  '2_plan.Rmd', '3_timeline.Rmd', '4_management.Rmd'), warning=FALSE, echo=FALSE}
+```
+
