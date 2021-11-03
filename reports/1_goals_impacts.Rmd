@@ -16,7 +16,7 @@ As per now, university students struggle every semester to create a timetable. I
 ## Overall Objectives
 
 The objective is to design an optimization algorithm that would generate all possible timetables from a choice of possible classes. From our perspective of Master students in Management at HEC Lausanne, following the track "Business Analytics", we face every semester the following challenge, in the sense that we must choose classes that account for 3 constraints: 
-- the **time constraints** (clashing classes on the schedule are impossible to take), 
+- the **time constraints** (overlapping classes on the schedule are impossible to take), 
 - the **"Modules" ECTS constraints** (classes are either in *Business Analytics* or *Electives*), 
 - the **total ECTS credits constraints** (do more than *X* ECTS credits for each semester). 
 
