@@ -1,0 +1,79 @@
+---
+title: "Goals and Impacts"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, warning=FALSE, include=FALSE, echo=FALSE}
+library("dplyr")
+library("tidyr")
+library("fastDummies")
+library("forecast")
+library("readxl")
+library("magrittr")
+
+HEC_timetables <- read_excel(here::here("data/HEC_timetables.xlsx"), 
+ col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
+ col_types = c("text", "skip", "numeric", "skip", "text", "skip", "text"))
+
+HEC_timetables <- HEC_timetables %>% mutate(Day=Start, Credit=Prof)
+HEC_timetables$Day <- gsub("[0-9]+", NA, HEC_timetables$Day) 
+HEC_timetables$Credit <- as.numeric(gsub("*?([0-9]+).*", "\\1", HEC_timetables$Prof)) 
+
+HEC_timetables <- HEC_timetables %>% 
+  fill(Day, .direction = c("down")) %>%
+  fill(Credit, .direction = c("up")) %>%
+  na.omit() %>%
+  mutate(Start=as.numeric(Start)*24, End=as.numeric(End)*24) %>%
+  mutate(Credit=ifelse(as.numeric(Credit)==1, 1.5, Credit)) %>%
+  mutate(I = paste(sep="", Day, Start, End))
+
+HEC_timetables$BA <- c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
+                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0) #should be checked
+
+HEC_timetables <- HEC_timetables %>% mutate(MG=ifelse(BA==1, 0, 1))
+```
+
+```{r, warning=FALSE}
+# Import lpSolve package
+library("lpSolve")
+
+test <- dummy_cols(HEC_timetables, select_columns = c('I'))
+
+credits <- HEC_timetables$Credit
+schedule <- dummy_cols(HEC_timetables, select_columns = c('I')) %>% 
+            select(-Start, -End, -Class, -Prof, -Day, -Credit, - I, -BA, -MG) %>% t()
+BA_credits <- HEC_timetables$BA*HEC_timetables$Credit
+MG_credits <- HEC_timetables$MG*HEC_timetables$Credit
+
+# Set coefficients of the objective function
+f.obj <- credits
+
+# Set matrix corresponding to coefficients of constraints by rows
+f.con <- rbind(schedule, BA_credits, MG_credits, credits) %>% as.matrix()
+colnames(f.con) <- HEC_timetables$Class
+
+# Set unequality/equality signs
+f.dir <- c(rep.int("<=", 21), ">=", ">=", ">=")
+
+# Set right hand side coefficients
+f.rhs <- c(rep.int(1, 21), 15, 15, 30)
+
+# Specify the number of solutions to be displayed
+n <- 3
+
+# Final value (z)
+lp("min", f.obj, f.con, f.dir, f.rhs, int.vec = 1:38, all.bin = TRUE, num.bin.solns=n)
+
+# Variables final values
+a <- lp("min", f.obj, f.con, f.dir, f.rhs, int.vec = 1:38, 
+        all.bin = TRUE, num.bin.solns=n)$solution %>% 
+  head(., -1)  # Last element = -1 (due to computations), should be removed
+## (but only if n =1 should removed the head part)
+
+test <- matrix(a, nrow = n)
+colnames(test) <- HEC_timetables$Class
+View(test %>% t())
+```

@@ -6,4 +6,16 @@ editor_options:
     wrap: 72
 ---
 
-# 
+# Management Plan
+
+*Explain how you plan to collaborate (weekly meeting on Zoom, ...) and
+indicate responsibilities (each member of the team should be at least
+responsible for one part of the project).*
+
+##### TO BE COMPLETED
+
+-   Laura:
+-   Matteo:
+-   Ana Gaby:
+-   Martina:
+-   Alessia:

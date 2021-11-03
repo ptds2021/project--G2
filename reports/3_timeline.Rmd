@@ -6,4 +6,37 @@ editor_options:
     wrap: 72
 ---
 
-# 
+# Timeline and milestones
+*Describe the timeline of your project and indicate key intermediary goals in a Gantt chart (see this package for example).* 
+
+##### TO BE COMPLETED AND MODIFIED ACCORDINGLY #####
+
+```{r, warning=FALSE, include=FALSE, echo=FALSE}
+# install.packages("remotes")
+# remotes::install_github("giocomai/ganttrify")
+
+#library("ganttrify")
+
+wp <- c("1. Data Collection", "1. Data Collection", "1. Data Collection", "1. Data Collection",
+              "2. Optimisation", "2. Optimisation", "2. Optimisation", "2. Optimisation", 
+              "3. Extension",  "3. Extension",  "3. Extension",
+              "4. Shiny on Optimisation",  "4. Shiny on Optimisation",
+              "5. Shiny Extension",  "5. Shiny Extension", 
+              "6. Presentation", "6. Presentation")
+
+activity <- c("1.1. Collection", "1.2. Cleaning", "1.3. Clashing", "1.4 Web-scarapping", 
+              "2.1. Dummy", "2.2. Models", "2.3. Constraints", "2.4 Alternative Solutions?", 
+              "3.1 Two semesters", "3.2 More semesters", "3.3 All tracks/more semesters", 
+              "4.1 Basic Inputs", "4.2 Further Inputs", 
+              "5.1 Two semesters", "5.2 More semesters", 
+              "6.1 Last Minutes Issues", "6.2 Relax...")
+
+start_date <- c(0, 2, 4, 5, 1, 2, 3, 1, 2, 4, 6, 8, 4, 5, 7, 2, 4) #to be adapted
+
+end_date <- c(0.2, 3, 5, 6, 2, 3, 4, 2, 4, 5, 7, 9, 5, 6, 8, 3, 5) #to be adapted
+
+project_BA <- tibble(wp, activity, start_date, end_date)
+
+ganttrify(project_BA, axis_text_align = "left",
+         project_start_date = "2021-11-02", month_date_label=FALSE)
+```
