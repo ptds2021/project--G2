@@ -8,20 +8,23 @@ editor_options:
 
 # Plan
 
-*Detail your approach and your specific objectives: \
-+ Explain existing sources of inspirations and the potential overlaps
-with your project. \
-+ Explain your data collection strategy, the risks as well as possible
-alternative strategies.\
-+ Explain the methods (R packages, ...) to be used and the methods to be
-developed. Give potential*
+
+
+
++ Explain the methods (R packages, ...) to be used and the methods to be developed. Give potential*
+
 
 ## Approach and Specific Objectives
 
-As previously explained, the goal of this project is to create a
-algorithm that would generate all possible timetables from a choice of
-possible classes. Focusing on the specific case of the Master in
-Management at HEC Lausanne, and especially on the track "Business
++ Explain existing sources of inspirations and the potential overlaps with your project. \
+
+Considering we all come from different universities and countries, is interesting to see how each one of them works accordingly. For instance, Tecnológico de Monterrey, one of our team mates former university, have a program in which, according to the courses they have, students are able to see in real time how by selecting their courses they can overlap. At the same time the program shows you in red which courses are now full and in blue with green those that could overlap with the courses you have already selected. 
+
+![Screenshot of the program students at Tec de Monterrey uses to make their semester schedule.](/project--G2/pictures/tec_timetable1.jpef)
+
+Although this might be useful for students, it can still take a while to get your timetable right.
+
+As previously explained, the goal of this project is to create an algorithm that would generate all possible timetables from a choice of possible classes. Focusing on the specific case of the Master in Management at HEC Lausanne, and especially on the track of "Business
 Analytics", the project would take into account:
 
 -   the **time constraints** (clashing classes on the schedule are
@@ -52,20 +55,17 @@ be that HEC would offer it to its students.
 To obtain the data, we will simply copy paste the timetable from the HEC
 website, following the following link:
 <https://hecnet.unil.ch/hec/timetables/snc_de_pub?pub_id=20491&dyn_lang=fr>.
-We could also imagine to web-scrap the data directly from the web, to
-fully automate the process.
+We could also imagine to web-scrap the data directly from the web, to fully automate the process.
 
-We will then clean it and add manually the information about the
-"Modules" (BA, Marketing, SOL, BEE).
+We will then clean it and add manually the information about the "Modules" (BA, Marketing, SOL, BEE).
 
-As per now, we don't see the data collection as very problematic, except
-maybe for the automation. We should also taken into account that when
-the syllabus is updated, data should be recollected.
+As per now, one of the risks we can present is that the timetable is in constant change. For instance, for the semester Autumn 2021, the correct timetable with all the correct courses that were to be imparted was lastly modified even during the semester. This is a risk that is not in our hands. Definitely this is something that the university should start to work on.
+
+Out of that, we don't see the data collection as very problematic, except maybe for the automation. We should also taken into account that when the syllabus is updated, data should be recollected.
 
 ## Methods and Alternatives
 
-We will rely on Integer Linear Programming, possibly using packages such
-as `lpSolve` or `ompr`, as well as `fastDummies`, to create dummy
+We will rely on Integer Linear Programming, possibly using packages such as `lpSolve` or `ompr`, as well as `fastDummies`, to create dummy
 variables. Overall, we aim to solve the following models:
 
 -   variables to optimize: dummy (1= taking, 0= not taking) for each
@@ -82,19 +82,8 @@ variables. Overall, we aim to solve the following models:
 
     -   total ECTS: *Z* credits must be achieved at least
 
-While it seems simple, we need to account for the overlapping classes
-(such as classes from 8-10 on Monday can't be combined with classes from
-8-12 on Monday), so we need specific modelling.
+While it seems simple, we need to account for the overlapping classes (such as classes from 8-10 on Monday can't be combined with classes from 8-12 on Monday), so we need specific modeling.
 
-Further, we will allow the user to input his/her specific requirements
-(e.g. free on Monday, 12 credits in BA and 15 in Elective, total credits
-only 27) via the implementation of the Shiny app.
+Further, we will allow the user to input his/her specific requirements (e.g. free on Monday, 12 credits in BA and 15 in Elective, total credits only 27) via the implementation of the Shiny app.
 
-Much research is done with such timetable optimization, but it generally
-seems hard as it is an NP-complex problem, sometimes resulting in
-finding no solutions. In case we are unsuccessful with the Integer
-Optimization, we could still generate randomly many combinations of
-classes, and then check to see if such combinations meet the
-requirements of students, as well as the time constraints (with a matrix
-of "overlapping" classes). In this way, we have an alternative to
-Integer Linear Programming.
+Much research is done with such timetable optimization, but it generally seems hard as it is an NP-complex problem, sometimes resulting in finding no solutions. In case we are unsuccessful with the Integer Optimization, we could still generate randomly many combinations of classes, and then check to see if such combinations meet the requirements of students, as well as the time constraints (with a matrix of "overlapping" classes). In this way, we have an alternative to Integer Linear Programming.
