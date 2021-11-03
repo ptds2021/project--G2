@@ -6,4 +6,95 @@ editor_options:
     wrap: 72
 ---
 
-# 
+# Plan
+
+*Detail your approach and your specific objectives: \
++ Explain existing sources of inspirations and the potential overlaps
+with your project. \
++ Explain your data collection strategy, the risks as well as possible
+alternative strategies.\
++ Explain the methods (R packages, ...) to be used and the methods to be
+developed. Give potential*
+
+## Approach and Specific Objectives
+
+As previously explained, the goal of this project is to create a
+algorithm that would generate all possible timetables from a choice of
+possible classes. Focusing on the specific case of the Master in
+Management at HEC Lausanne, and especially on the track "Business
+Analytics", the project would take into account:
+
+-   the **time constraints** (clashing classes on the schedule are
+    impossible to take),
+
+-   the **"modules" ECTS constraints** (classes are either in *Business
+    Analytics* or *Electives*),
+
+-   the **total ECTS credits constraints** (do more than *X* ECTS
+    credits for each semester).
+
+What is more, it should offer the possibility to users to also
+pre-select some classes they are sure to take, as well as how many ECTS
+credits in total they need, and the relative allocation between their
+main track and the count of Electives.
+
+### Potential Extensions
+
+As an extension, the program could also consider more than one semester,
+as students generally need to achieve Module ECTS constraints over
+Semester 2 and Semester 3. While this optimization tool is aimed first
+for Business Analytics students at HEC Lausanne, if successful, it could
+be scaled up to be used with other orientations. The ultimate goal would
+be that HEC would offer it to its students.
+
+## Data collection
+
+To obtain the data, we will simply copy paste the timetable from the HEC
+website, following the following link:
+<https://hecnet.unil.ch/hec/timetables/snc_de_pub?pub_id=20491&dyn_lang=fr>.
+We could also imagine to web-scrap the data directly from the web, to
+fully automate the process.
+
+We will then clean it and add manually the information about the
+"Modules" (BA, Marketing, SOL, BEE).
+
+As per now, we don't see the data collection as very problematic, except
+maybe for the automation. We should also taken into account that when
+the syllabus is updated, data should be recollected.
+
+## Methods and Alternatives
+
+We will rely on Integer Linear Programming, possibly using packages such
+as `lpSolve` or `ompr`, as well as `fastDummies`, to create dummy
+variables. Overall, we aim to solve the following models:
+
+-   variables to optimize: dummy (1= taking, 0= not taking) for each
+    class
+
+-   objective function: minimize the credits to be done each semester
+
+-   constraints:
+
+    -   time: two classes can't be taken at the same time
+
+    -   modules ECTS: *X* credits must be achieved in BA, *Y* credits
+        must be achieved with Electives
+
+    -   total ECTS: *Z* credits must be achieved at least
+
+While it seems simple, we need to account for the overlapping classes
+(such as classes from 8-10 on Monday can't be combined with classes from
+8-12 on Monday), so we need specific modelling.
+
+Further, we will allow the user to input his/her specific requirements
+(e.g. free on Monday, 12 credits in BA and 15 in Elective, total credits
+only 27) via the implementation of the Shiny app.
+
+Much research is done with such timetable optimization, but it generally
+seems hard as it is an NP-complex problem, sometimes resulting in
+finding no solutions. In case we are unsuccessful with the Integer
+Optimization, we could still generate randomly many combinations of
+classes, and then check to see if such combinations meet the
+requirements of students, as well as the time constraints (with a matrix
+of "overlapping" classes). In this way, we have an alternative to
+Integer Linear Programming.
