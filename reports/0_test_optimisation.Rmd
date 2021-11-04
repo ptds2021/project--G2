@@ -27,53 +27,129 @@ HEC_timetables <- HEC_timetables %>%
   fill(Credit, .direction = c("up")) %>%
   na.omit() %>%
   mutate(Start=as.numeric(Start)*24, End=as.numeric(End)*24) %>%
-  mutate(Credit=ifelse(as.numeric(Credit)==1, 1.5, Credit)) %>%
-  mutate(I = paste(sep="", Day, Start, End))
+  mutate(Credit=ifelse(as.numeric(Credit)==1, 1.5, Credit)) 
 
 HEC_timetables$BA <- c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
-                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0) #should be checked
-
+                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0)
 HEC_timetables <- HEC_timetables %>% mutate(MG=ifelse(BA==1, 0, 1))
+
+HEC_timetables$BA_credits <- HEC_timetables$BA*HEC_timetables$Credit
+HEC_timetables$MG_credits <- HEC_timetables$MG*HEC_timetables$Credit
+
+
+HEC_timetables <- HEC_timetables %>%
+  mutate(Day=as.factor(Day), 
+         # Monday
+         "Mon-8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Lundi", 1, 0), 
+         "Mon-9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Lundi", 1, 0),
+         "Mon-10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Lundi", 1, 0),
+         "Mon-11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Lundi", 1, 0), 
+         "Mon-12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Lundi", 1, 0),
+         "Mon-13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Lundi", 1, 0),
+         "Mon-14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Lundi", 1, 0), 
+         "Mon-15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Lundi", 1, 0),
+         "Mon-16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Lundi", 1, 0),
+         "Mon-17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Lundi", 1, 0),
+         "Mon-18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Lundi", 1, 0), 
+          # Tuesday
+         "Tue-8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Mardi", 1, 0), 
+         "Tue-9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Mardi", 1, 0),
+         "Tue-10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Mardi", 1, 0),
+         "Tue-11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Mardi", 1, 0), 
+         "Tue-12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Mardi", 1, 0),
+         "Tue-13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Mardi", 1, 0),
+         "Tue-14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Mardi", 1, 0), 
+         "Tue-15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Mardi", 1, 0),
+         "Tue-16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Mardi", 1, 0),
+         "Tue-17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Mardi", 1, 0),
+         "Tue-18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Mardi", 1, 0), 
+         # Wednesday
+         "Wed-8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Mercredi", 1, 0), 
+         "Wed-9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Mercredi", 1, 0),
+         "Wed-10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Mercredi", 1, 0),
+         "Wed-11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Mercredi", 1, 0), 
+         "Wed-12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Mercredi", 1, 0),
+         "Wed-13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Mercredi", 1, 0),
+         "Wed-14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Mercredi", 1, 0), 
+         "Wed-15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Mercredi", 1, 0),
+         "Wed-16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Mercredi", 1, 0),
+         "Wed-17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Mercredi", 1, 0),
+         "Wed-18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Mercredi", 1, 0), 
+         # Thursday
+         "Thu-8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Jeudi", 1, 0), 
+         "Thu-9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Jeudi", 1, 0),
+         "Thu-10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Jeudi", 1, 0),
+         "Thu-11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Jeudi", 1, 0), 
+         "Thu-12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Jeudi", 1, 0),
+         "Thu-13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Jeudi", 1, 0),
+         "Thu-14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Jeudi", 1, 0), 
+         "Thu-15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Jeudi", 1, 0),
+         "Thu-16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Jeudi", 1, 0),
+         "Thu-17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Jeudi", 1, 0),
+         "Thu-18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Jeudi", 1, 0), 
+          # Friday
+         "Fri-8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Vendredi", 1, 0), 
+         "Fri-9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Vendredi", 1, 0),
+         "Fri-10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Vendredi", 1, 0),
+         "Fri-11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Vendredi", 1, 0), 
+         "Fri-12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Vendredi", 1, 0),
+         "Fri-13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Vendredi", 1, 0),
+         "Fri-14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Vendredi", 1, 0), 
+         "Fri-15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Vendredi", 1, 0),
+         "Fri-16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Vendredi", 1, 0),
+         "Fri-17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Vendredi", 1, 0),
+         "Fri-18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Vendredi", 1, 0)) 
+
+rownames(HEC_timetables) <- HEC_timetables$Class
 ```
+
 
 ```{r, warning=FALSE}
 # Import lpSolve package
-library("lpSolve")
+library(lpSolve)
 
-test <- dummy_cols(HEC_timetables, select_columns = c('I'))
+# Set coefficients of the objective function (min total credits taken)
+f.obj  <- HEC_timetables$Credit
 
-credits <- HEC_timetables$Credit
-schedule <- dummy_cols(HEC_timetables, select_columns = c('I')) %>% 
-            select(-Start, -End, -Class, -Prof, -Day, -Credit, - I, -BA, -MG) %>% t()
-BA_credits <- HEC_timetables$BA*HEC_timetables$Credit
-MG_credits <- HEC_timetables$MG*HEC_timetables$Credit
+# Set matrix corresponding to coefficients of constraints
+f.con <- HEC_timetables %>% select("Credit", 9:65) %>% t()
 
-# Set coefficients of the objective function
-f.obj <- credits
+# Set unequality/equality signs (more than X credits, less or equal to 1 class/timeslot)
+f.dir <- c(">=",">=",">=", rep.int("<=", 55))
 
-# Set matrix corresponding to coefficients of constraints by rows
-f.con <- rbind(schedule, BA_credits, MG_credits, credits) %>% as.matrix()
-colnames(f.con) <- HEC_timetables$Class
-
-# Set unequality/equality signs
-f.dir <- c(rep.int("<=", 21), ">=", ">=", ">=")
-
-# Set right hand side coefficients
-f.rhs <- c(rep.int(1, 21), 15, 15, 30)
-
-# Specify the number of solutions to be displayed
-n <- 3
+# Set right hand side coefficients (more than X credits, less or equal to 1 class/timeslot)
+f.rhs <- c(30, 15, 15, rep.int(1, 55))
 
 # Final value (z)
-lp("min", f.obj, f.con, f.dir, f.rhs, int.vec = 1:38, all.bin = TRUE, num.bin.solns=n)
+solution <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)
 
-# Variables final values
-a <- lp("min", f.obj, f.con, f.dir, f.rhs, int.vec = 1:38, 
-        all.bin = TRUE, num.bin.solns=n)$solution %>% 
-  head(., -1)  # Last element = -1 (due to computations), should be removed
-## (but only if n =1 should removed the head part)
+# Variables choices (1 if class is taken, 0 otherwise)
+choices <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>% 
+  as.data.frame() %>%
+  cbind(HEC_timetables) %>% filter(.>0)
 
-test <- matrix(a, nrow = n)
-colnames(test) <- HEC_timetables$Class
-View(test %>% t())
+```
+
+```{r, warning=FALSE}
+n <- 38
+m <- 58
+x <- numeric(length=n)
+x[] <- 1
+#names(x) <- HEC_timetables$Class
+library(dplyr)
+library(ROI)
+library(ROI.plugin.glpk)
+library(ompr)
+library(ompr.roi)
+
+model <- MIPModel() %>%
+  add_variable(x[i], i = 1:n, type = "integer") %>%
+  set_objective(sum_expr(x[i]*credits[i], i = 1:n), sens = "min") %>%
+  add_constraint(sum_expr(x[i]*f.con[1, i], i = 1:n) >= f.rhs[1]) %>%
+  add_constraint(sum_expr(x[i]*f.con[2, i], i = 1:n) >= f.rhs[2]) %>%
+  add_constraint(sum_expr(x[i]*f.con[3, i], i = 1:n) >= f.rhs[3]) %>% 
+  solve_model(., with_ROI(solver = "glpk", verbose = TRUE)) %>%
+  get_solution(x[i])
+
+result <- solve_model(model, with_ROI(solver = "glpk", verbose = TRUE))
 ```
