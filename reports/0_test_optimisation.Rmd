@@ -29,6 +29,7 @@ HEC_timetables <- HEC_timetables %>%
   mutate(Start=as.numeric(Start)*24, End=as.numeric(End)*24) %>%
   mutate(Credit=ifelse(as.numeric(Credit)==1, 1.5, Credit)) 
 
+# Imputed manually 
 HEC_timetables$BA <- c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
                        0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0)
 HEC_timetables <- HEC_timetables %>% mutate(MG=ifelse(BA==1, 0, 1))
@@ -38,7 +39,7 @@ HEC_timetables$MG_credits <- HEC_timetables$MG*HEC_timetables$Credit
 
 
 HEC_timetables <- HEC_timetables %>%
-  mutate(Day=as.factor(Day), 
+  mutate(# Creation of dummy variable for each time slot of each day
          # Monday
          "Mon-8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Lundi", 1, 0), 
          "Mon-9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Lundi", 1, 0),
@@ -102,7 +103,6 @@ HEC_timetables <- HEC_timetables %>%
 
 rownames(HEC_timetables) <- HEC_timetables$Class
 ```
-
 
 ```{r, warning=FALSE}
 # Import lpSolve package

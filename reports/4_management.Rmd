@@ -14,10 +14,9 @@ For our management plan, we have the advantage that we all, as a team, come to c
 
 To have a better organization and to optimize this as much as possible, we have thought of the following management plan:
 
-##### TO BE COMPLETED
-
--   Laura:
--   Matteo:
--   Ana Gaby: 
--   Martina:
--   Alessia:
+-   Matteo: Data/Web-scrapping 
+-   Laura: Optimization
+-   Ana Gaby: Extension 
+-   Martina: Website + Packages
+-   Alessia: Shiny app 
+-   All: Video + Presentation

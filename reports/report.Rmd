@@ -25,6 +25,6 @@ options(htmltools.dir.version =FALSE)
 source(here::here("scripts/setup.R"))
 ```
 
-```{r child = c('1_goals_impacts.Rmd',  '2_plan.Rmd', '3_timeline.Rmd', '4_management.Rmd'), warning=FALSE, echo=FALSE}
+```{r child = c('1_goals_impacts.Rmd','2_plan.Rmd', '3_timeline.Rmd', '4_management.Rmd'), warning=FALSE, echo=FALSE}
 ```
 

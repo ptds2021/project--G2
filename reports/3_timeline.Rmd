@@ -9,34 +9,53 @@ editor_options:
 # Timeline and milestones
 *Describe the timeline of your project and indicate key intermediary goals in a Gantt chart (see this package for example).* 
 
-##### TO BE COMPLETED AND MODIFIED ACCORDINGLY #####
-
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
-# install.packages("remotes")
-# remotes::install_github("giocomai/ganttrify")
+#install.packages("remotes")
+#remotes::install_github("giocomai/ganttrify")
 
 #library("ganttrify")
 
-wp <- c("1. Data Collection", "1. Data Collection", "1. Data Collection", "1. Data Collection",
-              "2. Optimisation", "2. Optimisation", "2. Optimisation", "2. Optimisation", 
-              "3. Extension",  "3. Extension",  "3. Extension",
-              "4. Shiny on Optimisation",  "4. Shiny on Optimisation",
-              "5. Shiny Extension",  "5. Shiny Extension", 
-              "6. Presentation", "6. Presentation")
+wp <- c("1. Data Collection", "1. Data Collection", 
+        "2. Optimisation", "2. Optimisation", "2. Optimisation", "2. Optimisation", 
+        "3. Extension",  "3. Extension",  "3. Extension", "3. Extension",
+        "4. Shiny Implementation",  "4. Shiny Implementation",
+        "5. Packages", "5. Packages", 
+        "6. Website using blogdown", "6. Website using blogdown", "6. Website using blogdown", 
+        "7. Video", "7. Video",
+        "8. Presentation", "8. Presentation", "8. Presentation")
 
-activity <- c("1.1. Collection", "1.2. Cleaning", "1.3. Overlapping", "1.4 Web-scarapping", 
-              "2.1. Dummy", "2.2. Models", "2.3. Constraints", "2.4 Alternative Solutions?", 
-              "3.1 Two semesters", "3.2 More semesters", "3.3 All tracks/more semesters", 
-              "4.1 Basic Inputs", "4.2 Further Inputs", 
-              "5.1 Two semesters", "5.2 More semesters", 
-              "6.1 Last Minutes Issues", "6.2 Relax...")
+activity <- c("1.1. Collection & Cleaning", "1.2. Web-scrapping", 
+              "2.1. Dummy", "2.2. Models", "2.3. Constraints", "2.4. Alternative Solutions?", 
+              "3.1. Two semesters", "3.2. More semesters", "3.3. All tracks/more semesters", "3.4. User Preferences",
+              "4.1. Adding Basic Inputs", "4.2. Adding Further Inputs", 
+              "5.1. Creation of package", "5.2. Vignette of Package", 
+              "6.1. Website creating", "6.2. Website development", "6.3. Website issue", 
+              "7.1. Creation of content ", "7.2. Recording of video",
+              "8.1. Preparation of slides", "8.2. Rehearsal of presentation", "8.3. Final Presentation")
 
-start_date <- c(0, 2, 4, 5, 1, 2, 3, 1, 2, 4, 6, 8, 4, 5, 7, 2, 4) #to be adapted
+start_date <- c(1, 2, #1.
+                1, 1, 1, 1,   #2.
+                2, 2, 2, 2,   #3. 
+                2, 3, #4.
+                5, 5, #5
+                5, 5, 5, #6
+                7, 7, #7
+                7, 7, 7 #8
+                ) 
 
-end_date <- c(0.2, 3, 5, 6, 2, 3, 4, 2, 4, 5, 7, 9, 5, 6, 8, 3, 5) #to be adapted
+end_date <- c(1, 2, #1.
+                1, 2, 2, 2,   #2.
+                3, 3, 3, 3,   #3. 
+                4, 4, #4.
+                5, 5, #5
+                6, 6, 6, #6
+                7, 7, #7
+                7, 7, 7 #8
+              ) #to be adapted
 
 project_BA <- tibble(wp, activity, start_date, end_date)
 
 ganttrify(project_BA, axis_text_align = "left",
-         project_start_date = "2021-11-02", month_date_label=FALSE)
+         project_start_date = "2021-11-04", 
+         month_date_label=FALSE)
 ```
