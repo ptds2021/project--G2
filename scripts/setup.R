@@ -8,6 +8,9 @@ packages <- c(# general
   "gdata", "graphics", "stats", "lubridate", "dplyr", "ggplot2",
   "knitr",  # report
   "tinytex", # latex equations
-  "ganttrify"
+  "ganttrify", #Gant chart
+  "fastDummies", # dummy variables
+  "readxl", # open excel files
+  "magrittr" # use pipe operator
 )
 purrr::walk(packages, library, character.only = TRUE)
