@@ -14,26 +14,21 @@ As we all come from different universities and countries, it is
 interesting to see how each one of them works regarding timetable
 creation for classes. We can cite, for instance, Tecnológico de
 Monterrey, which is one of our team mates former university. It offers a
-software which, according to the courses a student has choosen, displays
+software which, according to the courses a student has chosen, displays
 in green and blue how some courses overlap, as well as some information
-in red also about the course availability.
+in red also about the course availability. While this is useful for
+students, it still takes a while to get a "doable" timetable, so we want
+to tackle this problem.
 
-![Screenshot of the program students at Tecnologico de Monterrey uses to
-make their semester
-schedule.](/project--G2/pictures/tec_timetable1.jpef)
-
-```{r, echo = FALSE, warning=FALSE, out.height="50%"}
-knitr::include_graphics(here::here("pictures/tec_timetable1.jpeg")) 
+```{r "Timetable in Tecnológico de Monterrey", echo = FALSE, out.height="40%"}
+knitr::include_graphics(here::here("pictures/tec_timetable1.jpeg"))
 ```
-
-Although this is useful for students, it can still take a while to get a
-"doable" timetable right. We want to tackle this problem here. 
 
 As previously explained, the goal of this project is to create an
 algorithm that would generate all possible timetables from a choice of
 possible classes. Focusing on the specific case of the Master in
 Management at HEC Lausanne, and especially on the track of "Business
-Analytics", the project would take into account:
+Analytics", the project would take into account specifically:
 
 -   the **time constraints** (clashing classes on the schedule are
     impossible to take),
@@ -64,6 +59,7 @@ be that HEC would offer it to its students.
 To obtain the data, we will simply copy paste the timetable from the HEC
 website, following the following link:
 <https://hecnet.unil.ch/hec/timetables/snc_de_pub?pub_id=20491&dyn_lang=fr>.
+
 We could also imagine to web-scrap the data directly from the web, to
 fully automate the process.
 
@@ -87,12 +83,13 @@ We will rely on Integer Linear Programming, possibly using packages such
 as `lpSolve` or `ompr`, as well as `fastDummies`, to create dummy
 variables. Overall, we aim to solve the following models:
 
--   variables to optimize: dummy (1= taking, 0= not taking) for each
+-   **variables to optimize**: dummy (1= taking, 0= not taking) for each
     class
 
--   objective function: minimize the credits to be done each semester
+-   **objective function**: minimize the credits to be done each
+    semester
 
--   constraints:
+-   **constraints**:
 
     -   time: two classes can't be taken at the same time (defined time
         slot of 60 minutes)
@@ -104,11 +101,9 @@ variables. Overall, we aim to solve the following models:
 
 While it seems simple, we need to account for the overlapping classes
 (such as classes from 8-10 on Monday can't be combined with classes from
-8-12 on Monday), so we need specific modeling.
-
-Further, we will allow the user to input his/her specific requirements
-(e.g. free on Monday, 12 credits in BA and 15 in Elective, total credits
-only 27) via the implementation of the Shiny app.
+8-12 on Monday), so we need specific modeling. Further, we will allow the user 
+to input his/her specific requirements (e.g. free on Monday, 12 credits in BA 
+and 15 in Elective, total credits only 27) via the implementation of the Shiny app.
 
 In case we are unsuccessful with the Integer Optimization, we could
 still generate randomly many combinations of classes, and then check to

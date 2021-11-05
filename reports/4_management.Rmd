@@ -8,15 +8,13 @@ editor_options:
 
 # Management Plan
 
-*Explain how you plan to collaborate (weekly meeting on Zoom, ...) and indicate responsibilities (each member of the team should be at least responsible for one part of the project).*
-
 For our management plan, we have the advantage that we all, as a team, come to campus on a daily basis. We believe that having weekly meetings on campus for organization and deciding what is our next approach is better than having this on zoom. This since in this way is easier to make questions and even do some progress in the code together. 
 
 To have a better organization and to optimize this as much as possible, we have thought of the following management plan:
 
 -   Matteo: Data/Web-scrapping 
 -   Laura: Optimization
--   Ana Gaby: Extension 
+-   Ana Gaby: Extension
 -   Martina: Website + Packages
 -   Alessia: Shiny app 
 -   All: Video + Presentation

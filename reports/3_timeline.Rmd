@@ -7,13 +7,13 @@ editor_options:
 ---
 
 # Timeline and milestones
-*Describe the timeline of your project and indicate key intermediary goals in a Gantt chart (see this package for example).* 
 
-```{r, warning=FALSE, include=FALSE, echo=FALSE}
+The following chart displays the planned theoretical workflow for our project, with the sub-steps. 
+As it is a plan, it will likely to evolve over time. Basically, each week we need to have one step completed. 
+
+```{r, warning=FALSE, include=TRUE, echo=FALSE}
 #install.packages("remotes")
 #remotes::install_github("giocomai/ganttrify")
-
-#library("ganttrify")
 
 wp <- c("1. Data Collection", "1. Data Collection", 
         "2. Optimisation", "2. Optimisation", "2. Optimisation", "2. Optimisation", 
@@ -53,7 +53,7 @@ end_date <- c(1, 2, #1.
                 7, 7, 7 #8
               ) #to be adapted
 
-project_BA <- tibble(wp, activity, start_date, end_date)
+project_BA <- data.frame(wp, activity, start_date, end_date)
 
 ganttrify(project_BA, axis_text_align = "left",
          project_start_date = "2021-11-04", 
