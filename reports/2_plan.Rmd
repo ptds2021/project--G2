@@ -20,10 +20,6 @@ in red also about the course availability. While this is useful for
 students, it still takes a while to get a "doable" timetable, so we want
 to tackle this problem.
 
-```{r "Timetable in Tecnológico de Monterrey", echo = FALSE, out.height="40%"}
-knitr::include_graphics(here::here("pictures/tec_timetable1.jpeg"))
-```
-
 As previously explained, the goal of this project is to create an
 algorithm that would generate all possible timetables from a choice of
 possible classes. Focusing on the specific case of the Master in
