@@ -4,6 +4,7 @@ output: html_document
 editor_options: 
   markdown: 
     wrap: 72
+runtime: shiny
 ---
 
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
@@ -135,136 +136,180 @@ HEC_timetables_dummies <- HEC_timetables %>%
          "Friday_18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Vendredi", 1, 0))
 ```
 
-```{r, warning=FALSE}
-# Define parameters
-nb_of_class <- length(HEC_timetables$Class)
-nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week 
 
-# Set matrix corresponding to coefficients of constraints
-f.con <- HEC_timetables_dummies %>% 
-  # Removed colums that are not needed in the constraints
-  select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
-
-# Set coefficients of the objective function (min total credits taken)
-f.obj  <- HEC_timetables_dummies$Credit
-```
 
 ```{r, warning=FALSE}
-# Set unequality/equality signs 
-f.dir <- c(
-  ### USER CHOICES
-  #### CREDITS -> Should be greater than threshold given by user
-  ">=", # Credits constraint 
-  ">=", # BA Credits constraint
-  ">=", # MG Credits constraint
-  
-  #### CLASS -> By default possible, put == (double) instead if WANT the class 
-  "<=", # "Advanced issues in International and European Tax Law"
-  "<=", # "Algorithms for Business Intelligence and Digital Marketing"
-  "<=", # "Animal Communication and Parasitism"
-  "<=", # "Behavioral Economics"
-  "<=", # "Business and Human Rights"
-  "<=", # "Business and Society - Corporate Sustainability"
-  "<=", # "Business Case en Marketing"
-  "<=", # "Datascience for Marketing"
-  "<=", # "Digitalisation of Purchasing and B to B Sales"
-  "<=", # "Entrepreneurship and Strategy"
-  "<=", # "Entrepreneurship, Innovation and Control Systems"
-  "<=", # "Experimental Methods"
-  "<=", # "Fraud and Business Process Analytics"
-  "<=", # "Global Marketing"
-  "<=", # "Heuristic Decision Making Strategies"
-  "<=", # "Human Behavior and Evolutionary Inference"
-  "<=", # "Individual Behavior in the Digital Environment"
-  "<=", # "Integrated Marketing Communication (MScM)"
-  "<=", # "La recherche dans tous ses états"
-  "<=", # "Leadership Development"
-  "<=", # "Luxury Marketing"
-  "<=", # "Major Transition in Evolution"
-  "<=", # "Managerial Decision Making"
-  "<=", # "Normes comptables internationales (IFRS)"
-  "<=", # "Production Control"
-  "<=", # "Programming Tools in Data Science"
-  "<=", # "Project in Data Analytics"
-  "<=", # "Risk Analytics"
-  "<=", # "Strategic Management Control Systems"
-  "<=", # "Stratégies digitales"
-  "<=", # "Stratégies légales internationales I"
-  "<=", # "Stratégies légales internationales II"
-  "<=", # "Strategy and Development Modes"
-  "<=", # "Strategy in Digital Markets"
-  "<=", # "Supply Chain Management and its Latest Trends"
-  "<=", # "Text Mining"
-  "<=", # "Unethical Decision Making - Advanced"
-  "<=", # "Unethical Decision Making - Basics" 
-  
-  #### CHUNK OF THE DAY/WEEK 
-  "<=", # Monday Morning
-  "<=", # Monday Lunch
-  "<=", # Monday Afternoon
-  "<=", # Tuesday Morning
-  "<=", # Tuesday Lunch
-  "<=", # Tuesday Afternoon
-  "<=", # Wednesday Morning
-  "<=", # Wednesday Lunch
-  "<=", # Wednesday Afternoon
-  "<=", # Thursday Morning
-  "<=", # Thursday Lunch
-  "<=", # Thursday Afternoon
-  "<=", # Friday Morning
-  "<=", # Friday Lunch
-  "<=", # Friday Afternoon
-           
-  ### TIME CONSTRAINTS     
-  rep.int("<=", nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
-) 
-```
-
-```{r, warning=FALSE}
-# Set right hand side coefficients
-f.rhs <- c(
-  ### USER CHOICES
-  #### CREDITS -> Should be greater than threshold given by user
-  30, # Credits constraint
-  15, # BA Credits constraint
-  15, # MG Credits constraint
-  
-  #### CLASS 
-  rep.int(1, nb_of_class), # Diagonal matrix for each class 
-
-  #### CHUNK OF THE DAY/WEEK -> By default allowed, put 0 if don't want 
-  1, # Monday Morning class
-  1, # Lunch class
-  1, # Monday Afternoon class
-  1, # Tuesday Morning class
-  1, # Tuesday Lunch class
-  1, # Tuesday Afternoon class
-  1, # Wednesday Morning class
-  1, # Wednesday Lunch class
-  1, # Wednesday Afternoon class
-  1, # Thursday Morning class
-  1, # Thursday Lunch class
-  1, # Thursday Afternoon class
-  1, # Friday Morning class
-  1, # Friday Lunch class
-  1, # Friday Afternoon class
-           
-  ### TIME CONSTRAINTS         
-  rep.int(1, nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
-)
-```
-
-```{r, warning=FALSE}
-# Import lpSolve package
-library(lpSolve)
-
-# Final value (z)
-solution <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)
-
 # Variables choices (1 if class is taken, 0 otherwise)
 choices <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>% 
   as.data.frame() %>%
   cbind(HEC_timetables) %>% 
   filter(.>0) %>%
   select(Class, Start, End, Prof, Day, Credit, BA)
+```
+
+```{r, warning=FALSE}
+library("shiny")
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(# Application title
+  titlePanel("HEC Timetable"),
+  # Sidebar with a slider input for number of cells
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(
+        inputId = "credits",
+        label = "Number of ECTS credits:",
+        min = 0,
+        max = 60,
+        value = 30
+      ),
+      sliderInput(
+        inputId = "BA_credits",
+        label = "Number of Business Analytics ECTS credits:",
+        min = 0,
+        max = 36,
+        value = 15
+      ),
+      sliderInput(
+        inputId = "MG_credits",
+        label = "Number of Electives ECTS credits:",
+        min = 0,
+        max = 24,
+        value = 12
+      )
+    ),
+    # Show a plot of the generated distribution
+    mainPanel(tableOutput(outputId = "timetable"))
+  ))
+server <- function(input, output, session) {
+  
+  # Define parameters
+  nb_of_class <- length(HEC_timetables$Class)
+  nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
+  
+  # Set matrix corresponding to coefficients of constraints
+  f.con <- HEC_timetables_dummies %>%
+    # Removed column that are not needed in the constraints
+    select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
+  
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj  <- HEC_timetables_dummies$Credit
+    
+  credits <- reactive(input$credits)
+  BA_credits <- reactive(input$BA_credits)
+  MG_credits <- reactive(input$MG_credits)  
+  
+  output$timetable <- renderTable({
+    
+    # Set unequality/equality signs
+    f.dir <- c(
+      ### USER CHOICES
+      #### CREDITS -> Should be greater than threshold given by user
+      ">=", # Credits constraint
+      ">=", # BA Credits constraint
+      ">=", # MG Credits constraint
+      
+      #### CLASS -> By default possible, put == (double) instead if WANT the class
+      "<=", # "Advanced issues in International and European Tax Law"
+      "<=", # "Algorithms for Business Intelligence and Digital Marketing"
+      "<=", # "Animal Communication and Parasitism"
+      "<=", # "Behavioral Economics"
+      "<=", # "Business and Human Rights"
+      "<=", # "Business and Society - Corporate Sustainability"
+      "<=", # "Business Case en Marketing"
+      "<=", # "Datascience for Marketing"
+      "<=", # "Digitalisation of Purchasing and B to B Sales"
+      "<=", # "Entrepreneurship and Strategy"
+      "<=", # "Entrepreneurship, Innovation and Control Systems"
+      "<=", # "Experimental Methods"
+      "<=", # "Fraud and Business Process Analytics"
+      "<=", # "Global Marketing"
+      "<=", # "Heuristic Decision Making Strategies"
+      "<=", # "Human Behavior and Evolutionary Inference"
+      "<=", # "Individual Behavior in the Digital Environment"
+      "<=", # "Integrated Marketing Communication (MScM)"
+      "<=", # "La recherche dans tous ses états"
+      "<=", # "Leadership Development"
+      "<=", # "Luxury Marketing"
+      "<=", # "Major Transition in Evolution"
+      "<=", # "Managerial Decision Making"
+      "<=", # "Normes comptables internationales (IFRS)"
+      "<=", # "Production Control"
+      "<=", # "Programming Tools in Data Science"
+      "<=", # "Project in Data Analytics"
+      "<=", # "Risk Analytics"
+      "<=", # "Strategic Management Control Systems"
+      "<=", # "Stratégies digitales"
+      "<=", # "Stratégies légales internationales I"
+      "<=", # "Stratégies légales internationales II"
+      "<=", # "Strategy and Development Modes"
+      "<=", # "Strategy in Digital Markets"
+      "<=", # "Supply Chain Management and its Latest Trends"
+      "<=", # "Text Mining"
+      "<=", # "Unethical Decision Making - Advanced"
+      "<=", # "Unethical Decision Making - Basics"
+      
+      #### CHUNK OF THE DAY/WEEK
+      "<=", # Monday Morning
+      "<=", # Monday Lunch
+      "<=", # Monday Afternoon
+      "<=", # Tuesday Morning
+      "<=", # Tuesday Lunch
+      "<=", # Tuesday Afternoon
+      "<=", # Wednesday Morning
+      "<=", # Wednesday Lunch
+      "<=", # Wednesday Afternoon
+      "<=", # Thursday Morning
+      "<=", # Thursday Lunch
+      "<=", # Thursday Afternoon
+      "<=", # Friday Morning
+      "<=", # Friday Lunch
+      "<=", # Friday Afternoon
+      ### TIME CONSTRAINTS
+      rep.int("<=", nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
+    )
+    
+    # Set right hand side coefficients
+    f.rhs <- c(
+      ### USER CHOICES
+      
+      #### CREDITS -> Should be greater than threshold given by user
+      credits(),     # Credits constraint
+      BA_credits(),  # BA Credits constraint
+      MG_credits(),  # MG Credits constraint
+      
+      #### CLASS
+      rep.int(1, nb_of_class), # Diagonal matrix for each class
+      
+      #### CHUNK OF THE DAY/WEEK -> By default allowed, put 0 if don't want
+      1, # Monday Morning class
+      1, # Lunch class
+      1, # Monday Afternoon class
+      1, # Tuesday Morning class
+      1, # Tuesday Lunch class
+      1, # Tuesday Afternoon class
+      1, # Wednesday Morning class
+      1, # Wednesday Lunch class
+      1, # Wednesday Afternoon class
+      1, # Thursday Morning class
+      1, # Thursday Lunch class
+      1, # Thursday Afternoon class
+      1, # Friday Morning class
+      1, # Friday Lunch class
+      1, # Friday Afternoon class
+      
+      ### TIME CONSTRAINTS
+      rep.int(1, nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
+    )
+    
+    # Variables choices (1 if class is taken, 0 otherwise)
+    timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
+      as.data.frame() %>%
+      cbind(HEC_timetables) %>%
+      filter(. > 0) %>%
+      select(Class, Start, End, Prof, Day, Credit, BA)
+  })
+}
+
+shinyApp(ui, server)
 ```
