@@ -11,180 +11,105 @@ runtime: shiny
 source(here::here("scripts/setup.R"))
 
 ## Initial Cleaning of Data
-
-HEC_timetables_raw <- read_excel(here::here("data/HEC_timetables.xlsx"), 
+HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"), 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
- col_types = c("text", "skip", "numeric", "skip", "text", "skip", "text"))
-
-HEC_timetables_raw <- HEC_timetables_raw %>% mutate(Day=Start, Credit=Prof)
-HEC_timetables_raw$Day <- gsub("[0-9]+", NA, HEC_timetables_raw$Day) 
-HEC_timetables_raw$Credit <- as.numeric(gsub("*?([0-9]+).*", "\\1", HEC_timetables_raw$Prof)) 
-
-HEC_timetables <- HEC_timetables_raw %>% 
+ col_types = c("text", "skip", "numeric", "skip", "text", "skip", "text")) %>%
+  mutate(Day =  Start, 
+         Credit = Prof, 
+         Day = gsub("[0-9]+", NA, Day), 
+         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
   fill(Day, .direction = c("down")) %>%
   fill(Credit, .direction = c("up")) %>%
   na.omit() %>%
-  mutate(Start = as.numeric(Start)*24, End = as.numeric(End)*24) %>%
-  mutate(Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit)) 
-
-rm(HEC_timetables_raw)
+  mutate(Start = as.numeric(Start)*24, 
+         End = as.numeric(End)*24, 
+         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         # Business Analytics (dummy = 1) or not (dummy = 0)
+         BA = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
+                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0), 
+         BA_credits = BA*Credit,  # Total of credits per class in BA
+         
+         # Management (elective) (dummy = 1) or not (dummy = 0)
+         MG = ifelse(BA == 1, 0, 1),
+         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)
+         
+         Day = recode(  # Recode days in number (1=Monday, 5=Friday)
+           as.factor(Day),
+           "Lundi" = 1,
+           "Mardi" = 2,
+           "Mercredi" = 3,
+           "Jeudi" = 4,
+           "Vendredi" = 5), 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 ```
 
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
-### Business Analytics variables 
-# Imputed manually if a class if in BA (dummy = 1) or not (dummy = 0)
-HEC_timetables$BA <- c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
-                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0)
+# Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
+a <- c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
 
-# Total of credits per class in BA
-HEC_timetables$BA_credits <- HEC_timetables$BA*HEC_timetables$Credit
+# Replication 5 times all the hours slots from 8 to 19
+b <- rep(9:19, 5)
 
-### Elective (in Management) variables 
-# Reverse of dummy BA -> if a class if in MG (dummy = 1) or not (dummy = 0)
-HEC_timetables <- HEC_timetables %>% mutate(MG=ifelse(BA==1, 0, 1))
-# Total of credits per class in Management (MG)
-HEC_timetables$MG_credits <- HEC_timetables$MG*HEC_timetables$Credit
+# Create a list with all conditions for hours and day combinations
+cols_to_make <-rlang::parse_exprs(
+  paste0('ifelse(Start<',b,'& End >=',b,'& Day==',a,',1,0)'))
 
-################ CREATION OF MOST DUMMY VARIABLES USED 
-# USER CHOICE - Creation of dummy variables for each class
-HEC_timetables <- fastDummies::dummy_cols(HEC_timetables, c("Class"))
+################ CREATION OF DUMMY VARIABLES USED 
 
-HEC_timetables_dummies <- HEC_timetables %>%
-  mutate(
-    # USER CHOICE - Creation of dummy variable for each period
-      # Monday
-      "Monday_Morning" = ifelse(End <=12 & Day == "Lundi", 1, 0), 
-      "Monday_Lunch" = ifelse(Start > 12 & End <= 14 & Day == "Lundi", 1, 0), 
-      "Monday_Afternoon" = ifelse(Start > 14 & Day == "Lundi", 1, 0), 
-      # Tuesday
-      "Tuesday_Morning" = ifelse(End <=12 & Day == "Mardi", 1, 0), 
-      "Tuesday_Lunch" = ifelse(Start > 12 & End <= 14 & Day == "Mardi", 1, 0), 
-      "Tuesday_Afternoon" = ifelse(Start > 14 & Day == "Mardi", 1, 0), 
-      # Wednesday
-      "Wednesday_Morning" = ifelse(End <=12 & Day == "Mercredi", 1, 0), 
-      "Wednesday_Lunch" = ifelse(Start > 12 & End <= 14 & Day == "Mercredi", 1, 0),
-      "Wednesday_Afternoon" = ifelse(Start > 14 & Day == "Mercredi", 1, 0), 
-      # Thursday
-      "Thursday_Morning" = ifelse(End <=12 & Day == "Jeudi", 1, 0), 
-      "Thursday_Lunch" = ifelse(Start > 12 & End <= 14 & Day == "Jeudi", 1, 0), 
-      "Thursday_Afternoon" = ifelse(Start > 14 & Day == "Jeudi", 1, 0), 
-      # Friday
-      "Friday_Morning" = ifelse(End <=12 & Day == "Vendredi", 1, 0), 
-      "Friday_Lunch" = ifelse(Start > 12 & End <= 14 & Day == "Vendredi", 1, 0), 
-      "Friday_Afternoon" = ifelse(Start > 14 & Day == "Vendredi", 1, 0), 
-     
-    # CONSTRAINTS - Creation of unique time slot dummy (Day-Start-End)
-      # Monday
-         "Monday_8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Lundi", 1, 0), 
-         "Monday_9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Lundi", 1, 0),
-         "Monday_10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Lundi", 1, 0),
-         "Monday_11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Lundi", 1, 0), 
-         "Monday_12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Lundi", 1, 0),
-         "Monday_13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Lundi", 1, 0),
-         "Monday_14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Lundi", 1, 0), 
-         "Monday_15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Lundi", 1, 0),
-         "Monday_16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Lundi", 1, 0),
-         "Monday_17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Lundi", 1, 0),
-         "Monday_18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Lundi", 1, 0), 
-      # Tuesday
-         "Tuesday_8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Mardi", 1, 0), 
-         "Tuesday_9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Mardi", 1, 0),
-         "Tuesday_10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Mardi", 1, 0),
-         "Tuesday_11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Mardi", 1, 0), 
-         "Tuesday_12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Mardi", 1, 0),
-         "Tuesday_13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Mardi", 1, 0),
-         "Tuesday_14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Mardi", 1, 0), 
-         "Tuesday_15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Mardi", 1, 0),
-         "Tuesday_16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Mardi", 1, 0),
-         "Tuesday_17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Mardi", 1, 0),
-         "Tuesday_18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Mardi", 1, 0), 
-      # Wednesday
-         "Wednesday_8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Mercredi", 1, 0), 
-         "Wednesday_9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Mercredi", 1, 0),
-         "Wednesday_10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Mercredi", 1, 0),
-         "Wednesday_11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Mercredi", 1, 0), 
-         "Wednesday_12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Mercredi", 1, 0),
-         "Wednesday_13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Mercredi", 1, 0),
-         "Wednesday_14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Mercredi", 1, 0), 
-         "Wednesday_15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Mercredi", 1, 0),
-         "Wednesday_16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Mercredi", 1, 0),
-         "Wednesday_17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Mercredi", 1, 0),
-         "Wednesday_18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Mercredi", 1, 0), 
-      # Thursday
-         "Thursday_8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Jeudi", 1, 0), 
-         "Thursday_9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Jeudi", 1, 0),
-         "Thursday_10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Jeudi", 1, 0),
-         "Thursday_11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Jeudi", 1, 0), 
-         "Thursday_12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Jeudi", 1, 0),
-         "Thursday_13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Jeudi", 1, 0),
-         "Thursday_14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Jeudi", 1, 0), 
-         "Thursday_15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Jeudi", 1, 0),
-         "Thursday_16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Jeudi", 1, 0),
-         "Thursday_17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Jeudi", 1, 0),
-         "Thursday_18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Jeudi", 1, 0), 
-      # Friday
-         "Friday_8-9H"=ifelse(Start < 9 & End >= 9 & Day=="Vendredi", 1, 0), 
-         "Friday_9-10H"=ifelse(Start < 10 & End >= 10 & Day=="Vendredi", 1, 0),
-         "Friday_10-11H"=ifelse(Start < 11 & End >= 11 & Day=="Vendredi", 1, 0),
-         "Friday_11-12H"=ifelse(Start < 12 & End >= 12 & Day=="Vendredi", 1, 0), 
-         "Friday_12-13H"=ifelse(Start < 13 & End >= 13 & Day=="Vendredi", 1, 0),
-         "Friday_13-14H"=ifelse(Start < 14 & End >= 14 & Day=="Vendredi", 1, 0),
-         "Friday_14-15H"=ifelse(Start < 15 & End >= 15 & Day=="Vendredi", 1, 0), 
-         "Friday_15-16H"=ifelse(Start < 16 & End >= 16 & Day=="Vendredi", 1, 0),
-         "Friday_16-17H"=ifelse(Start < 17 & End >= 17 & Day=="Vendredi", 1, 0),
-         "Friday_17-18H"=ifelse(Start < 18 & End >= 18 & Day=="Vendredi", 1, 0),
-         "Friday_18-19H"=ifelse(Start < 19 & End >= 19 & Day=="Vendredi", 1, 0))
-```
+HEC_timetables_dummies <- HEC_timetables_initial %>%
+  fastDummies::dummy_cols(., c("Class", "Moment")) %>%
+  select(-Moment) %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make)  %>%
+  ungroup
 
-
-
-```{r, warning=FALSE}
-# Variables choices (1 if class is taken, 0 otherwise)
-choices <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>% 
-  as.data.frame() %>%
-  cbind(HEC_timetables) %>% 
-  filter(.>0) %>%
-  select(Class, Start, End, Prof, Day, Credit, BA)
+#names(HEC_timetables_dummies) <- sub("Moment_", "", names(HEC_timetables_dummies))
+#names(HEC_timetables_dummies) <- sub("Class_", "", names(HEC_timetables_dummies))
+#names(HEC_timetables_dummies) <- sub("ifelse", "", names(HEC_timetables_dummies))
 ```
 
 ```{r, warning=FALSE}
 library("shiny")
+library("lpSolve")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
   titlePanel("HEC Timetable"),
-  # Sidebar with a slider input for number of cells
+  
+  # Sidebar to insert user choices
   sidebarLayout(
+    
     sidebarPanel(
-      sliderInput(
-        inputId = "credits",
-        label = "Number of ECTS credits:",
-        min = 0,
-        max = 60,
-        value = 30
-      ),
-      sliderInput(
-        inputId = "BA_credits",
-        label = "Number of Business Analytics ECTS credits:",
-        min = 0,
-        max = 36,
-        value = 15
-      ),
-      sliderInput(
-        inputId = "MG_credits",
-        label = "Number of Electives ECTS credits:",
-        min = 0,
-        max = 24,
-        value = 12
-      )
+      # Period of the day
+      checkboxInput(inputId = "monday_morning", label = "Monday morning", value = TRUE),
+      checkboxInput(inputId = "monday_afternoon", label = "Monday afternoon", value = TRUE),
+      checkboxInput(inputId = "tuesday_morning", label = "Tuesday morning", value = TRUE),
+      checkboxInput(inputId = "tuesday_afternoon", label = "Tuesday afternoon", value = TRUE),
+      checkboxInput(inputId = "wednesday_morning", label = "Wednesday morning", value = TRUE),
+      checkboxInput(inputId = "wednesday_afternoon", label = "Wednesday afternoon", value = TRUE),
+      checkboxInput(inputId = "thursday_morning", label = "Thursday morning", value = TRUE),
+      checkboxInput(inputId = "thursday_afternoon", label = "Thursday afternoon", value = TRUE),
+      checkboxInput(inputId = "friday_morning", label = "Friday morning", value = TRUE),
+      checkboxInput(inputId = "friday_afternoon", label = "Friday afternoon", value = TRUE),
+      
+     # Credits requirement
+      sliderInput(inputId = "credits", 
+      min = 0, max = 60, value = 30, label = "Number of total credits"),
+      sliderInput(inputId = "BA_credits", 
+      min = 0, max = 36, value = 15, label = "Number of BA credits"),
+      sliderInput(inputId = "MG_credits",  
+      min = 0, max = 24, value = 12, label = "Number of Electives ECTS credits")
+     
     ),
     # Show a plot of the generated distribution
     mainPanel(tableOutput(outputId = "timetable"))
   ))
+
 server <- function(input, output, session) {
   
   # Define parameters
-  nb_of_class <- length(HEC_timetables$Class)
+  nb_of_class <- length(HEC_timetables_dummies$Class)
   nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
   
   # Set matrix corresponding to coefficients of constraints
@@ -195,10 +120,23 @@ server <- function(input, output, session) {
   # Set coefficients of the objective function (min total credits taken)
   f.obj  <- HEC_timetables_dummies$Credit
     
+  # Credit requirement
   credits <- reactive(input$credits)
   BA_credits <- reactive(input$BA_credits)
-  MG_credits <- reactive(input$MG_credits)  
+  MG_credits <- reactive(input$MG_credits)
   
+  # Period of the day
+  monday_morning <- reactive(input$monday_morning)
+  monday_afternoon <- reactive(input$monday_afternoon)
+  tuesday_morning <- reactive(input$tuesday_morning)
+  tuesday_afternoon <- reactive(input$tuesday_afternoon)
+  wednesday_morning <- reactive(input$wednesday_morning)
+  wednesday_afternoon <- reactive(input$wednesday_afternoon)
+  thursday_morning <- reactive(input$thursday_morning)
+  thursday_afternoon <- reactive(input$thursday_afternoon)
+  friday_morning <- reactive(input$friday_morning)
+  friday_afternoon <- reactive(input$friday_afternoon)
+
   output$timetable <- renderTable({
     
     # Set unequality/equality signs
@@ -251,20 +189,16 @@ server <- function(input, output, session) {
       
       #### CHUNK OF THE DAY/WEEK
       "<=", # Monday Morning
-      "<=", # Monday Lunch
       "<=", # Monday Afternoon
       "<=", # Tuesday Morning
-      "<=", # Tuesday Lunch
       "<=", # Tuesday Afternoon
       "<=", # Wednesday Morning
-      "<=", # Wednesday Lunch
       "<=", # Wednesday Afternoon
       "<=", # Thursday Morning
-      "<=", # Thursday Lunch
       "<=", # Thursday Afternoon
       "<=", # Friday Morning
-      "<=", # Friday Lunch
       "<=", # Friday Afternoon
+      
       ### TIME CONSTRAINTS
       rep.int("<=", nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
     )
@@ -281,22 +215,17 @@ server <- function(input, output, session) {
       #### CLASS
       rep.int(1, nb_of_class), # Diagonal matrix for each class
       
-      #### CHUNK OF THE DAY/WEEK -> By default allowed, put 0 if don't want
-      1, # Monday Morning class
-      1, # Lunch class
-      1, # Monday Afternoon class
-      1, # Tuesday Morning class
-      1, # Tuesday Lunch class
-      1, # Tuesday Afternoon class
-      1, # Wednesday Morning class
-      1, # Wednesday Lunch class
-      1, # Wednesday Afternoon class
-      1, # Thursday Morning class
-      1, # Thursday Lunch class
-      1, # Thursday Afternoon class
-      1, # Friday Morning class
-      1, # Friday Lunch class
-      1, # Friday Afternoon class
+      #### CHUNK OF THE DAY/WEEK -> By default allowed (TRUE), put FALSE if don't want
+      monday_morning(), # Monday Morning class
+      monday_afternoon(), # Monday Afternoon class
+      tuesday_morning(), # Tuesday Morning class
+      tuesday_afternoon(), # Tuesday Afternoon class
+      wednesday_morning(), # Wednesday Morning class
+      wednesday_afternoon(), # Wednesday Afternoon class
+      thursday_morning(), # Thursday Morning class
+      thursday_afternoon(), # Thursday Afternoon class
+      friday_morning(), # Friday Morning class
+      friday_afternoon(), # Friday Afternoon class
       
       ### TIME CONSTRAINTS
       rep.int(1, nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
@@ -305,9 +234,10 @@ server <- function(input, output, session) {
     # Variables choices (1 if class is taken, 0 otherwise)
     timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
       as.data.frame() %>%
-      cbind(HEC_timetables) %>%
+      cbind(HEC_timetables_initial) %>%
       filter(. > 0) %>%
-      select(Class, Start, End, Prof, Day, Credit, BA)
+      select(Class, Start, End, Prof, Day, Credit, BA) 
+      
   })
 }
 
