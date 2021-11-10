@@ -21,9 +21,12 @@ HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"),
   fill(Day, .direction = c("down")) %>%
   fill(Credit, .direction = c("up")) %>%
   na.omit() %>%
-  mutate(Start = as.numeric(Start)*24, 
+  mutate(Start_nice = chron::times(as.numeric(Start)), 
+         End_nice = chron::times(as.numeric(End)),
+         Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         
          # Business Analytics (dummy = 1) or not (dummy = 0)
          BA = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
                        0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0), 
@@ -42,90 +45,6 @@ HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"),
            "Vendredi" = 5), 
          Moment = as.factor(paste0(
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
-```
-
-```{r, warning=FALSE, include=FALSE, echo=FALSE}
-## AG TRY WITH EXCEL
-
-source(here::here("scripts/setup.R"))
-
-library(dplyr)
-library(lubridate)
-library(hms)
-
-HEC_timetables_AGinitial <- read_excel(here::here("data/HEC_timetables.xlsx"), 
- col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof")) 
-
-
-HEC_timetables_AGinitial <- HEC_timetables_AGinitial %>% 
-  mutate(End_1 = (as_hms(HEC_timetables_AGinitial$End))) %>%
-  mutate(Day =  Start, 
-         Credit = Prof, 
-         Day = gsub("[0-9]+", NA, Day), 
-         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
-  fill(Day, .direction = c("down")) %>%
-  fill(Credit, .direction = c("up")) %>%
-  na.omit() %>%
-  select(-c(NA...2,NA...4,NA...6)) %>%
-  mutate(Start = as.numeric(Start)*24,
-         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
-         # Business Analytics (dummy = 1) or not (dummy = 0)
-         BA = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
-                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0), 
-         BA_credits = BA*Credit,  # Total of credits per class in BA
-         
-         # Management (elective) (dummy = 1) or not (dummy = 0)
-         MG = ifelse(BA == 1, 0, 1),
-         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)
-         
-         Day = recode(  # Recode days in number (1=Monday, 5=Friday)
-           as.factor(Day),
-           "Lundi" = 1,
-           "Mardi" = 2,
-           "Mercredi" = 3,
-           "Jeudi" = 4,
-           "Vendredi" = 5), 
-         Moment = as.factor(paste0(
-           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
-
-```
-
-```{r, warning=FALSE, include=FALSE, echo=FALSE}
-### EXCEL CONVERTED PREVIOUSLY WITH CSV
-
-source(here::here("scripts/setup.R"))
-
-library(dplyr)
-library(lubridate)
-library(hms)
-library(readr)
-
-HEC <- read_csv(here::here("data/HEC_timetables.csv"), 
- col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof")) 
-
-HEC <- HEC  %>%
-  mutate(Day =  Start, 
-         Credit = Prof, 
-         Day = gsub("[0-9]+", NA, Day), 
-         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
-  fill(Day, .direction = c("down")) %>%
-  fill(Credit, .direction = c("up")) %>%
-  na.omit() %>%
-  select(-c("NA","NA_1","NA_2")) %>% mutate(sec = ":00") %>% 
-  mutate(End_1 = End)
-
-HEC$Start_1 = paste0(HEC$Start,HEC$sec)
-
-HEC <- HEC %>%
-  mutate(Start_1 = as.hms(Start_1)) %>% mutate(sec = ":00")
-
-HEC$Start = paste0(HEC$Start,HEC$sec)
-
-HEC <- HEC[, c(1, 9, 2, 8, 3, 4, 5, 6)]
-
-HEC <- HEC %>%
-  mutate(End = as.character(End))
-
 ```
 
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
@@ -142,11 +61,12 @@ cols_to_make <-rlang::parse_exprs(
 ################ CREATION OF DUMMY VARIABLES USED 
 
 HEC_timetables_dummies <- HEC_timetables_initial %>%
+  select(-Start_nice, -End_nice) %>%
   fastDummies::dummy_cols(., c("Class", "Moment")) %>%
   select(-Moment) %>%
   rowwise(.) %>%
   mutate(!!!cols_to_make)  %>%
-  ungroup
+  ungroup 
 
 #names(HEC_timetables_dummies) <- sub("Moment_", "", names(HEC_timetables_dummies))
 #names(HEC_timetables_dummies) <- sub("Class_", "", names(HEC_timetables_dummies))
@@ -156,6 +76,7 @@ HEC_timetables_dummies <- HEC_timetables_initial %>%
 ```{r, warning=FALSE}
 library("shiny")
 library("lpSolve")
+library("chron")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
@@ -317,10 +238,22 @@ server <- function(input, output, session) {
     
     # Variables choices (1 if class is taken, 0 otherwise)
     timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
-      as.data.frame() %>%
-      cbind(HEC_timetables_initial) %>%
-      filter(. > 0) %>%
-      select(Class, Start, End, Prof, Day, Credit, BA) 
+      as_tibble() %>%
+      cbind(HEC_timetables_initial %>%
+              mutate(
+                Start = as.character(Start_nice),
+                End = as.character(End_nice), 
+                Day = recode_factor(Day, 
+                             `1` = "Monday", 
+                             `2` = "Tuesday",
+                             `3` = "Wednesday",
+                             `4` = "Thursday",
+                             `5` = "Friday")
+              ) %>%
+              select(Class, -Start_nice, Start, -End_nice, 
+                     End, Prof, Day, Credit, BA)) %>%
+     filter(. > 0)  %>%
+     select(Class, Start, End, Prof, Day, Credit, BA)
       
   })
 }
