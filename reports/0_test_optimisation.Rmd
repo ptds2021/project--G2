@@ -88,13 +88,6 @@ HEC_timetables_AGinitial <- HEC_timetables_AGinitial %>%
          Moment = as.factor(paste0(
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 
-
-# convert Start to 
-as_hms(HEC_timetables_AGinitial$Start)
-
-library(chron)
-times(HEC_timetables_AGinitial$Start)
-
 ```
 
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
@@ -132,30 +125,6 @@ HEC <- HEC[, c(1, 9, 2, 8, 3, 4, 5, 6)]
 
 HEC <- HEC %>%
   mutate(End = as.character(End))
-
-### laura
-HEC <- HEC %>%
-  mutate(Start = as.numeric(Start)*24,
-         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
-         # Business Analytics (dummy = 1) or not (dummy = 0)
-         BA = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,
-                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0), 
-         BA_credits = BA*Credit,  # total of credits per class in BA
-         
-         # Management (elective) (dummy = 1) or not (dummy = 0)
-         MG = ifelse(BA == 1, 0, 1),
-         MG_credits = MG * Credit,  # total of credits per class in Management (MG)
-         
-         Day = recode(  # recode days in number (1=Monday, 5=Friday)
-           as.factor(Day),
-           "Lundi" = 1,
-           "Mardi" = 2,
-           "Mercredi" = 3,
-           "Jeudi" = 4,
-           "Vendredi" = 5), 
-         Moment = as.factor(paste0(
-           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
-
 
 ```
 
