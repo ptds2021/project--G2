@@ -70,6 +70,7 @@ HEC_timetables_semester_2 <- read_excel(here::here("data/HEC_timetables.xlsx"), 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
          
+         ###########################33 TO BE UPDATED ######################
          # Business Analytics (dummy = 1) or not (dummy = 0)
          BA = c(1:51), 
          ###########################33 TO BE UPDATED ######################
@@ -130,7 +131,7 @@ HEC_timetables_semester_3 <- read_excel(here::here("data/HEC_timetables.xlsx"), 
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 ```
 
-# Dummies variables (for all three semesters)
+# Dummies variables (up-to-date)
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
 # Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
 days_of_week <- c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
@@ -185,7 +186,7 @@ ui <- fluidPage(# Application title
   sidebarLayout(
     
     sidebarPanel(
-      # Classes
+      # Classes  ###########################33 TO BE UPDATED ######################
       checkboxInput(inputId = "class1", value = F,
             label = "Advanced issues in International and European Tax Law"),
       checkboxInput(inputId = "class2", value = F, 
@@ -262,6 +263,7 @@ ui <- fluidPage(# Application title
             label = "Unethical Decision Making - Advanced"),
       checkboxInput(inputId = "class38", value = F, 
             label = "Unethical Decision Making - Basics"),
+    ###########################33 TO BE UPDATED ######################
 
       # Period of the day
       checkboxInput(inputId = "monday_morning", label = "Monday AM", value = T),
@@ -292,16 +294,16 @@ ui <- fluidPage(# Application title
 server <- function(input, output, session) {
   
   # Define parameters
-  nb_of_class <- length(HEC_timetables_dummies$Class)
+  nb_of_class <- length(HEC_timetables_dummies_1$Class)
   nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
   
   # Set matrix corresponding to coefficients of constraints
-  f.con <- HEC_timetables_dummies %>%
+  f.con <- HEC_timetables_dummies_3 %>%
     # Removed column that are not needed in the constraints
     select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj  <- HEC_timetables_dummies$Credit
+  f.obj  <- HEC_timetables_dummies_3$Credit
     
   # Credit requirement
   credits <- reactive(input$credits)
@@ -321,6 +323,7 @@ server <- function(input, output, session) {
   friday_afternoon <- reactive(input$friday_afternoon)
   
   # Classes
+  ###########################33 TO BE UPDATED ######################
   class1 <- reactive(input$class1)  # "Advanced issues in International and European Tax Law"
   class2 <- reactive(input$class2)  # "Algorithms for Business Intelligence and Digital Marketing"
   class3 <- reactive(input$class3)  # "Animal Communication and Parasitism"
@@ -359,6 +362,7 @@ server <- function(input, output, session) {
   class36 <- reactive(input$class36)  # "Text Mining"
   class37 <- reactive(input$class37)  # "Unethical Decision Making - Advanced"
   class38 <- reactive(input$class38)  # "Unethical Decision Making - Basics"
+  ###########################33 TO BE UPDATED ######################
 
   output$timetable <- renderTable({
     
@@ -371,6 +375,7 @@ server <- function(input, output, session) {
       ">=", # MG Credits constraint
       
       #### CLASS 
+      ###########################33 TO BE UPDATED ######################
       ">=", # "Advanced issues in International and European Tax Law"
       ">=", # "Algorithms for Business Intelligence and Digital Marketing"
       ">=", # "Animal Communication and Parasitism"
@@ -409,6 +414,7 @@ server <- function(input, output, session) {
       ">=", # "Text Mining"
       ">=", # "Unethical Decision Making - Advanced"
       ">=", # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
       
       #### CHUNK OF THE DAY/WEEK
       "<=", # Monday Morning
@@ -436,6 +442,7 @@ server <- function(input, output, session) {
       MG_credits(),  # MG Credits constraint
       
       #### CLASS
+      ###########################33 TO BE UPDATED ######################
       class1(),  # "Advanced issues in International and European Tax Law"
       class2(),  # "Algorithms for Business Intelligence and Digital Marketing"
       class3(),  # "Animal Communication and Parasitism"
@@ -474,6 +481,7 @@ server <- function(input, output, session) {
       class36(),  # "Text Mining"
       class37(),  # "Unethical Decision Making - Advanced"
       class38(),  # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
       
       #### CHUNK OF THE DAY/WEEK -> By default allowed (TRUE), put FALSE if don't want
       monday_morning(), # Monday Morning class
@@ -494,7 +502,7 @@ server <- function(input, output, session) {
     # Variables choices (1 if class is taken, 0 otherwise)
     timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
       as.data.frame() %>%
-      cbind(HEC_timetables_initial %>%
+      cbind(HEC_timetables_semester_1 %>%
               mutate(
                 Start = as.character(Start_nice),
                 End = as.character(End_nice), 
@@ -520,7 +528,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-# Semester 1 -- Shiny App   #### TO BE UPDATED
+# Semester 2 -- Shiny App   #### TO BE UPDATED
 ```{r, warning=FALSE}
 # Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
@@ -530,6 +538,7 @@ ui <- fluidPage(# Application title
   sidebarLayout(
     
     sidebarPanel(
+      ###########################33 TO BE UPDATED ######################
       # Classes
       checkboxInput(inputId = "class1", value = F,
             label = "Advanced issues in International and European Tax Law"),
@@ -607,6 +616,7 @@ ui <- fluidPage(# Application title
             label = "Unethical Decision Making - Advanced"),
       checkboxInput(inputId = "class38", value = F, 
             label = "Unethical Decision Making - Basics"),
+      ###########################33 TO BE UPDATED ######################
 
       # Period of the day
       checkboxInput(inputId = "monday_morning", label = "Monday AM", value = T),
@@ -637,16 +647,16 @@ ui <- fluidPage(# Application title
 server <- function(input, output, session) {
   
   # Define parameters
-  nb_of_class <- length(HEC_timetables_dummies$Class)
+  nb_of_class <- length(HEC_timetables_dummies_2$Class)
   nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
   
   # Set matrix corresponding to coefficients of constraints
-  f.con <- HEC_timetables_dummies %>%
+  f.con <- HEC_timetables_dummies_2 %>%
     # Removed column that are not needed in the constraints
     select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj  <- HEC_timetables_dummies$Credit
+  f.obj  <- HEC_timetables_dummies_2$Credit
     
   # Credit requirement
   credits <- reactive(input$credits)
@@ -666,6 +676,7 @@ server <- function(input, output, session) {
   friday_afternoon <- reactive(input$friday_afternoon)
   
   # Classes
+  ###########################33 TO BE UPDATED ######################
   class1 <- reactive(input$class1)  # "Advanced issues in International and European Tax Law"
   class2 <- reactive(input$class2)  # "Algorithms for Business Intelligence and Digital Marketing"
   class3 <- reactive(input$class3)  # "Animal Communication and Parasitism"
@@ -704,6 +715,7 @@ server <- function(input, output, session) {
   class36 <- reactive(input$class36)  # "Text Mining"
   class37 <- reactive(input$class37)  # "Unethical Decision Making - Advanced"
   class38 <- reactive(input$class38)  # "Unethical Decision Making - Basics"
+  ###########################33 TO BE UPDATED ######################
 
   output$timetable <- renderTable({
     
@@ -716,6 +728,7 @@ server <- function(input, output, session) {
       ">=", # MG Credits constraint
       
       #### CLASS 
+      ###########################33 TO BE UPDATED ######################
       ">=", # "Advanced issues in International and European Tax Law"
       ">=", # "Algorithms for Business Intelligence and Digital Marketing"
       ">=", # "Animal Communication and Parasitism"
@@ -754,6 +767,7 @@ server <- function(input, output, session) {
       ">=", # "Text Mining"
       ">=", # "Unethical Decision Making - Advanced"
       ">=", # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
       
       #### CHUNK OF THE DAY/WEEK
       "<=", # Monday Morning
@@ -781,6 +795,7 @@ server <- function(input, output, session) {
       MG_credits(),  # MG Credits constraint
       
       #### CLASS
+      ###########################33 TO BE UPDATED ######################
       class1(),  # "Advanced issues in International and European Tax Law"
       class2(),  # "Algorithms for Business Intelligence and Digital Marketing"
       class3(),  # "Animal Communication and Parasitism"
@@ -819,6 +834,7 @@ server <- function(input, output, session) {
       class36(),  # "Text Mining"
       class37(),  # "Unethical Decision Making - Advanced"
       class38(),  # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
       
       #### CHUNK OF THE DAY/WEEK -> By default allowed (TRUE), put FALSE if don't want
       monday_morning(), # Monday Morning class
@@ -839,7 +855,7 @@ server <- function(input, output, session) {
     # Variables choices (1 if class is taken, 0 otherwise)
     timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
       as.data.frame() %>%
-      cbind(HEC_timetables_initial %>%
+      cbind(HEC_timetables_semester_2 %>%
               mutate(
                 Start = as.character(Start_nice),
                 End = as.character(End_nice), 
