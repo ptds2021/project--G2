@@ -11,9 +11,88 @@ runtime: shiny
 source(here::here("scripts/setup.R"))
 ```
 
+# Semester 1 -- updated already
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
 ## Initial Cleaning of Data
-HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"), 
+HEC_timetables_semester_1 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1, 
+ col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
+ col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
+  mutate(Day =  Start, 
+         Credit = Prof, 
+         Day = gsub("[0-9]+", NA, Day), 
+         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+  fill(Day, .direction = c("down")) %>%
+  fill(Credit, .direction = c("up")) %>%
+  na.omit() %>%
+  mutate(Start_nice = chron::times(as.numeric(Start)), 
+         End_nice = chron::times(as.numeric(End)),
+         Start = as.numeric(Start)*24, 
+         End = as.numeric(End)*24, 
+         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         
+         # Business Analytics (dummy = 1) or not (dummy = 0)
+         BA = c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1), 
+         BA_credits = BA*Credit,  # Total of credits per class in BA
+         
+         # Management (elective) (dummy = 1) or not (dummy = 0)
+         MG = ifelse(BA == 1, 0, 1),
+         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)
+         
+         Day = recode(  # Recode days in number (1=Monday, 5=Friday)
+           as.factor(Day),
+           "Lundi" = 1,
+           "Mardi" = 2,
+           "Mercredi" = 3,
+           "Jeudi" = 4,
+           "Vendredi" = 5), 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+```
+
+# Semester 2 -- to be updated
+```{r, warning=FALSE, include=FALSE, echo=FALSE}
+## Initial Cleaning of Data
+HEC_timetables_semester_2 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2, 
+ col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
+ col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
+  mutate(Day =  Start, 
+         Credit = Prof, 
+         Day = gsub("[0-9]+", NA, Day), 
+         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+  fill(Day, .direction = c("down")) %>%
+  fill(Credit, .direction = c("up")) %>%
+  na.omit() %>%
+  mutate(Start_nice = chron::times(as.numeric(Start)), 
+         End_nice = chron::times(as.numeric(End)),
+         Start = as.numeric(Start)*24, 
+         End = as.numeric(End)*24, 
+         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         
+         # Business Analytics (dummy = 1) or not (dummy = 0)
+         BA = c(1:51), 
+         ###########################33 TO BE UPDATED ######################
+         
+         BA_credits = BA*Credit,  # Total of credits per class in BA
+         
+         # Management (elective) (dummy = 1) or not (dummy = 0)
+         MG = ifelse(BA == 1, 0, 1),
+         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)
+         
+         Day = recode(  # Recode days in number (1=Monday, 5=Friday)
+           as.factor(Day),
+           "Lundi" = 1,
+           "Mardi" = 2,
+           "Mercredi" = 3,
+           "Jeudi" = 4,
+           "Vendredi" = 5), 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+```
+
+# Semester 3 -- updated already
+```{r, warning=FALSE, include=FALSE, echo=FALSE}
+## Initial Cleaning of Data
+HEC_timetables_semester_3 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -49,6 +128,7 @@ HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"),
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 ```
 
+# Dummies variables
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
 # Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
 days_of_week <- c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
@@ -64,7 +144,23 @@ cols_to_make <-rlang::parse_exprs(
 
 ################ CREATION OF DUMMY VARIABLES USED 
 
-HEC_timetables_dummies <- HEC_timetables_initial %>%
+HEC_timetables_dummies_1 <- HEC_timetables_semester_1 %>%
+  select(-Start_nice, -End_nice) %>%
+  fastDummies::dummy_cols(., c("Class", "Moment")) %>%
+  select(-Moment) %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make)  %>%
+  ungroup 
+
+HEC_timetables_dummies_2 <- HEC_timetables_semester_2 %>%
+  select(-Start_nice, -End_nice) %>%
+  fastDummies::dummy_cols(., c("Class", "Moment")) %>%
+  select(-Moment) %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make)  %>%
+  ungroup 
+
+HEC_timetables_dummies_3 <- HEC_timetables_semester_3 %>%
   select(-Start_nice, -End_nice) %>%
   fastDummies::dummy_cols(., c("Class", "Moment")) %>%
   select(-Moment) %>%
