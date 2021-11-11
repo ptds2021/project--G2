@@ -13,7 +13,7 @@ source(here::here("scripts/setup.R"))
 ## Initial Cleaning of Data
 HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"), 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
- col_types = c("text", "skip", "numeric", "skip", "text", "skip", "text")) %>%
+ col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
          Credit = Prof, 
          Day = gsub("[0-9]+", NA, Day), 
@@ -49,14 +49,16 @@ HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"),
 
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
 # Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
-a <- c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
+days_of_week <- c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
 
 # Replication 5 times all the hours slots from 8 to 19
-b <- rep(9:19, 5)
+hours_of_day <- rep(9:19, 5)
 
 # Create a list with all conditions for hours and day combinations
 cols_to_make <-rlang::parse_exprs(
-  paste0('ifelse(Start<',b,'& End >=',b,'& Day==',a,',1,0)'))
+  paste0('ifelse(Start<',hours_of_day,
+         '& End >=', hours_of_day,
+         '& Day==',days_of_week,',1,0)'))
 
 ################ CREATION OF DUMMY VARIABLES USED 
 
@@ -76,7 +78,6 @@ HEC_timetables_dummies <- HEC_timetables_initial %>%
 ```{r, warning=FALSE}
 library("shiny")
 library("lpSolve")
-library("chron")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
@@ -111,6 +112,9 @@ ui <- fluidPage(# Application title
     mainPanel(tableOutput(outputId = "timetable"))
   ))
 
+```
+
+```{r, warning=FALSE}
 server <- function(input, output, session) {
   
   # Define parameters
@@ -238,7 +242,7 @@ server <- function(input, output, session) {
     
     # Variables choices (1 if class is taken, 0 otherwise)
     timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
-      as_tibble() %>%
+      as.data.frame() %>%
       cbind(HEC_timetables_initial %>%
               mutate(
                 Start = as.character(Start_nice),
@@ -248,7 +252,11 @@ server <- function(input, output, session) {
                              `2` = "Tuesday",
                              `3` = "Wednesday",
                              `4` = "Thursday",
-                             `5` = "Friday")
+                             `5` = "Friday"), 
+                Day = as.character(Day), 
+                BA = recode(BA, 
+                            `1` = "Yes", 
+                            `0` = "No")
               ) %>%
               select(Class, -Start_nice, Start, -End_nice, 
                      End, Prof, Day, Credit, BA)) %>%
@@ -257,6 +265,8 @@ server <- function(input, output, session) {
       
   })
 }
+```
 
+```{r}
 shinyApp(ui, server)
 ```
