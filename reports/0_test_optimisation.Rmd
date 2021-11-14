@@ -11,9 +11,91 @@ runtime: shiny
 source(here::here("scripts/setup.R"))
 ```
 
+# Importation of data
+
+## Semester 1 (up-to-date)
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
 ## Initial Cleaning of Data
-HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"), 
+HEC_timetables_semester_1 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1, 
+ col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
+ col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
+  mutate(Day =  Start, 
+         Credit = Prof, 
+         Day = gsub("[0-9]+", NA, Day), 
+         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+  fill(Day, .direction = c("down")) %>%
+  fill(Credit, .direction = c("up")) %>%
+  na.omit() %>%
+  mutate(Start_nice = chron::times(as.numeric(Start)), 
+         End_nice = chron::times(as.numeric(End)),
+         Start = as.numeric(Start)*24, 
+         End = as.numeric(End)*24, 
+         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         
+         # Business Analytics (dummy = 1) or not (dummy = 0)
+         BA = c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1), 
+         BA_credits = BA*Credit,  # Total of credits per class in BA
+         
+         # Management (elective) (dummy = 1) or not (dummy = 0)
+         MG = ifelse(BA == 1, 0, 1),
+         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)
+         
+         Day = recode(  # Recode days in number (1=Monday, 5=Friday)
+           as.factor(Day),
+           "Lundi" = 1,
+           "Mardi" = 2,
+           "Mercredi" = 3,
+           "Jeudi" = 4,
+           "Vendredi" = 5), 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+```
+
+## Semester 2             #### TO BE UPDATED
+```{r, warning=FALSE, include=FALSE, echo=FALSE}
+## Initial Cleaning of Data
+HEC_timetables_semester_2 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2, 
+ col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
+ col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
+  mutate(Day =  Start, 
+         Credit = Prof, 
+         Day = gsub("[0-9]+", NA, Day), 
+         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+  fill(Day, .direction = c("down")) %>%
+  fill(Credit, .direction = c("up")) %>%
+  na.omit() %>%
+  mutate(Start_nice = chron::times(as.numeric(Start)), 
+         End_nice = chron::times(as.numeric(End)),
+         Start = as.numeric(Start)*24, 
+         End = as.numeric(End)*24, 
+         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         
+         ###########################33 TO BE UPDATED ######################
+         # Business Analytics (dummy = 1) or not (dummy = 0)
+         BA = c(1:51), 
+         ###########################33 TO BE UPDATED ######################
+         
+         BA_credits = BA*Credit,  # Total of credits per class in BA
+         
+         # Management (elective) (dummy = 1) or not (dummy = 0)
+         MG = ifelse(BA == 1, 0, 1),
+         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)
+         
+         Day = recode(  # Recode days in number (1=Monday, 5=Friday)
+           as.factor(Day),
+           "Lundi" = 1,
+           "Mardi" = 2,
+           "Mercredi" = 3,
+           "Jeudi" = 4,
+           "Vendredi" = 5), 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+```
+
+## Semester 3 (up-to-date)
+```{r, warning=FALSE, include=FALSE, echo=FALSE}
+## Initial Cleaning of Data
+HEC_timetables_semester_3 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -49,6 +131,7 @@ HEC_timetables_initial <- read_excel(here::here("data/HEC_timetables.xlsx"),
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 ```
 
+# Dummies variables (up-to-date)
 ```{r, warning=FALSE, include=FALSE, echo=FALSE}
 # Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
 days_of_week <- c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
@@ -64,7 +147,23 @@ cols_to_make <-rlang::parse_exprs(
 
 ################ CREATION OF DUMMY VARIABLES USED 
 
-HEC_timetables_dummies <- HEC_timetables_initial %>%
+HEC_timetables_dummies_1 <- HEC_timetables_semester_1 %>%
+  select(-Start_nice, -End_nice) %>%
+  fastDummies::dummy_cols(., c("Class", "Moment")) %>%
+  select(-Moment) %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make)  %>%
+  ungroup 
+
+HEC_timetables_dummies_2 <- HEC_timetables_semester_2 %>%
+  select(-Start_nice, -End_nice) %>%
+  fastDummies::dummy_cols(., c("Class", "Moment")) %>%
+  select(-Moment) %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make)  %>%
+  ungroup 
+
+HEC_timetables_dummies_3 <- HEC_timetables_semester_3 %>%
   select(-Start_nice, -End_nice) %>%
   fastDummies::dummy_cols(., c("Class", "Moment")) %>%
   select(-Moment) %>%
@@ -77,6 +176,712 @@ HEC_timetables_dummies <- HEC_timetables_initial %>%
 #names(HEC_timetables_dummies) <- sub("ifelse", "", names(HEC_timetables_dummies))
 ```
 
+# Semester 1 -- Shiny App   #### TO BE UPDATED
+```{r, warning=FALSE}
+# Define UI for application that draws a histogram
+ui <- fluidPage(# Application title
+  titlePanel("HEC Timetable"),
+  
+  # Sidebar to insert user choices
+  sidebarLayout(
+    
+    sidebarPanel(
+      # Classes  ###########################33 TO BE UPDATED ######################
+      checkboxInput(inputId = "class1", value = F,
+            label = "Advanced issues in International and European Tax Law"),
+      checkboxInput(inputId = "class2", value = F, 
+            label = "Algorithms for Business Intelligence and Digital Marketing"),
+      checkboxInput(inputId = "class3", value = F, 
+            label = "Animal Communication and Parasitism"),
+      checkboxInput(inputId = "class4", value = F, 
+            label = "Behavioral Economics"),
+      checkboxInput(inputId = "class5", value = F, 
+            label = "Business and Human Rights"),
+      checkboxInput(inputId = "class6", value = F, 
+            label = "Business and Society - Corporate Sustainability"),
+      checkboxInput(inputId = "class7", value = F, 
+            label = "Business Case en Marketing"),
+      checkboxInput(inputId = "class8", value = F, 
+            label = "Datascience for Marketing"),
+      checkboxInput(inputId = "class9", value = F, 
+            label = "Digitalisation of Purchasing and B to B Sales"),
+      checkboxInput(inputId = "class10", value = F, 
+            label = "Entrepreneurship and Strategy"),
+      checkboxInput(inputId = "class11", value = F, 
+            label = "Entrepreneurship, Innovation and Control Systems"),
+      checkboxInput(inputId = "class12", value = F, 
+            label = "Experimental Methods"),
+      checkboxInput(inputId = "class13", value = F, 
+            label = "Fraud and Business Process Analytics"),
+      checkboxInput(inputId = "class14", value = F, 
+            label = "Global Marketing"),
+      checkboxInput(inputId = "class15", value = F, 
+            label = "Heuristic Decision Making Strategies"),
+      checkboxInput(inputId = "class16", value = F, 
+            label = "Human Behavior and Evolutionary Inference"),
+      checkboxInput(inputId = "class17", value = F, 
+            label = "Individual Behavior in the Digital Environment"),
+      checkboxInput(inputId = "class18", value = F, 
+            label = "Integrated Marketing Communication (MScM)"),
+      checkboxInput(inputId = "class19", value = F, 
+            label = "La recherche dans tous ses états"),
+      checkboxInput(inputId = "class20", value = F, 
+            label = "Leadership Development"),
+      checkboxInput(inputId = "class21", value = F, 
+            label = "Luxury Marketing"),
+      checkboxInput(inputId = "class22", value = F, 
+            label = "Major Transition in Evolution"),
+      checkboxInput(inputId = "class23", value = F, 
+            label = "Managerial Decision Making"),
+      checkboxInput(inputId = "class24", value = F, 
+            label = "Normes comptables internationales (IFRS)"),
+      checkboxInput(inputId = "class25", value = F, 
+            label = "Production Control"),
+      checkboxInput(inputId = "class26", value = F, 
+            label = "Programming Tools in Data Science"),
+      checkboxInput(inputId = "class27", value = F, 
+            label = "Project in Data Analytics"),
+      checkboxInput(inputId = "class28", value = F, 
+            label = "Risk Analytics"),
+      checkboxInput(inputId = "class29", value = F, 
+            label = "Strategic Management Control Systems"),
+      checkboxInput(inputId = "class30", value = F, 
+            label = "Stratégies digitales"),
+      checkboxInput(inputId = "class31", value = F, 
+            label = "Stratégies légales internationales I"),
+      checkboxInput(inputId = "class32", value = F, 
+            label = "Stratégies légales internationales II"),
+      checkboxInput(inputId = "class33", value = F, 
+            label = "Strategy and Development Modes"),
+      checkboxInput(inputId = "class34", value = F, 
+            label = "Strategy in Digital Markets"),
+      checkboxInput(inputId = "class35", value = F, 
+            label = "Supply Chain Management and its Latest Trends"),
+      checkboxInput(inputId = "class36", value = F, 
+            label = "Text Mining"),
+      checkboxInput(inputId = "class37", value = F, 
+            label = "Unethical Decision Making - Advanced"),
+      checkboxInput(inputId = "class38", value = F, 
+            label = "Unethical Decision Making - Basics"),
+    ###########################33 TO BE UPDATED ######################
+
+      # Period of the day
+      checkboxInput(inputId = "monday_morning", label = "Monday AM", value = T),
+      checkboxInput(inputId = "monday_afternoon", label = "Monday PM", value = T),
+      checkboxInput(inputId = "tuesday_morning", label = "Tuesday AM", value = T),
+      checkboxInput(inputId = "tuesday_afternoon", label = "Tuesday PM", value = T),
+      checkboxInput(inputId = "wednesday_morning", label = "Wednesday AM", value = T),
+      checkboxInput(inputId = "wednesday_afternoon", label = "Wednesday PM", value = T),
+      checkboxInput(inputId = "thursday_morning", label = "Thursday AM", value = T),
+      checkboxInput(inputId = "thursday_afternoon", label = "Thursday PM", value = T),
+      checkboxInput(inputId = "friday_morning", label = "Friday AM", value = T),
+      checkboxInput(inputId = "friday_afternoon", label = "Friday PM", value = T),
+      
+     # Credits requirement
+      sliderInput(inputId = "credits", 
+      min = 0, max = 60, value = 30, label = "Number of total credits"),
+      sliderInput(inputId = "BA_credits", 
+      min = 0, max = 36, value = 15, label = "Number of BA credits"),
+      sliderInput(inputId = "MG_credits",  
+      min = 0, max = 24, value = 12, label = "Number of Electives ECTS credits")
+     
+    ),
+    # Show a plot of the generated distribution
+    mainPanel(tableOutput(outputId = "timetable"))
+  ))
+
+
+server <- function(input, output, session) {
+  
+  # Define parameters
+  nb_of_class <- length(HEC_timetables_dummies_1$Class)
+  nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
+  
+  # Set matrix corresponding to coefficients of constraints
+  f.con <- HEC_timetables_dummies_3 %>%
+    # Removed column that are not needed in the constraints
+    select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
+  
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj  <- HEC_timetables_dummies_3$Credit
+    
+  # Credit requirement
+  credits <- reactive(input$credits)
+  BA_credits <- reactive(input$BA_credits)
+  MG_credits <- reactive(input$MG_credits)
+  
+  # Period of the day
+  monday_morning <- reactive(input$monday_morning)
+  monday_afternoon <- reactive(input$monday_afternoon)
+  tuesday_morning <- reactive(input$tuesday_morning)
+  tuesday_afternoon <- reactive(input$tuesday_afternoon)
+  wednesday_morning <- reactive(input$wednesday_morning)
+  wednesday_afternoon <- reactive(input$wednesday_afternoon)
+  thursday_morning <- reactive(input$thursday_morning)
+  thursday_afternoon <- reactive(input$thursday_afternoon)
+  friday_morning <- reactive(input$friday_morning)
+  friday_afternoon <- reactive(input$friday_afternoon)
+  
+  # Classes
+  ###########################33 TO BE UPDATED ######################
+  class1 <- reactive(input$class1)  # "Advanced issues in International and European Tax Law"
+  class2 <- reactive(input$class2)  # "Algorithms for Business Intelligence and Digital Marketing"
+  class3 <- reactive(input$class3)  # "Animal Communication and Parasitism"
+  class4 <- reactive(input$class4)  # "Behavioral Economics"
+  class5 <- reactive(input$class5)  # "Business and Human Rights"
+  class6 <- reactive(input$class6)  # "Business and Society - Corporate Sustainability"
+  class7 <- reactive(input$class7)  # "Business Case en Marketing"
+  class8 <- reactive(input$class8)  # "Datascience for Marketing"
+  class9 <- reactive(input$class9)  # "Digitalisation of Purchasing and B to B Sales"
+  class10 <- reactive(input$class10)  # "Entrepreneurship and Strategy"
+  class11 <- reactive(input$class11)  # "Entrepreneurship, Innovation and Control Systems"
+  class12 <- reactive(input$class12)  # "Experimental Methods"
+  class13 <- reactive(input$class13)  # "Fraud and Business Process Analytics"
+  class14 <- reactive(input$class14)  # "Global Marketing"
+  class15 <- reactive(input$class15)  # "Heuristic Decision Making Strategies"
+  class16 <- reactive(input$class16)  # "Human Behavior and Evolutionary Inference"
+  class17 <- reactive(input$class17)  # "Individual Behavior in the Digital Environment"
+  class18 <- reactive(input$class18)  # "Integrated Marketing Communication (MScM)
+  class19 <- reactive(input$class19)  # "La recherche dans tous ses états"
+  class20 <- reactive(input$class20)  # "Leadership Development"
+  class21 <- reactive(input$class21)  # "Luxury Marketing"
+  class22 <- reactive(input$class22)  # "Major Transition in Evolution"
+  class23 <- reactive(input$class23)  # "Managerial Decision Making"
+  class24 <- reactive(input$class24)  # "Normes comptables internationales (IFRS)
+  class25 <- reactive(input$class25)  # "Production Control"
+  class26 <- reactive(input$class26)  # "Programming Tools in Data Science"
+  class27 <- reactive(input$class27)  # "Project in Data Analytics"
+  class28 <- reactive(input$class28)  # "Risk Analytics"
+  class29 <- reactive(input$class29)  # "Strategic Management Control Systems"
+  class30 <- reactive(input$class30)  # "Stratégies digitales"
+  class31 <- reactive(input$class31)  # "Stratégies légales internationales I"
+  class32 <- reactive(input$class32)  # "Stratégies légales internationales II"
+  class33 <- reactive(input$class33)  # "Strategy and Development Modes"
+  class34 <- reactive(input$class34)  # "Strategy in Digital Markets"
+  class35 <- reactive(input$class35)  # "Supply Chain Management and its Latest Trends"
+  class36 <- reactive(input$class36)  # "Text Mining"
+  class37 <- reactive(input$class37)  # "Unethical Decision Making - Advanced"
+  class38 <- reactive(input$class38)  # "Unethical Decision Making - Basics"
+  ###########################33 TO BE UPDATED ######################
+
+  output$timetable <- renderTable({
+    
+    # Set unequality/equality signs
+    f.dir <- c(
+      ### USER CHOICES
+      #### CREDITS -> Should be greater than threshold given by user
+      ">=", # Credits constraint
+      ">=", # BA Credits constraint
+      ">=", # MG Credits constraint
+      
+      #### CLASS 
+      ###########################33 TO BE UPDATED ######################
+      ">=", # "Advanced issues in International and European Tax Law"
+      ">=", # "Algorithms for Business Intelligence and Digital Marketing"
+      ">=", # "Animal Communication and Parasitism"
+      ">=", # "Behavioral Economics"
+      ">=", # "Business and Human Rights"
+      ">=", # "Business and Society - Corporate Sustainability"
+      ">=", # "Business Case en Marketing"
+      ">=", # "Datascience for Marketing"
+      ">=", # "Digitalisation of Purchasing and B to B Sales"
+      ">=", # "Entrepreneurship and Strategy"
+      ">=", # "Entrepreneurship, Innovation and Control Systems"
+      ">=", # "Experimental Methods"
+      ">=", # "Fraud and Business Process Analytics"
+      ">=", # "Global Marketing"
+      ">=", # "Heuristic Decision Making Strategies"
+      ">=", # "Human Behavior and Evolutionary Inference"
+      ">=", # "Individual Behavior in the Digital Environment"
+      ">=", # "Integrated Marketing Communication (MScM)"
+      ">=", # "La recherche dans tous ses états"
+      ">=", # "Leadership Development"
+      ">=", # "Luxury Marketing"
+      ">=", # "Major Transition in Evolution"
+      ">=", # "Managerial Decision Making"
+      ">=", # "Normes comptables internationales (IFRS)"
+      ">=", # "Production Control"
+      ">=", # "Programming Tools in Data Science"
+      ">=", # "Project in Data Analytics"
+      ">=", # "Risk Analytics"
+      ">=", # "Strategic Management Control Systems"
+      ">=", # "Stratégies digitales"
+      ">=", # "Stratégies légales internationales I"
+      ">=", # "Stratégies légales internationales II"
+      ">=", # "Strategy and Development Modes"
+      ">=", # "Strategy in Digital Markets"
+      ">=", # "Supply Chain Management and its Latest Trends"
+      ">=", # "Text Mining"
+      ">=", # "Unethical Decision Making - Advanced"
+      ">=", # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
+      
+      #### CHUNK OF THE DAY/WEEK
+      "<=", # Monday Morning
+      "<=", # Monday Afternoon
+      "<=", # Tuesday Morning
+      "<=", # Tuesday Afternoon
+      "<=", # Wednesday Morning
+      "<=", # Wednesday Afternoon
+      "<=", # Thursday Morning
+      "<=", # Thursday Afternoon
+      "<=", # Friday Morning
+      "<=", # Friday Afternoon
+      
+      ### TIME CONSTRAINTS
+      rep.int("<=", nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
+    )
+    
+    # Set right hand side coefficients
+    f.rhs <- c(
+      ### USER CHOICES
+      
+      #### CREDITS -> Should be greater than threshold given by user
+      credits(),     # Credits constraint
+      BA_credits(),  # BA Credits constraint
+      MG_credits(),  # MG Credits constraint
+      
+      #### CLASS
+      ###########################33 TO BE UPDATED ######################
+      class1(),  # "Advanced issues in International and European Tax Law"
+      class2(),  # "Algorithms for Business Intelligence and Digital Marketing"
+      class3(),  # "Animal Communication and Parasitism"
+      class4(),  # "Behavioral Economics"
+      class5(),  # "Business and Human Rights"
+      class6(),  # "Business and Society - Corporate Sustainability"
+      class7(),  # "Business Case en Marketing"
+      class8(),  # "Datascience for Marketing"
+      class9(),  # "Digitalisation of Purchasing and B to B Sales"
+      class10(),  # "Entrepreneurship and Strategy"
+      class11(),  # "Entrepreneurship, Innovation and Control Systems"
+      class12(),  # "Experimental Methods"
+      class13(),  # "Fraud and Business Process Analytics"
+      class14(),  # "Global Marketing"
+      class15(),  # "Heuristic Decision Making Strategies"
+      class16(),  # "Human Behavior and Evolutionary Inference"
+      class17(),  # "Individual Behavior in the Digital Environment"
+      class18(),  # "Integrated Marketing Communication (MScM)
+      class19(),  # "La recherche dans tous ses états"
+      class20(),  # "Leadership Development"
+      class21(),  # "Luxury Marketing"
+      class22(),  # "Major Transition in Evolution"
+      class23(),  # "Managerial Decision Making"
+      class24(),  # "Normes comptables internationales (IFRS)
+      class25(),  # "Production Control"
+      class26(),  # "Programming Tools in Data Science"
+      class27(),  # "Project in Data Analytics"
+      class28(),  # "Risk Analytics"
+      class29(),  # "Strategic Management Control Systems"
+      class30(),  # "Stratégies digitales"
+      class31(),  # "Stratégies légales internationales I"
+      class32(),  # "Stratégies légales internationales II"
+      class33(),  # "Strategy and Development Modes"
+      class34(),  # "Strategy in Digital Markets"
+      class35(),  # "Supply Chain Management and its Latest Trends"
+      class36(),  # "Text Mining"
+      class37(),  # "Unethical Decision Making - Advanced"
+      class38(),  # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
+      
+      #### CHUNK OF THE DAY/WEEK -> By default allowed (TRUE), put FALSE if don't want
+      monday_morning(), # Monday Morning class
+      monday_afternoon(), # Monday Afternoon class
+      tuesday_morning(), # Tuesday Morning class
+      tuesday_afternoon(), # Tuesday Afternoon class
+      wednesday_morning(), # Wednesday Morning class
+      wednesday_afternoon(), # Wednesday Afternoon class
+      thursday_morning(), # Thursday Morning class
+      thursday_afternoon(), # Thursday Afternoon class
+      friday_morning(), # Friday Morning class
+      friday_afternoon(), # Friday Afternoon class
+      
+      ### TIME CONSTRAINTS
+      rep.int(1, nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
+    )
+    
+    # Variables choices (1 if class is taken, 0 otherwise)
+    timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
+      as.data.frame() %>%
+      cbind(HEC_timetables_semester_1 %>%
+              mutate(
+                Start = as.character(Start_nice),
+                End = as.character(End_nice), 
+                Day = recode_factor(Day, 
+                             `1` = "Monday", 
+                             `2` = "Tuesday",
+                             `3` = "Wednesday",
+                             `4` = "Thursday",
+                             `5` = "Friday"), 
+                Day = as.character(Day), 
+                BA = recode(BA, 
+                            `1` = "Yes", 
+                            `0` = "No")
+              ) %>%
+              select(Class, -Start_nice, Start, -End_nice, 
+                     End, Prof, Day, Credit, BA)) %>%
+     filter(. > 0)  %>%
+     select(Class, Start, End, Prof, Day, Credit, BA)
+      
+  })
+}
+
+shinyApp(ui, server)
+```
+
+# Semester 2 -- Shiny App   #### TO BE UPDATED
+```{r, warning=FALSE}
+# Define UI for application that draws a histogram
+ui <- fluidPage(# Application title
+  titlePanel("HEC Timetable"),
+  
+  # Sidebar to insert user choices
+  sidebarLayout(
+    
+    sidebarPanel(
+      ###########################33 TO BE UPDATED ######################
+      # Classes
+      checkboxInput(inputId = "class1", value = F,
+            label = "Advanced issues in International and European Tax Law"),
+      checkboxInput(inputId = "class2", value = F, 
+            label = "Algorithms for Business Intelligence and Digital Marketing"),
+      checkboxInput(inputId = "class3", value = F, 
+            label = "Animal Communication and Parasitism"),
+      checkboxInput(inputId = "class4", value = F, 
+            label = "Behavioral Economics"),
+      checkboxInput(inputId = "class5", value = F, 
+            label = "Business and Human Rights"),
+      checkboxInput(inputId = "class6", value = F, 
+            label = "Business and Society - Corporate Sustainability"),
+      checkboxInput(inputId = "class7", value = F, 
+            label = "Business Case en Marketing"),
+      checkboxInput(inputId = "class8", value = F, 
+            label = "Datascience for Marketing"),
+      checkboxInput(inputId = "class9", value = F, 
+            label = "Digitalisation of Purchasing and B to B Sales"),
+      checkboxInput(inputId = "class10", value = F, 
+            label = "Entrepreneurship and Strategy"),
+      checkboxInput(inputId = "class11", value = F, 
+            label = "Entrepreneurship, Innovation and Control Systems"),
+      checkboxInput(inputId = "class12", value = F, 
+            label = "Experimental Methods"),
+      checkboxInput(inputId = "class13", value = F, 
+            label = "Fraud and Business Process Analytics"),
+      checkboxInput(inputId = "class14", value = F, 
+            label = "Global Marketing"),
+      checkboxInput(inputId = "class15", value = F, 
+            label = "Heuristic Decision Making Strategies"),
+      checkboxInput(inputId = "class16", value = F, 
+            label = "Human Behavior and Evolutionary Inference"),
+      checkboxInput(inputId = "class17", value = F, 
+            label = "Individual Behavior in the Digital Environment"),
+      checkboxInput(inputId = "class18", value = F, 
+            label = "Integrated Marketing Communication (MScM)"),
+      checkboxInput(inputId = "class19", value = F, 
+            label = "La recherche dans tous ses états"),
+      checkboxInput(inputId = "class20", value = F, 
+            label = "Leadership Development"),
+      checkboxInput(inputId = "class21", value = F, 
+            label = "Luxury Marketing"),
+      checkboxInput(inputId = "class22", value = F, 
+            label = "Major Transition in Evolution"),
+      checkboxInput(inputId = "class23", value = F, 
+            label = "Managerial Decision Making"),
+      checkboxInput(inputId = "class24", value = F, 
+            label = "Normes comptables internationales (IFRS)"),
+      checkboxInput(inputId = "class25", value = F, 
+            label = "Production Control"),
+      checkboxInput(inputId = "class26", value = F, 
+            label = "Programming Tools in Data Science"),
+      checkboxInput(inputId = "class27", value = F, 
+            label = "Project in Data Analytics"),
+      checkboxInput(inputId = "class28", value = F, 
+            label = "Risk Analytics"),
+      checkboxInput(inputId = "class29", value = F, 
+            label = "Strategic Management Control Systems"),
+      checkboxInput(inputId = "class30", value = F, 
+            label = "Stratégies digitales"),
+      checkboxInput(inputId = "class31", value = F, 
+            label = "Stratégies légales internationales I"),
+      checkboxInput(inputId = "class32", value = F, 
+            label = "Stratégies légales internationales II"),
+      checkboxInput(inputId = "class33", value = F, 
+            label = "Strategy and Development Modes"),
+      checkboxInput(inputId = "class34", value = F, 
+            label = "Strategy in Digital Markets"),
+      checkboxInput(inputId = "class35", value = F, 
+            label = "Supply Chain Management and its Latest Trends"),
+      checkboxInput(inputId = "class36", value = F, 
+            label = "Text Mining"),
+      checkboxInput(inputId = "class37", value = F, 
+            label = "Unethical Decision Making - Advanced"),
+      checkboxInput(inputId = "class38", value = F, 
+            label = "Unethical Decision Making - Basics"),
+      ###########################33 TO BE UPDATED ######################
+
+      # Period of the day
+      checkboxInput(inputId = "monday_morning", label = "Monday AM", value = T),
+      checkboxInput(inputId = "monday_afternoon", label = "Monday PM", value = T),
+      checkboxInput(inputId = "tuesday_morning", label = "Tuesday AM", value = T),
+      checkboxInput(inputId = "tuesday_afternoon", label = "Tuesday PM", value = T),
+      checkboxInput(inputId = "wednesday_morning", label = "Wednesday AM", value = T),
+      checkboxInput(inputId = "wednesday_afternoon", label = "Wednesday PM", value = T),
+      checkboxInput(inputId = "thursday_morning", label = "Thursday AM", value = T),
+      checkboxInput(inputId = "thursday_afternoon", label = "Thursday PM", value = T),
+      checkboxInput(inputId = "friday_morning", label = "Friday AM", value = T),
+      checkboxInput(inputId = "friday_afternoon", label = "Friday PM", value = T),
+      
+     # Credits requirement
+      sliderInput(inputId = "credits", 
+      min = 0, max = 60, value = 30, label = "Number of total credits"),
+      sliderInput(inputId = "BA_credits", 
+      min = 0, max = 36, value = 15, label = "Number of BA credits"),
+      sliderInput(inputId = "MG_credits",  
+      min = 0, max = 24, value = 12, label = "Number of Electives ECTS credits")
+     
+    ),
+    # Show a plot of the generated distribution
+    mainPanel(tableOutput(outputId = "timetable"))
+  ))
+
+
+server <- function(input, output, session) {
+  
+  # Define parameters
+  nb_of_class <- length(HEC_timetables_dummies_2$Class)
+  nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
+  
+  # Set matrix corresponding to coefficients of constraints
+  f.con <- HEC_timetables_dummies_2 %>%
+    # Removed column that are not needed in the constraints
+    select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
+  
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj  <- HEC_timetables_dummies_2$Credit
+    
+  # Credit requirement
+  credits <- reactive(input$credits)
+  BA_credits <- reactive(input$BA_credits)
+  MG_credits <- reactive(input$MG_credits)
+  
+  # Period of the day
+  monday_morning <- reactive(input$monday_morning)
+  monday_afternoon <- reactive(input$monday_afternoon)
+  tuesday_morning <- reactive(input$tuesday_morning)
+  tuesday_afternoon <- reactive(input$tuesday_afternoon)
+  wednesday_morning <- reactive(input$wednesday_morning)
+  wednesday_afternoon <- reactive(input$wednesday_afternoon)
+  thursday_morning <- reactive(input$thursday_morning)
+  thursday_afternoon <- reactive(input$thursday_afternoon)
+  friday_morning <- reactive(input$friday_morning)
+  friday_afternoon <- reactive(input$friday_afternoon)
+  
+  # Classes
+  ###########################33 TO BE UPDATED ######################
+  class1 <- reactive(input$class1)  # "Advanced issues in International and European Tax Law"
+  class2 <- reactive(input$class2)  # "Algorithms for Business Intelligence and Digital Marketing"
+  class3 <- reactive(input$class3)  # "Animal Communication and Parasitism"
+  class4 <- reactive(input$class4)  # "Behavioral Economics"
+  class5 <- reactive(input$class5)  # "Business and Human Rights"
+  class6 <- reactive(input$class6)  # "Business and Society - Corporate Sustainability"
+  class7 <- reactive(input$class7)  # "Business Case en Marketing"
+  class8 <- reactive(input$class8)  # "Datascience for Marketing"
+  class9 <- reactive(input$class9)  # "Digitalisation of Purchasing and B to B Sales"
+  class10 <- reactive(input$class10)  # "Entrepreneurship and Strategy"
+  class11 <- reactive(input$class11)  # "Entrepreneurship, Innovation and Control Systems"
+  class12 <- reactive(input$class12)  # "Experimental Methods"
+  class13 <- reactive(input$class13)  # "Fraud and Business Process Analytics"
+  class14 <- reactive(input$class14)  # "Global Marketing"
+  class15 <- reactive(input$class15)  # "Heuristic Decision Making Strategies"
+  class16 <- reactive(input$class16)  # "Human Behavior and Evolutionary Inference"
+  class17 <- reactive(input$class17)  # "Individual Behavior in the Digital Environment"
+  class18 <- reactive(input$class18)  # "Integrated Marketing Communication (MScM)
+  class19 <- reactive(input$class19)  # "La recherche dans tous ses états"
+  class20 <- reactive(input$class20)  # "Leadership Development"
+  class21 <- reactive(input$class21)  # "Luxury Marketing"
+  class22 <- reactive(input$class22)  # "Major Transition in Evolution"
+  class23 <- reactive(input$class23)  # "Managerial Decision Making"
+  class24 <- reactive(input$class24)  # "Normes comptables internationales (IFRS)
+  class25 <- reactive(input$class25)  # "Production Control"
+  class26 <- reactive(input$class26)  # "Programming Tools in Data Science"
+  class27 <- reactive(input$class27)  # "Project in Data Analytics"
+  class28 <- reactive(input$class28)  # "Risk Analytics"
+  class29 <- reactive(input$class29)  # "Strategic Management Control Systems"
+  class30 <- reactive(input$class30)  # "Stratégies digitales"
+  class31 <- reactive(input$class31)  # "Stratégies légales internationales I"
+  class32 <- reactive(input$class32)  # "Stratégies légales internationales II"
+  class33 <- reactive(input$class33)  # "Strategy and Development Modes"
+  class34 <- reactive(input$class34)  # "Strategy in Digital Markets"
+  class35 <- reactive(input$class35)  # "Supply Chain Management and its Latest Trends"
+  class36 <- reactive(input$class36)  # "Text Mining"
+  class37 <- reactive(input$class37)  # "Unethical Decision Making - Advanced"
+  class38 <- reactive(input$class38)  # "Unethical Decision Making - Basics"
+  ###########################33 TO BE UPDATED ######################
+
+  output$timetable <- renderTable({
+    
+    # Set unequality/equality signs
+    f.dir <- c(
+      ### USER CHOICES
+      #### CREDITS -> Should be greater than threshold given by user
+      ">=", # Credits constraint
+      ">=", # BA Credits constraint
+      ">=", # MG Credits constraint
+      
+      #### CLASS 
+      ###########################33 TO BE UPDATED ######################
+      ">=", # "Advanced issues in International and European Tax Law"
+      ">=", # "Algorithms for Business Intelligence and Digital Marketing"
+      ">=", # "Animal Communication and Parasitism"
+      ">=", # "Behavioral Economics"
+      ">=", # "Business and Human Rights"
+      ">=", # "Business and Society - Corporate Sustainability"
+      ">=", # "Business Case en Marketing"
+      ">=", # "Datascience for Marketing"
+      ">=", # "Digitalisation of Purchasing and B to B Sales"
+      ">=", # "Entrepreneurship and Strategy"
+      ">=", # "Entrepreneurship, Innovation and Control Systems"
+      ">=", # "Experimental Methods"
+      ">=", # "Fraud and Business Process Analytics"
+      ">=", # "Global Marketing"
+      ">=", # "Heuristic Decision Making Strategies"
+      ">=", # "Human Behavior and Evolutionary Inference"
+      ">=", # "Individual Behavior in the Digital Environment"
+      ">=", # "Integrated Marketing Communication (MScM)"
+      ">=", # "La recherche dans tous ses états"
+      ">=", # "Leadership Development"
+      ">=", # "Luxury Marketing"
+      ">=", # "Major Transition in Evolution"
+      ">=", # "Managerial Decision Making"
+      ">=", # "Normes comptables internationales (IFRS)"
+      ">=", # "Production Control"
+      ">=", # "Programming Tools in Data Science"
+      ">=", # "Project in Data Analytics"
+      ">=", # "Risk Analytics"
+      ">=", # "Strategic Management Control Systems"
+      ">=", # "Stratégies digitales"
+      ">=", # "Stratégies légales internationales I"
+      ">=", # "Stratégies légales internationales II"
+      ">=", # "Strategy and Development Modes"
+      ">=", # "Strategy in Digital Markets"
+      ">=", # "Supply Chain Management and its Latest Trends"
+      ">=", # "Text Mining"
+      ">=", # "Unethical Decision Making - Advanced"
+      ">=", # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
+      
+      #### CHUNK OF THE DAY/WEEK
+      "<=", # Monday Morning
+      "<=", # Monday Afternoon
+      "<=", # Tuesday Morning
+      "<=", # Tuesday Afternoon
+      "<=", # Wednesday Morning
+      "<=", # Wednesday Afternoon
+      "<=", # Thursday Morning
+      "<=", # Thursday Afternoon
+      "<=", # Friday Morning
+      "<=", # Friday Afternoon
+      
+      ### TIME CONSTRAINTS
+      rep.int("<=", nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
+    )
+    
+    # Set right hand side coefficients
+    f.rhs <- c(
+      ### USER CHOICES
+      
+      #### CREDITS -> Should be greater than threshold given by user
+      credits(),     # Credits constraint
+      BA_credits(),  # BA Credits constraint
+      MG_credits(),  # MG Credits constraint
+      
+      #### CLASS
+      ###########################33 TO BE UPDATED ######################
+      class1(),  # "Advanced issues in International and European Tax Law"
+      class2(),  # "Algorithms for Business Intelligence and Digital Marketing"
+      class3(),  # "Animal Communication and Parasitism"
+      class4(),  # "Behavioral Economics"
+      class5(),  # "Business and Human Rights"
+      class6(),  # "Business and Society - Corporate Sustainability"
+      class7(),  # "Business Case en Marketing"
+      class8(),  # "Datascience for Marketing"
+      class9(),  # "Digitalisation of Purchasing and B to B Sales"
+      class10(),  # "Entrepreneurship and Strategy"
+      class11(),  # "Entrepreneurship, Innovation and Control Systems"
+      class12(),  # "Experimental Methods"
+      class13(),  # "Fraud and Business Process Analytics"
+      class14(),  # "Global Marketing"
+      class15(),  # "Heuristic Decision Making Strategies"
+      class16(),  # "Human Behavior and Evolutionary Inference"
+      class17(),  # "Individual Behavior in the Digital Environment"
+      class18(),  # "Integrated Marketing Communication (MScM)
+      class19(),  # "La recherche dans tous ses états"
+      class20(),  # "Leadership Development"
+      class21(),  # "Luxury Marketing"
+      class22(),  # "Major Transition in Evolution"
+      class23(),  # "Managerial Decision Making"
+      class24(),  # "Normes comptables internationales (IFRS)
+      class25(),  # "Production Control"
+      class26(),  # "Programming Tools in Data Science"
+      class27(),  # "Project in Data Analytics"
+      class28(),  # "Risk Analytics"
+      class29(),  # "Strategic Management Control Systems"
+      class30(),  # "Stratégies digitales"
+      class31(),  # "Stratégies légales internationales I"
+      class32(),  # "Stratégies légales internationales II"
+      class33(),  # "Strategy and Development Modes"
+      class34(),  # "Strategy in Digital Markets"
+      class35(),  # "Supply Chain Management and its Latest Trends"
+      class36(),  # "Text Mining"
+      class37(),  # "Unethical Decision Making - Advanced"
+      class38(),  # "Unethical Decision Making - Basics"
+      ###########################33 TO BE UPDATED ######################
+      
+      #### CHUNK OF THE DAY/WEEK -> By default allowed (TRUE), put FALSE if don't want
+      monday_morning(), # Monday Morning class
+      monday_afternoon(), # Monday Afternoon class
+      tuesday_morning(), # Tuesday Morning class
+      tuesday_afternoon(), # Tuesday Afternoon class
+      wednesday_morning(), # Wednesday Morning class
+      wednesday_afternoon(), # Wednesday Afternoon class
+      thursday_morning(), # Thursday Morning class
+      thursday_afternoon(), # Thursday Afternoon class
+      friday_morning(), # Friday Morning class
+      friday_afternoon(), # Friday Afternoon class
+      
+      ### TIME CONSTRAINTS
+      rep.int(1, nb_of_timeslot) # Time slot constraint <= 1 (no overlap allowed)
+    )
+    
+    # Variables choices (1 if class is taken, 0 otherwise)
+    timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
+      as.data.frame() %>%
+      cbind(HEC_timetables_semester_2 %>%
+              mutate(
+                Start = as.character(Start_nice),
+                End = as.character(End_nice), 
+                Day = recode_factor(Day, 
+                             `1` = "Monday", 
+                             `2` = "Tuesday",
+                             `3` = "Wednesday",
+                             `4` = "Thursday",
+                             `5` = "Friday"), 
+                Day = as.character(Day), 
+                BA = recode(BA, 
+                            `1` = "Yes", 
+                            `0` = "No")
+              ) %>%
+              select(Class, -Start_nice, Start, -End_nice, 
+                     End, Prof, Day, Credit, BA)) %>%
+     filter(. > 0)  %>%
+     select(Class, Start, End, Prof, Day, Credit, BA)
+      
+  })
+}
+
+shinyApp(ui, server)
+```
+
+# Semester 3 -- Shiny App   (up-to-date)
 ```{r, warning=FALSE}
 # Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
@@ -189,9 +994,7 @@ ui <- fluidPage(# Application title
     mainPanel(tableOutput(outputId = "timetable"))
   ))
 
-```
 
-```{r, warning=FALSE}
 server <- function(input, output, session) {
   
   # Define parameters
@@ -419,8 +1222,6 @@ server <- function(input, output, session) {
       
   })
 }
-```
 
-```{r}
 shinyApp(ui, server)
 ```
