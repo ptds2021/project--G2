@@ -1200,7 +1200,7 @@ server <- function(input, output, session) {
     # Variables choices (1 if class is taken, 0 otherwise)
     timetable <- lp("min", f.obj, f.con, f.dir, f.rhs, all.bin = TRUE)$solution %>%
       as.data.frame() %>%
-      cbind(HEC_timetables_initial %>%
+      cbind(HEC_timetables_semester_3 %>%
               mutate(
                 Start = as.character(Start_nice),
                 End = as.character(End_nice), 
