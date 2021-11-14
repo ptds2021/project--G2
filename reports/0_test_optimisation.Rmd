@@ -97,7 +97,6 @@ colnames(HEC_timetables_dummies_1) <- gsub("Class_","",colnames(HEC_timetables_d
 
 ## Shiny App   
 ```{r, warning=FALSE}
-# Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
   titlePanel("HEC Timetable"),
   
@@ -359,7 +358,6 @@ colnames(HEC_timetables_dummies_2) <- gsub("Class_","",colnames(HEC_timetables_d
 
 ## Shiny App   
 ```{r, warning=FALSE}
-# Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
   titlePanel("HEC Timetable"),
   
@@ -733,7 +731,6 @@ colnames(HEC_timetables_dummies_3) <- gsub("Class_","",colnames(HEC_timetables_d
 
 ## Shiny App   
 ```{r, warning=FALSE}
-# Define UI for application that draws a histogram
 ui <- fluidPage(# Application title
   titlePanel("HEC Timetable"),
   
