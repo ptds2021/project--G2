@@ -298,12 +298,12 @@ server <- function(input, output, session) {
   nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
   
   # Set matrix corresponding to coefficients of constraints
-  f.con <- HEC_timetables_dummies_3 %>%
+  f.con <- HEC_timetables_dummies_1 %>%
     # Removed column that are not needed in the constraints
     select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj  <- HEC_timetables_dummies_3$Credit
+  f.obj  <- HEC_timetables_dummies_1$Credit
     
   # Credit requirement
   credits <- reactive(input$credits)
@@ -998,16 +998,16 @@ ui <- fluidPage(# Application title
 server <- function(input, output, session) {
   
   # Define parameters
-  nb_of_class <- length(HEC_timetables_dummies$Class)
+  nb_of_class <- length(HEC_timetables_dummies_3$Class)
   nb_of_timeslot <- 55L # 11 time slot per day, times 5 days a week
   
   # Set matrix corresponding to coefficients of constraints
-  f.con <- HEC_timetables_dummies %>%
+  f.con <- HEC_timetables_dummies_3 %>%
     # Removed column that are not needed in the constraints
     select(-Start, -End, -Class, -Prof, -Day, -BA, -MG) %>% t()
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj  <- HEC_timetables_dummies$Credit
+  f.obj  <- HEC_timetables_dummies_3$Credit
     
   # Credit requirement
   credits <- reactive(input$credits)
