@@ -29,7 +29,7 @@ cols_to_make <- rlang::parse_exprs(
 # Semester 1
 ```{r}
 ## Initial Cleaning of Data
-HEC_timetables_semester_1 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1, 
+HEC_sem1_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -59,7 +59,7 @@ HEC_timetables_semester_1 <- read_excel(here::here("data/HEC_timetables.xlsx"), 
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 
 ## Dummies variables creation
-HEC_timetables_dummies_1 <- HEC_timetables_semester_1 %>%
+HEC_dummies1_BA <- HEC_sem1_BA %>%
   rowwise(.) %>%
   mutate(!!!cols_to_make)  %>%
   ungroup %>% 
@@ -69,22 +69,22 @@ HEC_timetables_dummies_1 <- HEC_timetables_semester_1 %>%
   fastDummies::dummy_cols(., c("Moment", "name")) %>%
   select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
          -Start, -End, -Prof, -Day, -CORE, -ELECTIVE)
-uniques_1 <-HEC_timetables_dummies_1$Class
-HEC_timetables_dummies_1 <- HEC_timetables_dummies_1 %>%
+uniques_1 <-HEC_dummies1_BA$Class
+HEC_dummies1_BA <- HEC_dummies1_BA %>%
   fastDummies::dummy_cols(., c("Class")) %>% 
   select(-Class) %>% t() %>% as.data.frame()
-colnames(HEC_timetables_dummies_1) <- uniques_1
-constraints_1 <- row.names(HEC_timetables_dummies_1)
-HEC_timetables_dummies_1 <- data.frame(sapply(split(1:ncol(HEC_timetables_dummies_1), 
-                                                    colnames(HEC_timetables_dummies_1)), 
-                                              function(i) do.call(pmax, HEC_timetables_dummies_1[i])))
-row.names(HEC_timetables_dummies_1) <- constraints_1
-colnames(HEC_timetables_dummies_1) <- row.names(HEC_timetables_dummies_1 %>%
-   filter(grepl("Class_", rownames(HEC_timetables_dummies_1))))
-colnames(HEC_timetables_dummies_1) <- gsub("Class_","",colnames(HEC_timetables_dummies_1))
+colnames(HEC_dummies1_BA) <- uniques_1
+constraints_1 <- row.names(HEC_dummies1_BA)
+HEC_dummies1_BA <- data.frame(sapply(split(1:ncol(HEC_dummies1_BA), 
+                                                    colnames(HEC_dummies1_BA)), 
+                                              function(i) do.call(pmax, HEC_dummies1_BA[i])))
+row.names(HEC_dummies1_BA) <- constraints_1
+colnames(HEC_dummies1_BA) <- row.names(HEC_dummies1_BA %>%
+   filter(grepl("Class_", rownames(HEC_dummies1_BA))))
+colnames(HEC_dummies1_BA) <- gsub("Class_","",colnames(HEC_dummies1_BA))
 
-classes_semester_1 <- colnames(HEC_timetables_dummies_1)
-moments_semester_1 <- levels(HEC_timetables_semester_1$Moment)
+classes_semester_1 <- colnames(HEC_dummies1_BA)
+moments_semester_1 <- levels(HEC_sem1_BA$Moment)
 moments_semester_1 <- sub("1_","Monday ",moments_semester_1)
 moments_semester_1 <- sub("2_","Tuesday ",moments_semester_1)
 moments_semester_1 <- sub("3_","Wednesday ",moments_semester_1)
@@ -95,7 +95,7 @@ moments_semester_1 <- sub("5_","Friday ",moments_semester_1)
 # Semester 2
 ```{r}
 ## Initial Cleaning of Data
-HEC_timetables_semester_2 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2, 
+HEC_sem2_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -127,7 +127,7 @@ HEC_timetables_semester_2 <- read_excel(here::here("data/HEC_timetables.xlsx"), 
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 
 ## Dummies variables creation
-HEC_timetables_dummies_2 <- HEC_timetables_semester_2 %>%
+HEC_dummies2_BA <- HEC_sem2_BA %>%
   rowwise(.) %>%
   mutate(!!!cols_to_make)  %>%
   ungroup %>% 
@@ -137,22 +137,22 @@ HEC_timetables_dummies_2 <- HEC_timetables_semester_2 %>%
   fastDummies::dummy_cols(., c("Moment", "name")) %>%
   select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
          -Start, -End, -Prof, -Day, -CORE, -ELECTIVE)
-uniques_2 <-HEC_timetables_dummies_2$Class
-HEC_timetables_dummies_2 <- HEC_timetables_dummies_2 %>%
+uniques_2 <-HEC_dummies2_BA$Class
+HEC_dummies2_BA <- HEC_dummies2_BA %>%
   fastDummies::dummy_cols(., c("Class")) %>% 
   select(-Class) %>% t() %>% as.data.frame()
-colnames(HEC_timetables_dummies_2) <- uniques_2
-constraints_2 <- row.names(HEC_timetables_dummies_2)
-HEC_timetables_dummies_2 <- data.frame(sapply(split(1:ncol(HEC_timetables_dummies_2), 
-                                                    colnames(HEC_timetables_dummies_2)), 
-                                              function(i) do.call(pmax, HEC_timetables_dummies_2[i])))
-row.names(HEC_timetables_dummies_2) <- constraints_2
-colnames(HEC_timetables_dummies_2) <- row.names(HEC_timetables_dummies_2 %>%
-   filter(grepl("Class_", rownames(HEC_timetables_dummies_2))))
-colnames(HEC_timetables_dummies_2) <- gsub("Class_","",colnames(HEC_timetables_dummies_2))
+colnames(HEC_dummies2_BA) <- uniques_2
+constraints_2 <- row.names(HEC_dummies2_BA)
+HEC_dummies2_BA <- data.frame(sapply(split(1:ncol(HEC_dummies2_BA), 
+                                                    colnames(HEC_dummies2_BA)), 
+                                              function(i) do.call(pmax, HEC_dummies2_BA[i])))
+row.names(HEC_dummies2_BA) <- constraints_2
+colnames(HEC_dummies2_BA) <- row.names(HEC_dummies2_BA %>%
+   filter(grepl("Class_", rownames(HEC_dummies2_BA))))
+colnames(HEC_dummies2_BA) <- gsub("Class_","",colnames(HEC_dummies2_BA))
 
-classes_semester_2 <- colnames(HEC_timetables_dummies_2)
-moments_semester_2 <- levels(HEC_timetables_semester_2$Moment)
+classes_semester_2 <- colnames(HEC_dummies2_BA)
+moments_semester_2 <- levels(HEC_sem2_BA$Moment)
 moments_semester_2 <- sub("1_","Monday ",moments_semester_2)
 moments_semester_2 <- sub("2_","Tuesday ",moments_semester_2)
 moments_semester_2 <- sub("3_","Wednesday ",moments_semester_2)
@@ -163,7 +163,7 @@ moments_semester_2 <- sub("5_","Friday ",moments_semester_2)
 # Semester 3
 ```{r}
 ## Initial Cleaning of Data
-HEC_timetables_semester_3 <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3, 
+HEC_sem3_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -194,7 +194,7 @@ HEC_timetables_semester_3 <- read_excel(here::here("data/HEC_timetables.xlsx"), 
            Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 
 ## Dummies variables creation
-HEC_timetables_dummies_3 <- HEC_timetables_semester_3 %>%
+HEC_dummies3_BA <- HEC_sem3_BA %>%
   rowwise(.) %>%
   mutate(!!!cols_to_make)  %>%
   ungroup %>% 
@@ -204,22 +204,22 @@ HEC_timetables_dummies_3 <- HEC_timetables_semester_3 %>%
   fastDummies::dummy_cols(., c("Moment", "name")) %>%
   select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
          -Start, -End, -Prof, -Day, -CORE, -ELECTIVE)
-uniques_3 <-HEC_timetables_dummies_3$Class
-HEC_timetables_dummies_3 <- HEC_timetables_dummies_3 %>%
+uniques_3 <-HEC_dummies3_BA$Class
+HEC_dummies3_BA <- HEC_dummies3_BA %>%
   fastDummies::dummy_cols(., c("Class")) %>% 
   select(-Class) %>% t() %>% as.data.frame()
-colnames(HEC_timetables_dummies_3) <- uniques_3
-constraints_3 <- row.names(HEC_timetables_dummies_3)
-HEC_timetables_dummies_3 <- data.frame(sapply(split(1:ncol(HEC_timetables_dummies_3), 
-                                                    colnames(HEC_timetables_dummies_3)), 
-                                              function(i) do.call(pmax, HEC_timetables_dummies_3[i])))
-row.names(HEC_timetables_dummies_3) <- constraints_3
-colnames(HEC_timetables_dummies_3) <- row.names(HEC_timetables_dummies_3 %>%
-   filter(grepl("Class_", rownames(HEC_timetables_dummies_3))))
-colnames(HEC_timetables_dummies_3) <- gsub("Class_","",colnames(HEC_timetables_dummies_3))
+colnames(HEC_dummies3_BA) <- uniques_3
+constraints_3 <- row.names(HEC_dummies3_BA)
+HEC_dummies3_BA <- data.frame(sapply(split(1:ncol(HEC_dummies3_BA), 
+                                                    colnames(HEC_dummies3_BA)), 
+                                              function(i) do.call(pmax, HEC_dummies3_BA[i])))
+row.names(HEC_dummies3_BA) <- constraints_3
+colnames(HEC_dummies3_BA) <- row.names(HEC_dummies3_BA %>%
+   filter(grepl("Class_", rownames(HEC_dummies3_BA))))
+colnames(HEC_dummies3_BA) <- gsub("Class_","",colnames(HEC_dummies3_BA))
 
-classes_semester_3 <- colnames(HEC_timetables_dummies_3)
-moments_semester_3 <- levels(HEC_timetables_semester_3$Moment)
+classes_semester_3 <- colnames(HEC_dummies3_BA)
+moments_semester_3 <- levels(HEC_sem3_BA$Moment)
 moments_semester_3 <- sub("1_","Monday ",moments_semester_3)
 moments_semester_3 <- sub("2_","Tuesday ",moments_semester_3)
 moments_semester_3 <- sub("3_","Wednesday ",moments_semester_3)
@@ -341,17 +341,17 @@ server <- function(input, output, session) {
   }
   
   # Define parameters
-  nb_of_class_1 <- ncol(HEC_timetables_dummies_1)
-  nb_of_timeslot_1 <- dim(HEC_timetables_dummies_1 %>%
-  filter(grepl("ifelse", rownames(HEC_timetables_dummies_1))))[1]
-  nb_of_moment_1 <- length(row.names(HEC_timetables_dummies_1 %>%
-  filter(grepl("AM|PM", rownames(HEC_timetables_dummies_1)))))
+  nb_of_class_1 <- ncol(HEC_dummies1_BA)
+  nb_of_timeslot_1 <- dim(HEC_dummies1_BA %>%
+  filter(grepl("ifelse", rownames(HEC_dummies1_BA))))[1]
+  nb_of_moment_1 <- length(row.names(HEC_dummies1_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies1_BA)))))
   
   # Set matrix corresponding to coefficients of constraints
-  f.con_1 <- HEC_timetables_dummies_1 
+  f.con_1 <- HEC_dummies1_BA 
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj_1  <- HEC_timetables_dummies_1[1,] %>% unname() %>% unlist()
+  f.obj_1  <- HEC_dummies1_BA[1,] %>% unname() %>% unlist()
     
   # Set unequality/equality signs
   f.dir_1 <- c(
@@ -375,10 +375,10 @@ server <- function(input, output, session) {
     binary_1  <- lp("min", f.obj_1, f.con_1, f.dir_1, f.rhs_1, all.bin = TRUE)$solution
     
     timetable_1 <- cbind(as.numeric(binary_1), 
-                       colnames(HEC_timetables_dummies_1)) %>%
+                       colnames(HEC_dummies1_BA)) %>%
       as.data.frame() %>%
       mutate(Choice = V1, Class = V2) %>%
-      left_join(HEC_timetables_semester_1) %>%
+      left_join(HEC_sem1_BA) %>%
       filter(Choice == 1) %>%
       mutate(
         Start = as.character(Start_nice),
@@ -416,17 +416,17 @@ server <- function(input, output, session) {
   }
   
   # Define parameters
-  nb_of_class_2 <- ncol(HEC_timetables_dummies_2)
-  nb_of_timeslot_2 <- dim(HEC_timetables_dummies_2 %>%
-  filter(grepl("ifelse", rownames(HEC_timetables_dummies_2))))[1]
-  nb_of_moment_2 <- length(row.names(HEC_timetables_dummies_2 %>%
-  filter(grepl("AM|PM", rownames(HEC_timetables_dummies_2)))))
+  nb_of_class_2 <- ncol(HEC_dummies2_BA)
+  nb_of_timeslot_2 <- dim(HEC_dummies2_BA %>%
+  filter(grepl("ifelse", rownames(HEC_dummies2_BA))))[1]
+  nb_of_moment_2 <- length(row.names(HEC_dummies2_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies2_BA)))))
   
   # Set matrix corresponding to coefficients of constraints
-  f.con_2 <- HEC_timetables_dummies_2 
+  f.con_2 <- HEC_dummies2_BA 
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj_2  <- HEC_timetables_dummies_2[1,] %>% unname() %>% unlist()
+  f.obj_2  <- HEC_dummies2_BA[1,] %>% unname() %>% unlist()
     
   # Set unequality/equality signs
   f.dir_2 <- c(
@@ -450,10 +450,10 @@ server <- function(input, output, session) {
     binary_2  <- lp("min", f.obj_2, f.con_2, f.dir_2, f.rhs_2, all.bin = TRUE)$solution
     
     timetable_2 <- cbind(as.numeric(binary_2), 
-                       colnames(HEC_timetables_dummies_2)) %>%
+                       colnames(HEC_dummies2_BA)) %>%
       as.data.frame() %>%
       mutate(Choice = V1, Class = V2) %>%
-      left_join(HEC_timetables_semester_2) %>%
+      left_join(HEC_sem2_BA) %>%
       filter(Choice == 1) %>%
       mutate(
         Start = as.character(Start_nice),
@@ -491,17 +491,17 @@ server <- function(input, output, session) {
   }
   
   # Define parameters
-  nb_of_class_3 <- ncol(HEC_timetables_dummies_3)
-  nb_of_timeslot_3 <- dim(HEC_timetables_dummies_3 %>%
-  filter(grepl("ifelse", rownames(HEC_timetables_dummies_3))))[1]
-  nb_of_moment_3 <- length(row.names(HEC_timetables_dummies_3 %>%
-  filter(grepl("AM|PM", rownames(HEC_timetables_dummies_3)))))
+  nb_of_class_3 <- ncol(HEC_dummies3_BA)
+  nb_of_timeslot_3 <- dim(HEC_dummies3_BA %>%
+  filter(grepl("ifelse", rownames(HEC_dummies3_BA))))[1]
+  nb_of_moment_3 <- length(row.names(HEC_dummies3_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies3_BA)))))
   
   # Set matrix corresponding to coefficients of constraints
-  f.con_3 <- HEC_timetables_dummies_3 
+  f.con_3 <- HEC_dummies3_BA 
   
   # Set coefficients of the objective function (min total credits taken)
-  f.obj_3  <- HEC_timetables_dummies_3[1,] %>% unname() %>% unlist()
+  f.obj_3  <- HEC_dummies3_BA[1,] %>% unname() %>% unlist()
     
   # Set unequality/equality signs
   f.dir_3 <- c(
@@ -525,10 +525,10 @@ server <- function(input, output, session) {
     binary_3  <- lp("min", f.obj_3, f.con_3, f.dir_3, f.rhs_3, all.bin = TRUE)$solution
     
     timetable_3 <- cbind(as.numeric(binary_3), 
-                       colnames(HEC_timetables_dummies_3)) %>%
+                       colnames(HEC_dummies3_BA)) %>%
       as.data.frame() %>%
       mutate(Choice = V1, Class = V2) %>%
-      left_join(HEC_timetables_semester_3) %>%
+      left_join(HEC_sem3_BA) %>%
       filter(Choice == 1) %>%
       mutate(
         Start = as.character(Start_nice),
