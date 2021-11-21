@@ -8,22 +8,26 @@ runtime: shiny
 ---
 
 # To update the code for other orientation, following steps are required: 
-1) Update the CORE value for each semester (dummy = 1 if it's a core class)
+1) Update the CORE value for each semester (dummy = 1 if it's a core class) 
+and the WEEKS for each semester (dummy = 1 if last 7 week or entire semester)
 2) Update in the ui chunk part any specific class that is MANDATORY (as QMM, 
 or Company Project in Business Analytics for BA students)
 
-```{r, warning=FALSE, include=FALSE, echo=FALSE}
+```{r}
 source(here::here("scripts/setup.R"))
+# Replication with value of 0 if during first 7 weeks, 1 if last 7 weeks or whole semester
+weeks <- c(rep(1,  55), rep(0, 55))
 # Replication 5 times all the hours slots from 8 to 19
-hours_of_day <- rep(9:19, 5)
+hours_of_day <- rep(rep(9:19, 5), 2)
 # Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
-days_of_week <-c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11))
+days_of_week <-rep(c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11)), 2)
 # Create a list with all conditions for hours and day combinations
 cols_to_make <- rlang::parse_exprs(
   paste0('ifelse(
          Start <', hours_of_day, 
          '& End >=', hours_of_day,
-         '& Day ==', days_of_week, ',1,0)'))
+         '& Weeks ==', weeks,
+         '& Day ==', days_of_week,',1,0)'))
 ```
 
 # Semester 1
@@ -35,7 +39,7 @@ HEC_sem1_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1,
   mutate(Day =  Start, 
          Credit = Prof, 
          Day = gsub("[0-9]+", NA, Day), 
-         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+         Credit = suppressWarnings(as.numeric(gsub("*?([0-9]+).*", "\\1", Prof)))) %>% 
   fill(Day, .direction = c("down")) %>%
   fill(Credit, .direction = c("up")) %>%
   na.omit() %>%
@@ -44,6 +48,7 @@ HEC_sem1_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1,
          Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
+         Weeks = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), 
          CORE = c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1),  # Business Analytics
          CORE_credits = CORE*Credit,  # Total of credits per class in CORE
          ELECTIVE = ifelse(CORE == 1, 0, 1), # Management (elective)
@@ -56,7 +61,7 @@ HEC_sem1_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1,
            "Jeudi" = 4,
            "Vendredi" = 5), 
          Moment = as.factor(paste0(
-           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")), "_", Weeks)))
 
 ## Dummies variables creation
 HEC_dummies1_BA <- HEC_sem1_BA %>%
@@ -64,15 +69,18 @@ HEC_dummies1_BA <- HEC_sem1_BA %>%
   mutate(!!!cols_to_make)  %>%
   ungroup %>% 
   pivot_longer(cols=starts_with("ifelse")) %>%
-  filter(value!=0) %>% 
+  filter(value>0) %>% 
   select(-value) %>%
   fastDummies::dummy_cols(., c("Moment", "name")) %>%
-  select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
+  select(-Moment, -Start_nice, -End_nice, -Moment, -name, -Weeks,
          -Start, -End, -Prof, -Day, -CORE, -ELECTIVE)
+
 uniques_1 <-HEC_dummies1_BA$Class
+
 HEC_dummies1_BA <- HEC_dummies1_BA %>%
   fastDummies::dummy_cols(., c("Class")) %>% 
   select(-Class) %>% t() %>% as.data.frame()
+
 colnames(HEC_dummies1_BA) <- uniques_1
 constraints_1 <- row.names(HEC_dummies1_BA)
 HEC_dummies1_BA <- data.frame(sapply(split(1:ncol(HEC_dummies1_BA), 
@@ -90,6 +98,8 @@ moments_semester_1 <- sub("2_","Tuesday ",moments_semester_1)
 moments_semester_1 <- sub("3_","Wednesday ",moments_semester_1)
 moments_semester_1 <- sub("4_","Thursday ",moments_semester_1)
 moments_semester_1 <- sub("5_","Friday ",moments_semester_1)
+moments_semester_1 <- sub("_0"," First 7 weeks",moments_semester_1)
+moments_semester_1 <- sub("_1"," Last 7 weeks or semester",moments_semester_1)
 ```
 
 # Semester 2
@@ -101,7 +111,7 @@ HEC_sem2_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2,
   mutate(Day =  Start, 
          Credit = Prof, 
          Day = gsub("[0-9]+", NA, Day), 
-         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+         Credit = suppressWarnings(as.numeric(gsub("*?([0-9]+).*", "\\1", Prof)))) %>% 
   fill(Day, .direction = c("down")) %>%
   fill(Credit, .direction = c("up")) %>%
   na.omit() %>%
@@ -110,6 +120,8 @@ HEC_sem2_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2,
          Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), # CORE
+         Weeks = ifelse(Class %in% c("Forecasting II", "Deep Learning"), 1, 
+                        ifelse(Class %in% c("Forecasting I"), 0, 1)), 
          CORE=c(0,	0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	
              0,	0,	0,	0,	0,	0,	0, 0,	1,	1,	1,	0,	0,	0,	0,	0,	0,	
              0,	1,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,0),
@@ -124,7 +136,8 @@ HEC_sem2_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2,
            "Jeudi" = 4,
            "Vendredi" = 5), 
          Moment = as.factor(paste0(
-           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")), "_", Weeks)))
+
 
 ## Dummies variables creation
 HEC_dummies2_BA <- HEC_sem2_BA %>%
@@ -135,12 +148,14 @@ HEC_dummies2_BA <- HEC_sem2_BA %>%
   filter(value!=0) %>% 
   select(-value) %>%
   fastDummies::dummy_cols(., c("Moment", "name")) %>%
-  select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
+  select(-Moment, -Start_nice, -End_nice, -Moment, -name, -Weeks,
          -Start, -End, -Prof, -Day, -CORE, -ELECTIVE)
+
 uniques_2 <-HEC_dummies2_BA$Class
 HEC_dummies2_BA <- HEC_dummies2_BA %>%
   fastDummies::dummy_cols(., c("Class")) %>% 
   select(-Class) %>% t() %>% as.data.frame()
+
 colnames(HEC_dummies2_BA) <- uniques_2
 constraints_2 <- row.names(HEC_dummies2_BA)
 HEC_dummies2_BA <- data.frame(sapply(split(1:ncol(HEC_dummies2_BA), 
@@ -158,6 +173,8 @@ moments_semester_2 <- sub("2_","Tuesday ",moments_semester_2)
 moments_semester_2 <- sub("3_","Wednesday ",moments_semester_2)
 moments_semester_2 <- sub("4_","Thursday ",moments_semester_2)
 moments_semester_2 <- sub("5_","Friday ",moments_semester_2)
+moments_semester_2 <- sub("_0"," First 7 weeks",moments_semester_2)
+moments_semester_2 <- sub("_1"," Last 7 weeks or semester",moments_semester_2)
 ```
 
 # Semester 3
@@ -169,7 +186,7 @@ HEC_sem3_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3,
   mutate(Day =  Start, 
          Credit = Prof, 
          Day = gsub("[0-9]+", NA, Day), 
-         Credit =as.numeric(gsub("*?([0-9]+).*", "\\1", Prof))) %>% 
+         Credit = suppressWarnings(as.numeric(gsub("*?([0-9]+).*", "\\1", Prof)))) %>% 
   fill(Day, .direction = c("down")) %>%
   fill(Credit, .direction = c("up")) %>%
   na.omit() %>%
@@ -178,6 +195,10 @@ HEC_sem3_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3,
          Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), # CORE
+         Weeks = ifelse(Class %in% c("Risk Analytics", 
+                                     "Unethical Decision Making - Advanced"), 1, 
+                        ifelse(Class %in% c("Production Control",  
+                                    "Unethical Decision Making - Basics"), 0, 1)), 
          CORE = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,  # Business Analytics 
                        0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0),
          CORE_credits = CORE*Credit,  # Total of credits per class in CORE
@@ -190,8 +211,9 @@ HEC_sem3_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3,
            "Mercredi" = 3,
            "Jeudi" = 4,
            "Vendredi" = 5), 
-         Moment = as.factor(paste0(
-           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
+        Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")), "_", Weeks)))
+
 
 ## Dummies variables creation
 HEC_dummies3_BA <- HEC_sem3_BA %>%
@@ -202,7 +224,7 @@ HEC_dummies3_BA <- HEC_sem3_BA %>%
   filter(value!=0) %>% 
   select(-value) %>%
   fastDummies::dummy_cols(., c("Moment", "name")) %>%
-  select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
+  select(-Moment, -Start_nice, -End_nice, -Moment, -name, -Weeks,
          -Start, -End, -Prof, -Day, -CORE, -ELECTIVE)
 uniques_3 <-HEC_dummies3_BA$Class
 HEC_dummies3_BA <- HEC_dummies3_BA %>%
@@ -225,10 +247,16 @@ moments_semester_3 <- sub("2_","Tuesday ",moments_semester_3)
 moments_semester_3 <- sub("3_","Wednesday ",moments_semester_3)
 moments_semester_3 <- sub("4_","Thursday ",moments_semester_3)
 moments_semester_3 <- sub("5_","Friday ",moments_semester_3)
+moments_semester_3 <- sub("_0"," First 7 weeks",moments_semester_3)
+moments_semester_3 <- sub("_1"," Last 7 weeks or semester",moments_semester_3)
+
+#write.table(HEC_dummies3_BA, file = "HEC_dummies3_BA.csv", append = FALSE, quote = TRUE, sep = ";")
+#write.table(HEC_dummies2_BA, file = "HEC_dummies2_BA.csv", append = FALSE, quote = TRUE, sep = ";")
+#write.table(HEC_dummies1_BA, file = "HEC_dummies1_BA.csv", append = FALSE, quote = TRUE, sep = ";")
 ```
 
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, error=FALSE}
 ui <- navbarPage(theme = shinytheme("cerulean"), 
   "HEC Lausanne - Timetable suggestions for Management students",
   helpText("If no timetable is displayed, try to relax some constraints.
@@ -343,7 +371,7 @@ server <- function(input, output, session) {
   # Define parameters
   nb_of_class_1 <- ncol(HEC_dummies1_BA)
   nb_of_timeslot_1 <- dim(HEC_dummies1_BA %>%
-  filter(grepl("ifelse", rownames(HEC_dummies1_BA))))[1]
+  filter(grepl("name", rownames(HEC_dummies1_BA))))[1]
   nb_of_moment_1 <- length(row.names(HEC_dummies1_BA %>%
   filter(grepl("AM|PM", rownames(HEC_dummies1_BA)))))
   
@@ -418,7 +446,7 @@ server <- function(input, output, session) {
   # Define parameters
   nb_of_class_2 <- ncol(HEC_dummies2_BA)
   nb_of_timeslot_2 <- dim(HEC_dummies2_BA %>%
-  filter(grepl("ifelse", rownames(HEC_dummies2_BA))))[1]
+  filter(grepl("name", rownames(HEC_dummies2_BA))))[1]
   nb_of_moment_2 <- length(row.names(HEC_dummies2_BA %>%
   filter(grepl("AM|PM", rownames(HEC_dummies2_BA)))))
   
@@ -493,7 +521,7 @@ server <- function(input, output, session) {
   # Define parameters
   nb_of_class_3 <- ncol(HEC_dummies3_BA)
   nb_of_timeslot_3 <- dim(HEC_dummies3_BA %>%
-  filter(grepl("ifelse", rownames(HEC_dummies3_BA))))[1]
+  filter(grepl("name", rownames(HEC_dummies3_BA))))[1]
   nb_of_moment_3 <- length(row.names(HEC_dummies3_BA %>%
   filter(grepl("AM|PM", rownames(HEC_dummies3_BA)))))
   
@@ -546,5 +574,6 @@ server <- function(input, output, session) {
       select(Class, Start, End, Prof, Day, Credit, Core)
   })
 }
+
 shinyApp(ui, server)
 ```
