@@ -13,6 +13,6 @@ packages <- c(# general
   "fastDummies", # dummy variables
   "readxl", # open excel files
   "magrittr", # use pipe operator
-  "shiny", "shinythemes" # shiny application 
+  "shiny", "shinythemes", "shinyWidgets" # shiny application 
 )
 purrr::walk(packages, library, character.only = TRUE)
