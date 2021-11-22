@@ -7,12 +7,6 @@ editor_options:
 runtime: shiny
 ---
 
-# To update the code for other orientation, following steps are required: 
-1) Update the CORE value for each semester (dummy = 1 if it's a core class) 
-and the WEEKS for each semester (dummy = 1 if last 7 week or entire semester)
-2) Update in the ui chunk part any specific class that is MANDATORY (as QMM, 
-or Company Project in Business Analytics for BA students)
-
 ```{r}
 source(here::here("scripts/setup.R"))
 # Replication with value of 0 if during first 7 weeks, 1 if last 7 weeks or whole semester
@@ -61,7 +55,7 @@ HEC_sem1_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1,
            "Jeudi" = 4,
            "Vendredi" = 5), 
          Moment = as.factor(paste0(
-           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")), "_", Weeks)))
+           Day, "_", as.factor(ifelse(End <=12, "AM", "PM")))))
 
 ## Dummies variables creation
 HEC_dummies1_BA <- HEC_sem1_BA %>%
@@ -98,8 +92,6 @@ moments_semester_1 <- sub("2_","Tuesday ",moments_semester_1)
 moments_semester_1 <- sub("3_","Wednesday ",moments_semester_1)
 moments_semester_1 <- sub("4_","Thursday ",moments_semester_1)
 moments_semester_1 <- sub("5_","Friday ",moments_semester_1)
-moments_semester_1 <- sub("_0"," First 7 weeks",moments_semester_1)
-moments_semester_1 <- sub("_1"," Last 7 weeks or semester",moments_semester_1)
 ```
 
 # Semester 2
@@ -284,17 +276,25 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
         value = 18,
         label = "Elective credits"),
       #Classes choices
-      checkboxGroupInput(
+      pickerInput(
         inputId = "Classes_1",
         label = "Classes:",
         choices = classes_semester_1,
-        selected = "Quantitative Methods for Management"),
+        selected = "Quantitative Methods for Management",
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE), 
       # Moments choices
-      checkboxGroupInput(
+      pickerInput(
         inputId = "Moments_1",
         label = "Day - AM/PM:",
         choices = moments_semester_1,
-        selected = moments_semester_1)),
+        selected = moments_semester_1,
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE)), 
     # Show a plot of the generated distribution
     mainPanel(tableOutput("timetable_1"))),
   
