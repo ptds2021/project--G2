@@ -44,7 +44,7 @@ HEC_sem1_SOL <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1,
          Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), 
-         CORE = c(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1),  # Business Analytics
+         CORE = c(1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0),  # Strategy, Organization & Leadership
          CORE_credits = CORE*Credit,  # Total of credits per class in CORE
          ELECTIVE = ifelse(CORE == 1, 0, 1), # Management (elective)
          ELECTIVE_credits = ELECTIVE * Credit,  # Total of credits per class in Management (ELECTIVE)
@@ -110,9 +110,12 @@ HEC_sem2_SOL <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2,
          Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), # CORE
-         CORE=c(0,	0,	1,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	
-             0,	0,	0,	0,	0,	0,	0, 0,	1,	1,	1,	0,	0,	0,	0,	0,	0,	
-             0,	1,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,0),
+         CORE=c(1, 0,	0, 0,	0, 0,	0, 1,	0, 0,
+                0, 1,	1, 0,	0, 0,	0, 0,	0, 0,
+                1, 0,	0, 1,	0, 0,	0, 0,	0, 1,
+                0, 0, 0, 1, 0, 1, 1, 0,	0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,	0, 0,
+                0),
          CORE_credits = CORE*Credit,  # Total of credits per class in CORE
          ELECTIVE = ifelse(CORE == 1, 0, 1), # Management (elective)
          ELECTIVE_credits = ELECTIVE * Credit,  # Total of credits per class in Management (ELECTIVE)
@@ -178,8 +181,10 @@ HEC_sem3_SOL <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3,
          Start = as.numeric(Start)*24, 
          End = as.numeric(End)*24, 
          Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), # CORE
-         CORE = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,  # Business Analytics 
-                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0),
+         CORE = c(1,0,0,1,1,0,1,1,0,1,
+                  0,0,0,0,0,0,1,1,1,0,  # Strategy, Organization and Leadership
+                  1,0,1,0,0,0,0,1,0,0,
+                  0,0,0,0,0,1,1,1),
          CORE_credits = CORE*Credit,  # Total of credits per class in CORE
          ELECTIVE = ifelse(CORE == 1, 0, 1), # Management (elective)
          ELECTIVE_credits = ELECTIVE * Credit,  # Total of credits per class in Management (ELECTIVE)
@@ -286,7 +291,7 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
         inputId = "Classes_2",
         label = "Classes:",
         choices = classes_semester_2, 
-        selected = "Company Project in Business Analytics"),
+        selected = "Grand Challenges Strategy Project", "Innovation Strategy Project", "Strategy Consulting Project", "Sustainability Strategy Project"),
       # Moments choices
       checkboxGroupInput(
         inputId = "Moments_2",
