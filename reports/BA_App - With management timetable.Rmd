@@ -1,0 +1,656 @@
+---
+title: "Goals and Impacts"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+runtime: shiny
+---
+
+```{r, warning=FALSE}
+source(here::here("scripts/setup.R"))
+```
+
+```{r, warning=FALSE}
+# Replication with 55 times the hours slots for the first and last 7 weeks 
+weeks <- rep(1,  55)
+
+# Replication 5 times all the hours slots from 8 to 19
+hours_of_day <- rep(rep(9:19, 5), 1)
+
+# Replicate 11 times Monday (1), Tuesday, Wednesday, Thursday and Friday (5)
+days_of_week <-rep(c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11), rep(5, 11)), 1)
+
+# Create a list with all conditions for hours, day and first/last weeks combinations
+cols_to_make_first <- rlang::parse_exprs(
+  paste0('ifelse(
+         First ==', weeks, 
+         '& End >=', hours_of_day,
+         '& Start <', hours_of_day,
+         '& Day ==', days_of_week,',1,0)'))
+
+cols_to_make_last <- rlang::parse_exprs(
+  paste0('ifelse(
+         Last ==', weeks, 
+         '& End >=', hours_of_day,
+         '& Start <', hours_of_day,
+         '& Day ==', days_of_week,',1,0)'))
+```
+
+# Semester 1
+```{r}
+# Obtain the information about classes in semester 1 
+HEC_sem1_BA <- read_excel(here::here("data/Timetable_Master_Management.xlsx"), sheet = 1) %>%
+  mutate(Start_nice = chron::times(gsub("1899-12-31 ", "", as.character(Start_nice))), 
+         End_nice = chron::times(gsub("1899-12-31 ", "", as.character(End_nice))), 
+         Day = recode_factor(Day,
+          "Monday" = 1,
+          "Tuesday" = 2,
+          "Wednesday" = 3,
+          "Thursday" = 4,
+          "Friday"= 5),
+         First = `First 7 Weeks`, 
+         Last = `Last 7 Weeks`, 
+         MANDATORY = `Mandatory BA`,
+         CORE = `BA orientation`, 
+         CORE_credits = CORE*Credits,  
+         ELECTIVE = ifelse(CORE == 1, 0, 1), 
+         ELECTIVE_credits = ELECTIVE * Credits, 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <= 12, "AM", "PM"))))) %>%
+  filter(Semester ==1) %>%
+  select(-`BA orientation`, -`Mandatory BA`,
+         -Semester, -`Last 7 Weeks`, -`First 7 Weeks`) 
+
+# Create a vector of mandatory classes for semester 1
+classes_mandatory_1 <- HEC_sem1_BA %>% 
+  group_by(Class) %>% 
+  filter(MANDATORY==1) %>% 
+  select(Class) %>% unique() %>% unlist()
+
+# Remove the variable Mandatory for the HEC_sem1_BA
+HEC_sem1_BA <- HEC_sem1_BA %>% select(-MANDATORY)
+
+# Create dummies for all hours slots for first seven weeks
+HEC_dummies1_BA_part_1 <- HEC_sem1_BA %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make_first)  %>%
+  ungroup %>% 
+  pivot_longer(cols=starts_with("ifelse(F")) 
+
+# Create dummies for all hours slots for last seven weeks
+HEC_dummies1_BA_part_2 <- HEC_sem1_BA %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make_last)  %>%
+  ungroup %>% 
+  pivot_longer(cols=starts_with("ifelse(L")) 
+
+# Merge info of the two above tables, generate dummies for Moment
+HEC_dummies1_BA <- rbind(HEC_dummies1_BA_part_1, HEC_dummies1_BA_part_2) %>%
+  filter(value>0) %>% 
+  select(-value) %>%
+fastDummies::dummy_cols(., c("Moment", "name")) %>%
+  select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
+         -Start, -End, -Day, -CORE, -Professor, -Last, -First, -ELECTIVE) 
+
+# Remove unnecessary files created for hours slots dummies
+rm(HEC_dummies1_BA_part_1, HEC_dummies1_BA_part_2)
+
+# Store the names of the classes for semester 1
+uniques_1 <-HEC_dummies1_BA$Class
+
+# Generate dummies for classes (to be able to select classes)
+HEC_dummies1_BA <- HEC_dummies1_BA %>%
+  fastDummies::dummy_cols(., c("Class")) %>% 
+  select(-Class) %>% t() %>% as.data.frame()
+
+# Rename the colums with the unique_1 names stored before
+colnames(HEC_dummies1_BA) <- uniques_1
+
+# Store the names of all constraints
+constraints_1 <- row.names(HEC_dummies1_BA)
+
+# Keep only one columns for each classes (and not all of them when duplicated)
+HEC_dummies1_BA <- data.frame(sapply(split(1:ncol(HEC_dummies1_BA), 
+                                                    colnames(HEC_dummies1_BA)), 
+                                              function(i) do.call(pmax, HEC_dummies1_BA[i])))
+# Rename rows with constraints stored before
+row.names(HEC_dummies1_BA) <- constraints_1
+
+# Rename columns with classes names (and remove the word "Class" before)
+colnames(HEC_dummies1_BA) <- row.names(HEC_dummies1_BA %>%
+   filter(grepl("Class_", rownames(HEC_dummies1_BA))))
+colnames(HEC_dummies1_BA) <- gsub("Class_","",colnames(HEC_dummies1_BA))
+
+# Store all classes for semester 1 to be displayed in the scrolling list
+classes_semester_1 <- colnames(HEC_dummies1_BA)
+# Create a vector to be able to retrieve the Shiny reactive of classes
+classes_constraints_1 <- vector(length = length(classes_semester_1))
+
+# Store all moments for semester 1 to be displayed in the scrolling list
+moments_semester_1 <- levels(HEC_sem1_BA$Moment) 
+moments_semester_1 <- sub("1_","Monday ",moments_semester_1)
+moments_semester_1 <- sub("2_","Tuesday ",moments_semester_1)
+moments_semester_1 <- sub("3_","Wednesday ",moments_semester_1)
+moments_semester_1 <- sub("4_","Thursday ",moments_semester_1)
+moments_semester_1 <- sub("5_","Friday ",moments_semester_1)
+# Create a vector to be able to retrieve the Shiny reactive of moments
+moments_constraints_1 <- vector(length = length(moments_semester_1))
+```
+
+# Semester 2
+```{r}
+HEC_sem2_BA <- read_excel(here::here("data/Timetable_Master_Management.xlsx"), sheet = 1) %>%
+  mutate(Start_nice = chron::times(gsub("1899-12-31 ", "", as.character(Start_nice))), 
+         End_nice = chron::times(gsub("1899-12-31 ", "", as.character(End_nice))), 
+         Day = recode_factor(Day,
+          "Monday" = 1,
+          "Tuesday" = 2,
+          "Wednesday" = 3,
+          "Thursday" = 4,
+          "Friday"= 5),
+         First = `First 7 Weeks`, 
+         Last = `Last 7 Weeks`, 
+         MANDATORY = `Mandatory BA`, 
+         CORE = `BA orientation`, 
+         CORE_credits = CORE*Credits,  
+         ELECTIVE = ifelse(CORE == 1, 0, 1), 
+         ELECTIVE_credits = ELECTIVE * Credits, 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <= 12, "AM", "PM"))))) %>%
+  filter(Semester ==2) %>%
+  select(-`BA orientation`, -`Mandatory BA`,
+         -Semester, -`Last 7 Weeks`, -`First 7 Weeks`) 
+
+classes_mandatory_2 <- HEC_sem2_BA %>% 
+  group_by(Class) %>% 
+  filter(MANDATORY==1) %>% 
+  select(Class) %>% unique() %>% unlist()
+
+HEC_sem2_BA <- HEC_sem2_BA %>% select(-MANDATORY)
+
+HEC_dummies2_BA_part_1 <- HEC_sem2_BA %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make_first)  %>%
+  ungroup %>% 
+  pivot_longer(cols=starts_with("ifelse(F")) 
+
+HEC_dummies2_BA_part_2 <- HEC_sem2_BA %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make_last)  %>%
+  ungroup %>% 
+  pivot_longer(cols=starts_with("ifelse(L")) 
+
+HEC_dummies2_BA <- rbind(HEC_dummies2_BA_part_1, HEC_dummies2_BA_part_2) %>%
+  filter(value>0) %>% 
+  select(-value) %>%
+fastDummies::dummy_cols(., c("Moment", "name")) %>%
+  select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
+         -Start, -End, -Day, -CORE, -Professor, -Last, -First, -ELECTIVE) 
+
+rm(HEC_dummies2_BA_part_1, HEC_dummies2_BA_part_2)
+
+uniques_2 <-HEC_dummies2_BA$Class
+
+HEC_dummies2_BA <- HEC_dummies2_BA %>%
+  fastDummies::dummy_cols(., c("Class")) %>% 
+  select(-Class) %>% t() %>% as.data.frame()
+
+colnames(HEC_dummies2_BA) <- uniques_2
+constraints_2 <- row.names(HEC_dummies2_BA)
+HEC_dummies2_BA <- data.frame(sapply(split(1:ncol(HEC_dummies2_BA), 
+                                                    colnames(HEC_dummies2_BA)), 
+                                              function(i) do.call(pmax, HEC_dummies2_BA[i])))
+row.names(HEC_dummies2_BA) <- constraints_2
+colnames(HEC_dummies2_BA) <- row.names(HEC_dummies2_BA %>%
+   filter(grepl("Class_", rownames(HEC_dummies2_BA))))
+colnames(HEC_dummies2_BA) <- gsub("Class_","",colnames(HEC_dummies2_BA))
+
+classes_semester_2 <- colnames(HEC_dummies2_BA)
+classes_constraints_2 <- vector(length = length(classes_semester_2))
+
+moments_semester_2 <- levels(HEC_sem2_BA$Moment) 
+moments_semester_2 <- sub("1_","Monday ",moments_semester_2)
+moments_semester_2 <- sub("2_","Tuesday ",moments_semester_2)
+moments_semester_2 <- sub("3_","Wednesday ",moments_semester_2)
+moments_semester_2 <- sub("4_","Thursday ",moments_semester_2)
+moments_semester_2 <- sub("5_","Friday ",moments_semester_2)
+moments_constraints_2 <- vector(length = length(moments_semester_2))
+```
+
+# Semester 3
+```{r}
+HEC_sem3_BA <- read_excel(here::here("data/Timetable_Master_Management.xlsx"), sheet = 1) %>%
+  mutate(Start_nice = chron::times(gsub("1899-12-31 ", "", as.character(Start_nice))), 
+         End_nice = chron::times(gsub("1899-12-31 ", "", as.character(End_nice))), 
+         Day = recode_factor(Day,
+          "Monday" = 1,
+          "Tuesday" = 2,
+          "Wednesday" = 3,
+          "Thursday" = 4,
+          "Friday"= 5),
+         First = `First 7 Weeks`, 
+         Last = `Last 7 Weeks`, 
+         MANDATORY = `Mandatory BA`, 
+         CORE = `BA orientation`, 
+         CORE_credits = CORE*Credits,  
+         ELECTIVE = ifelse(CORE == 1, 0, 1), 
+         ELECTIVE_credits = ELECTIVE * Credits, 
+         Moment = as.factor(paste0(
+           Day, "_", as.factor(ifelse(End <= 12, "AM", "PM"))))) %>%
+  filter(Semester ==3) %>%
+  select(-`BA orientation`, -`Mandatory BA`,
+         -Semester, -`Last 7 Weeks`, -`First 7 Weeks`, -ELECTIVE) 
+
+classes_mandatory_3 <- HEC_sem3_BA %>% 
+  group_by(Class) %>% 
+  filter(MANDATORY==1) %>% 
+  select(Class) %>% unique() %>% unlist()
+
+HEC_sem3_BA <- HEC_sem3_BA %>% select(-MANDATORY)
+
+HEC_dummies3_BA_part_1 <- HEC_sem3_BA %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make_first)  %>%
+  ungroup %>% 
+  pivot_longer(cols=starts_with("ifelse(F")) 
+
+HEC_dummies3_BA_part_2 <- HEC_sem3_BA %>%
+  rowwise(.) %>%
+  mutate(!!!cols_to_make_last)  %>%
+  ungroup %>% 
+  pivot_longer(cols=starts_with("ifelse(L")) 
+
+HEC_dummies3_BA <- rbind(HEC_dummies3_BA_part_1, HEC_dummies3_BA_part_2) %>%
+  filter(value>0) %>% 
+  select(-value) %>%
+fastDummies::dummy_cols(., c("Moment", "name")) %>%
+  select(-Moment, -Start_nice, -End_nice, -Moment, -name, 
+         -Start, -End, -Day, -CORE, -Professor, -Last, -First) 
+
+rm(HEC_dummies3_BA_part_1, HEC_dummies3_BA_part_2)
+
+uniques_3 <-HEC_dummies3_BA$Class
+
+HEC_dummies3_BA <- HEC_dummies3_BA %>%
+  fastDummies::dummy_cols(., c("Class")) %>% 
+  select(-Class) %>% t() %>% as.data.frame()
+
+colnames(HEC_dummies3_BA) <- uniques_3
+constraints_3 <- row.names(HEC_dummies3_BA)
+HEC_dummies3_BA <- data.frame(sapply(split(1:ncol(HEC_dummies3_BA), 
+                                                    colnames(HEC_dummies3_BA)), 
+                                              function(i) do.call(pmax, HEC_dummies3_BA[i])))
+row.names(HEC_dummies3_BA) <- constraints_3
+colnames(HEC_dummies3_BA) <- row.names(HEC_dummies3_BA %>%
+   filter(grepl("Class_", rownames(HEC_dummies3_BA))))
+colnames(HEC_dummies3_BA) <- gsub("Class_","",colnames(HEC_dummies3_BA))
+
+classes_semester_3 <- colnames(HEC_dummies3_BA)
+classes_constraints_3 <- vector(length = length(classes_semester_3))
+
+moments_semester_3 <- levels(HEC_sem3_BA$Moment) 
+moments_semester_3 <- sub("1_","Monday ",moments_semester_3)
+moments_semester_3 <- sub("2_","Tuesday ",moments_semester_3)
+moments_semester_3 <- sub("3_","Wednesday ",moments_semester_3)
+moments_semester_3 <- sub("4_","Thursday ",moments_semester_3)
+moments_semester_3 <- sub("5_","Friday ",moments_semester_3)
+moments_constraints_3 <- vector(length = length(moments_semester_3))
+```
+
+```{r, warning=FALSE, error=FALSE}
+ui <- navbarPage(theme = shinytheme("cerulean"),
+  "HEC Lausanne - Timetable suggestions for Management students",
+  helpText("If no timetable is displayed, try to relax some constraints.
+           Don't take too many credits per semester, a standard load is 30.
+           Make sure to have over semester 2 & 3 at least 36 core credits."),
+  tabPanel(
+    "Semester 1",
+    sidebarPanel(
+      # ECTS choices
+      sliderInput(
+        inputId = "credits_1",
+        min = 0,
+        max = 42,
+        value = 30,
+        label = "Total credits"),
+      sliderInput(
+        inputId = "CORE_credits_1",
+        min = 0,
+        max = 36,
+        value = 18,
+        label = "Mandatory credits"),
+      sliderInput(
+        inputId = "ELECTIVE_credits_1",
+        min = 0,
+        max = 24,
+        value = 12,
+        label = "Elective credits"),
+      #Classes choices
+      pickerInput(
+        inputId = "Classes_1",
+        label = "Classes:",
+        choices = classes_semester_1,
+        selected = classes_mandatory_1, # Refer to mandatory classes
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE),
+      # Moments choices
+      pickerInput(
+        inputId = "Moments_1",
+        label = "Day - AM/PM:",
+        choices = moments_semester_1,
+        selected = moments_semester_1,
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE)),
+    # Show a plot of the generated distribution
+    mainPanel(tableOutput("timetable_1"))),
+
+  tabPanel(
+    "Semester 2",
+   sidebarPanel(
+     # ECTS choices
+      sliderInput(inputId = "credits_2",
+        min = 0, max = 42, value = 30, label = "Total credits"),
+      sliderInput(inputId = "CORE_credits_2",
+        min = 0, max = 36, value = 12, label = "Mandatory credits"),
+      sliderInput(inputId = "ELECTIVE_credits_2",
+        min = 0, max = 24, value = 18, label = "Elective credits"),
+    #Classes choices
+      pickerInput(
+        inputId = "Classes_2",
+        label = "Classes:",
+        choices = classes_semester_2,
+        selected = classes_mandatory_2,
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE),
+      # Moments choices
+      pickerInput(
+        inputId = "Moments_2",
+        label = "Day - AM/PM:",
+        choices = moments_semester_2,
+        selected = moments_semester_2,
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE)),
+    # Show a plot of the generated distribution
+    mainPanel(tableOutput("timetable_2"))),
+
+  tabPanel(
+    "Semester 3",
+    sidebarPanel(
+      # ECTS choices
+      sliderInput(inputId = "credits_3",
+        min = 0, max = 42, value = 30, label = "Total credits"),
+      sliderInput(inputId = "CORE_credits_3",
+        min = 0, max = 36, value = 12, label = "Mandatory credits"),
+      sliderInput(inputId = "ELECTIVE_credits_3",
+        min = 0, max = 24, value = 18, label = "Elective credits"),
+
+      #Classes choices
+      pickerInput(
+        inputId = "Classes_3",
+        label = "Classes:",
+        choices = classes_semester_3,
+        selected = classes_mandatory_3,
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE),
+      # Moments choices
+      pickerInput(
+        inputId = "Moments_3",
+        label = "Day - AM/PM:",
+        choices = moments_semester_3,
+        selected = moments_semester_3,
+        options = list(
+          `actions-box` = TRUE, size = 10,
+          `selected-text-format` = "count > 3"),
+        multiple = TRUE)),
+    # Show a plot of the generated distribution
+    mainPanel(tableOutput("timetable_3"))))
+
+```
+
+```{r, warning=FALSE, error=FALSE}
+server <- function(input, output, session) {
+
+  output$timetable_1 <- renderTable({
+  # Credit requirement
+  credits_1 <- reactive(input$credits_1)
+  CORE_credits_1 <- reactive(input$CORE_credits_1)
+  ELECTIVE_credits_1 <- reactive(input$ELECTIVE_credits_1)
+
+  # Period of the day
+  # moments_constraints_1 <- vector(length=length(moments_semester_1))
+  Moments_1 <- reactive(input$Moments_1)
+  for (i in 1:length(moments_semester_1)) {
+    moments_constraints_1[i] <- moments_semester_1[i] %in%  Moments_1()
+  }
+
+  # classes_constraints_1 <- vector(length=length(classes_semester_1))
+  Classes_1 <- reactive(input$Classes_1)
+  for (i in 1:length(classes_semester_1)) {
+    classes_constraints_1[i] <- classes_semester_1[i] %in%  Classes_1()
+  }
+
+  # Define parameters
+  nb_of_class_1 <- ncol(HEC_dummies1_BA)
+  nb_of_timeslot_1 <- dim(HEC_dummies1_BA %>%
+  filter(grepl("name", rownames(HEC_dummies1_BA))))[1]
+  nb_of_moment_1 <- length(row.names(HEC_dummies1_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies1_BA)))))
+
+  # Set matrix corresponding to coefficients of constraints
+  f.con_1 <- HEC_dummies1_BA
+
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj_1  <- HEC_dummies1_BA[1,] %>% unname() %>% unlist()
+
+  # Set unequality/equality signs
+  f.dir_1 <- c(
+    ">=", # Credits constraint
+    ">=", # CORE Credits constraint
+    ">=", # ELECTIVE Credits constraint
+    rep("<=", nb_of_moment_1), # Chunk of the day
+    rep.int("<=", nb_of_timeslot_1), # Time constraints
+    rep(">=", nb_of_class_1)) # Classes choices
+
+    # Set right hand side coefficients
+  f.rhs_1 <- c(
+    credits_1(),    # Credits constraint
+    CORE_credits_1(), # CORE Credits constraint
+    ELECTIVE_credits_1(), # ELECTIVE Credits constraint
+    length(classes_constraints_1)*moments_constraints_1, # Chunk of the day constraints
+    rep.int(1, nb_of_timeslot_1), # Time constraints
+    classes_constraints_1) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+    binary_1  <- lp("min", f.obj_1, f.con_1, f.dir_1, f.rhs_1, all.bin = TRUE, presolve = 1)$solution
+
+    timetable_1 <- cbind(as.numeric(binary_1),
+                       colnames(HEC_dummies1_BA)) %>%
+      as.data.frame() %>%
+      mutate(Choice = V1, Class = V2) %>%
+      left_join(HEC_sem1_BA) %>%
+      filter(Choice == 1) %>%
+      mutate(
+        Start = as.character(Start_nice),
+        End = as.character(End_nice),
+        Day = recode_factor(Day,
+          `1` = "Monday",
+          `2` = "Tuesday",
+          `3` = "Wednesday",
+          `4` = "Thursday",
+          `5` = "Friday"),
+        Core = recode(CORE,
+          `1` = "Yes",
+          `0` = "No")
+      )  %>% 
+      select(Day, Start, End, Class, Credits, Professor, Core) %>%
+      arrange(Day, Start)
+  })
+
+  output$timetable_2 <- renderTable({
+  # Credit requirement
+  credits_2 <- reactive(input$credits_2)
+  CORE_credits_2 <- reactive(input$CORE_credits_2)
+  ELECTIVE_credits_2 <- reactive(input$ELECTIVE_credits_2)
+
+  # Period of the day
+  # moments_constraints_2 <- vector(length=length(moments_semester_2))
+  Moments_2 <- reactive(input$Moments_2)
+  for (i in 1:length(moments_semester_2)) {
+    moments_constraints_2[i] <- moments_semester_2[i] %in%  Moments_2()
+  }
+
+  # classes_constraints_2 <- vector(length=length(classes_semester_2))
+  Classes_2 <- reactive(input$Classes_2)
+  for (i in 1:length(classes_semester_2)) {
+    classes_constraints_2[i] <- classes_semester_2[i] %in%  Classes_2()
+  }
+
+  # Define parameters
+  nb_of_class_2 <- ncol(HEC_dummies2_BA)
+  nb_of_timeslot_2 <- dim(HEC_dummies2_BA %>%
+  filter(grepl("name", rownames(HEC_dummies2_BA))))[1]
+  nb_of_moment_2 <- length(row.names(HEC_dummies2_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies2_BA)))))
+
+  # Set matrix corresponding to coefficients of constraints
+  f.con_2 <- HEC_dummies2_BA
+
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj_2  <- HEC_dummies2_BA[1,] %>% unname() %>% unlist()
+
+  # Set unequality/equality signs
+  f.dir_2 <- c(
+    ">=", # Credits constraint
+    ">=", # CORE Credits constraint
+    ">=", # ELECTIVE Credits constraint
+    rep("<=", nb_of_moment_2), # Chunk of the day
+    rep.int("<=", nb_of_timeslot_2), # Time constraints
+    rep(">=", nb_of_class_2)) # Classes choices
+
+    # Set right hand side coefficients
+  f.rhs_2 <- c(
+    credits_2(),    # Credits constraint
+    CORE_credits_2(), # CORE Credits constraint
+    ELECTIVE_credits_2(), # ELECTIVE Credits constraint
+    length(classes_constraints_2)*moments_constraints_2, # Chunk of the day constraints
+    rep.int(1, nb_of_timeslot_2), # Time constraints
+    classes_constraints_2) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+    binary_2  <- lp("min", f.obj_2, f.con_2, f.dir_2, f.rhs_2, all.bin = TRUE)$solution
+
+    timetable_2 <- cbind(as.numeric(binary_2),
+                       colnames(HEC_dummies2_BA)) %>%
+      as.data.frame() %>%
+      mutate(Choice = V1, Class = V2) %>%
+      left_join(HEC_sem2_BA) %>%
+      filter(Choice == 1) %>%
+      mutate(
+        Start = as.character(Start_nice),
+        End = as.character(End_nice),
+        Day = recode_factor(Day,
+          `1` = "Monday",
+          `2` = "Tuesday",
+          `3` = "Wednesday",
+          `4` = "Thursday",
+          `5` = "Friday"),
+        Core = recode(CORE,
+          `1` = "Yes",
+          `0` = "No")
+      ) %>%
+      select(Day, Start, End, Class, Credits, Professor, Core) %>%
+      arrange(Day, Start)
+  })
+
+  output$timetable_3 <- renderTable({
+  # Credit requirement
+  credits_3 <- reactive(input$credits_3)
+  CORE_credits_3 <- reactive(input$CORE_credits_3)
+  ELECTIVE_credits_3 <- reactive(input$ELECTIVE_credits_3)
+
+  # Period of the day
+  # moments_constraints_3 <- vector(length = length(moments_semester_3))
+  Moments_3 <- reactive(input$Moments_3)
+  for (i in 1:length(moments_semester_3)) {
+    moments_constraints_3[i] <- moments_semester_3[i] %in%  Moments_3()
+  }
+  
+  # classes_constraints_3 <- vector(length = length(classes_semester_3))
+  Classes_3 <- reactive(input$Classes_3)
+  for (i in 1:length(classes_semester_3)) {
+    classes_constraints_3[i] <- classes_semester_3[i] %in% Classes_3()
+  }
+
+  # Define parameters
+  nb_of_class_3 <- ncol(HEC_dummies3_BA)
+  nb_of_timeslot_3 <- dim(HEC_dummies3_BA %>%
+  filter(grepl("name", rownames(HEC_dummies3_BA))))[1]
+  nb_of_moment_3 <- length(row.names(HEC_dummies3_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies3_BA)))))
+
+  # Set matrix corresponding to coefficients of constraints
+  f.con_3 <- HEC_dummies3_BA
+
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj_3  <- HEC_dummies3_BA[1,] %>% unname() %>% unlist()
+
+  # Set unequality/equality signs
+  f.dir_3 <- c(
+    ">=", # Credits constraint
+    ">=", # CORE Credits constraint
+    ">=", # ELECTIVE Credits constraint
+    rep("<=", nb_of_moment_3), # Chunk of the day
+    rep.int("<=", nb_of_timeslot_3), # Time constraints
+    rep(">=", nb_of_class_3)) # Classes choices
+
+    # Set right hand side coefficients
+  f.rhs_3 <- c(
+    credits_3(),    # Credits constraint
+    CORE_credits_3(), # CORE Credits constraint
+    ELECTIVE_credits_3(), # ELECTIVE Credits constraint
+    length(classes_constraints_3)*moments_constraints_3, # Chunk of the day constraints
+    rep.int(1, nb_of_timeslot_3), # Time constraints
+    classes_constraints_3) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+    binary_3  <- lp("min", f.obj_3, f.con_3, f.dir_3, f.rhs_3, all.bin = TRUE)$solution
+
+    timetable_3 <- cbind(as.numeric(binary_3),
+                       colnames(HEC_dummies3_BA)) %>%
+      as.data.frame() %>%
+      mutate(Choice = V1, Class = V2) %>%
+      left_join(HEC_sem3_BA) %>%
+      filter(Choice == 1) %>%
+      mutate(
+        Start = as.character(Start_nice),
+        End = as.character(End_nice),
+        Day = recode_factor(Day,
+          `1` = "Monday",
+          `2` = "Tuesday",
+          `3` = "Wednesday",
+          `4` = "Thursday",
+          `5` = "Friday"),
+        Core = recode(CORE,
+          `1` = "Yes",
+          `0` = "No")
+      ) %>%
+      select(Day, Start, End, Class, Credits, Professor, Core) %>%
+      arrange(Day, Start)
+  })
+}
+```
+
+```{r}
+shinyApp(ui, server)
+```
