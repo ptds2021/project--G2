@@ -368,8 +368,9 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
           `selected-text-format` = "count > 3"),
         multiple = TRUE)),
     # Show a plot of the generated distribution
-    mainPanel(plotOutput("timetable_3"))))
-
+    mainPanel(tabsetPanel(type = "tabs",
+                  tabPanel("Visual Timetable", plotOutput("timetable_3_graph")),
+                  tabPanel("More detailed Timetable", tableOutput("timetable_3"))))))
 ```
 
 ```{r, warning=FALSE, error=FALSE}
@@ -527,7 +528,84 @@ server <- function(input, output, session) {
       arrange(Day, Start)
   })
 
-  output$timetable_3 <- renderPlot({
+    output$timetable_3 <- renderTable({
+  # Credit requirement
+  credits_3 <- reactive(input$credits_3)
+  CORE_credits_3 <- reactive(input$CORE_credits_3)
+  ELECTIVE_credits_3 <- reactive(input$ELECTIVE_credits_3)
+
+  # Period of the day
+  # moments_constraints_3 <- vector(length=length(moments_semester_3))
+  Moments_3 <- reactive(input$Moments_3)
+  for (i in 1:length(moments_semester_3)) {
+    moments_constraints_3[i] <- moments_semester_3[i] %in%  Moments_3()
+  }
+
+  # classes_constraints_3 <- vector(length=length(classes_semester_3))
+  Classes_3 <- reactive(input$Classes_3)
+  for (i in 1:length(classes_semester_3)) {
+    classes_constraints_3[i] <- classes_semester_3[i] %in%  Classes_3()
+  }
+
+  # Define parameters
+  nb_of_class_3 <- ncol(HEC_dummies3_BA)
+  nb_of_timeslot_3 <- dim(HEC_dummies3_BA %>%
+  filter(grepl("name", rownames(HEC_dummies3_BA))))[1]
+  nb_of_moment_3 <- length(row.names(HEC_dummies3_BA %>%
+  filter(grepl("AM|PM", rownames(HEC_dummies3_BA)))))
+
+  # Set matrix corresponding to coefficients of constraints
+  f.con_3 <- HEC_dummies3_BA
+
+  # Set coefficients of the objective function (min total credits taken)
+  f.obj_3  <- HEC_dummies3_BA[1,] %>% unname() %>% unlist()
+
+  # Set unequality/equality signs
+  f.dir_3 <- c(
+    ">=", # Credits constraint
+    ">=", # CORE Credits constraint
+    ">=", # ELECTIVE Credits constraint
+    rep("<=", nb_of_moment_3), # Chunk of the day
+    rep.int("<=", nb_of_timeslot_3), # Time constraints
+    rep(">=", nb_of_class_3)) # Classes choices
+
+    # Set right hand side coefficients
+  f.rhs_3 <- c(
+    credits_3(),    # Credits constraint
+    CORE_credits_3(), # CORE Credits constraint
+    ELECTIVE_credits_3(), # ELECTIVE Credits constraint
+    length(moments_constraints_3)*moments_constraints_3, # Chunk of the day constraints
+    rep.int(1, nb_of_timeslot_3), # Time constraints
+    classes_constraints_3) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+    binary_3  <- lp("min", f.obj_3, f.con_3, f.dir_3, f.rhs_3, all.bin = TRUE)$solution
+
+    timetable_3 <- cbind(as.numeric(binary_3),
+                       colnames(HEC_dummies3_BA)) %>%
+      as.data.frame() %>%
+      mutate(Choice = V1, Class = V2) %>%
+      left_join(HEC_sem2_BA) %>%
+      filter(Choice == 1) %>%
+      mutate(
+        Start = as.character(Start_nice),
+        End = as.character(End_nice),
+        Day = recode_factor(Day,
+          `1` = "Monday",
+          `2` = "Tuesday",
+          `3` = "Wednesday",
+          `4` = "Thursday",
+          `5` = "Friday"),
+        Core = recode(CORE,
+          `1` = "Yes",
+          `0` = "No")
+      ) %>%
+      select(Day, Start, End, Class, Prof, Credit, Core) %>%
+      arrange(Day, Start)
+  })
+  
+  
+  output$timetable_3_graph <- renderPlot({
   # Credit requirement
   credits_3 <- reactive(input$credits_3)
   CORE_credits_3 <- reactive(input$CORE_credits_3)
