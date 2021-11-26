@@ -580,55 +580,48 @@ server <- function(input, output, session) {
     # Variables choices (1 if class is taken, 0 otherwise)
     binary_3  <- lp("min", f.obj_3, f.con_3, f.dir_3, f.rhs_3, all.bin = TRUE)$solution
 
-    test <- cbind(as.numeric(binary_3),
-                       colnames(HEC_dummies3_BA)) %>%
-      as.data.frame() %>%
-      mutate(Choice = V1, Class = V2) %>%
-      left_join(HEC_sem3_BA) %>%
-      filter(Choice == 1) #%>%
-      # mutate(
-      #   Start = as.character(Start_nice),
-      #   End = as.character(End_nice),
-      #   Day = recode_factor(Day,
-      #     `1` = "Monday",
-      #     `2` = "Tuesday",
-      #     `3` = "Wednesday",
-      #     `4` = "Thursday",
-      #     `5` = "Friday"),
-      #   Core = recode(CORE,
-      #     `1` = "Yes",
-      #     `0` = "No")
-      # ) %>%
-      # select(Day, Start, End, Class, Prof, Credit, CORE) %>%
-      # arrange(Day, Start)
-    
-    d_new <- data.frame(
-      x1 = test$Day,
-      x2 = test$Day + 1,
-      y1 = test$Start,
-      y2 = test$End,
-      t = test$CORE,
-      r = test$Class
-    )
-    
-    ggplot() +
-      geom_rect(
-        data = d_new,
-        mapping = aes(
-          xmin = x1,
-          xmax = x2,
-          ymin = y1,
-          ymax = y2,
-          fill = r
-        ),
-        color = "black",
-        size = 0,
-        alpha = 0.5
-      ) +
-      xlim(1, 6) +
-      ylim(8.50, 19) +
-      labs(x = "Days of the week", y = "Time (h)") +
-      theme(legend.position = "none")
+    HEC_test <- cbind(as.numeric(binary_3),
+                    colnames(HEC_dummies3_BA)) %>%
+    as.data.frame() %>%
+    mutate(Choice = V1, Class = V2) %>%
+    left_join(HEC_sem3_BA) %>%
+    filter(Choice == 1)
+  
+  d_new = data.frame(
+    x1 = (HEC_test$Day-0.5),
+    x2 = (HEC_test$Day+0.5),
+    y1 = HEC_test$Start,
+    y2 = HEC_test$End,
+    t = HEC_test$CORE,
+    r = HEC_test$Class)
+  
+  ggplot() +
+    geom_rect(
+      data = d_new,
+      mapping = aes(
+        xmin = x1,
+        xmax = x2,
+        ymin = y1,
+        ymax = y2,
+        fill = r
+      ),
+      color = "black",
+      size = 0,
+      alpha = 0.5
+    )  +
+    labs(x = "", y = "Hours") +
+    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
+    scale_y_continuous(breaks = seq(8, 19, by = 1),
+                       trans = scales::reverse_trans()) +
+    geom_label(data = d_new,
+               aes(
+                 x = x1 + (x2 - x1) / 2,
+                 y = y1 + (y2 - y1) / 2,
+                 label = r
+               ),
+               size = 2) +
+    theme(legend.position = "none") +
+    theme(axis.ticks = element_blank())
     
   })
 }

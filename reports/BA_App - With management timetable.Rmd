@@ -9,6 +9,7 @@ runtime: shiny
 
 ```{r, warning=FALSE}
 source(here::here("scripts/setup.R"))
+library(ggplot2)
 ```
 
 ```{r, warning=FALSE}
@@ -414,7 +415,7 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
           `selected-text-format` = "count > 3"),
         multiple = TRUE)),
     # Show a plot of the generated distribution
-    mainPanel(tableOutput("timetable_3"))))
+    mainPanel(plotOutput("timetable_3"))))
 
 ```
 
@@ -573,7 +574,7 @@ server <- function(input, output, session) {
       arrange(Day, Start)
   })
 
-  output$timetable_3 <- renderTable({
+  output$timetable_3 <- renderPlot({
   # Credit requirement
   credits_3 <- reactive(input$credits_3)
   CORE_credits_3 <- reactive(input$CORE_credits_3)
@@ -624,29 +625,54 @@ server <- function(input, output, session) {
     classes_constraints_3) # Classes constraints
 
     # Variables choices (1 if class is taken, 0 otherwise)
-    binary_3  <- lp("min", f.obj_3, f.con_3, f.dir_3, f.rhs_3, all.bin = TRUE)$solution
-
-    timetable_3 <- cbind(as.numeric(binary_3),
-                       colnames(HEC_dummies3_BA)) %>%
-      as.data.frame() %>%
-      mutate(Choice = V1, Class = V2) %>%
-      left_join(HEC_sem3_BA) %>%
-      filter(Choice == 1) %>%
-      mutate(
-        Start = as.character(Start_nice),
-        End = as.character(End_nice),
-        Day = recode_factor(Day,
-          `1` = "Monday",
-          `2` = "Tuesday",
-          `3` = "Wednesday",
-          `4` = "Thursday",
-          `5` = "Friday"),
-        Core = recode(CORE,
-          `1` = "Yes",
-          `0` = "No")
-      ) %>%
-      select(Day, Start, End, Class, Credits, Professor, Core) %>%
-      arrange(Day, Start)
+  binary_3  <-
+    lp("min", f.obj_3, f.con_3, f.dir_3, f.rhs_3, all.bin = TRUE)$solution
+  
+  HEC_test <- cbind(as.numeric(binary_3),
+                    colnames(HEC_dummies3_BA)) %>%
+    as.data.frame() %>%
+    mutate(Choice = V1, Class = V2) %>%
+    left_join(HEC_sem3_BA) %>%
+    filter(Choice == 1)
+  
+  d_new = data.frame(
+    x1 = (HEC_test$Day - 0.5),
+    x2 = (HEC_test$Day + 0.5),
+    y1 = HEC_test$Start,
+    y2 = HEC_test$End,
+    t = HEC_test$CORE,
+    r = HEC_test$Class
+  )
+  
+  ggplot() +
+    geom_rect(
+      data = d_new,
+      mapping = aes(
+        xmin = x1,
+        xmax = x2,
+        ymin = y1,
+        ymax = y2,
+        fill = r
+      ),
+      color = "black",
+      size = 0,
+      alpha = 0.5
+    )  +
+    labs(x = "", y = "Hours") +
+    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
+    scale_y_continuous(breaks = seq(8, 19, by = 1),
+                       trans = scales::reverse_trans()) +
+    geom_label(data = d_new,
+               aes(
+                 x = x1 + (x2 - x1) / 2,
+                 y = y1 + (y2 - y1) / 2,
+                 label = r
+               ),
+               size = 2) +
+    theme(legend.position = "none") +
+    theme(axis.ticks = element_blank())
+  
+    
   })
 }
 ```

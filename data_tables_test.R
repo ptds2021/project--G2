@@ -1,5 +1,4 @@
 library(ggplot2)
-library(plotly)
 
 HEC_test <- HEC_sem1_BA
 
