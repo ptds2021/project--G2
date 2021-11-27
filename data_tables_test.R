@@ -1,4 +1,5 @@
 library(ggplot2)
+library(ggrepel)
 
 HEC_test <- HEC_sem1_BA
 
@@ -24,7 +25,7 @@ ggplot() +
   labs(x="", y = "Hours") +
   scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) + 
   scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
-  geom_label(data = d_new,
+  geom_label_repel(data = d_new,
              aes(
                x = x1 + (x2 - x1) / 2,
                y = y1 + (y2 - y1) / 2,
@@ -33,3 +34,4 @@ ggplot() +
              size = 2) +
   theme(legend.position = "none") + 
   theme(axis.ticks = element_blank())
+
