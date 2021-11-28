@@ -1,10 +1,11 @@
 library(ggplot2)
 library(ggrepel)
+library(ggfittext)
 
-HEC_test <- HEC_sem1_BA
+HEC_test <- raw_input[[1]]
 
-d_new=data.frame(x1=HEC_test$Day-0.5, 
-             x2=HEC_test$Day+0.5, 
+d_new=data.frame(x1=as.numeric(HEC_test$Day)-0.5, 
+             x2=as.numeric(HEC_test$Day)+0.5, 
              y1=HEC_test$Start,
              y2=HEC_test$End, 
              t=HEC_test$CORE, 
@@ -25,7 +26,7 @@ ggplot() +
   labs(x="", y = "Hours") +
   scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) + 
   scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
-  geom_label_repel(data = d_new,
+  geom_label(data = d_new, 
              aes(
                x = x1 + (x2 - x1) / 2,
                y = y1 + (y2 - y1) / 2,
@@ -34,4 +35,3 @@ ggplot() +
              size = 2) +
   theme(legend.position = "none") + 
   theme(axis.ticks = element_blank())
-
