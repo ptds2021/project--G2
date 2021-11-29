@@ -287,7 +287,7 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(tabsetPanel(type = "tabs",
                   tabPanel("Visual Timetable", plotOutput("timetable_1_graph")),
-                  tabPanel("More detailed Timetable", tableOutput("timetable_1"))), style='width: 900px'))),
+                  tabPanel("More detailed Timetable", tableOutput("timetable_1"))), style='width: 100%'))),
   
 
   tabPanel(
@@ -323,7 +323,7 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(tabsetPanel(type = "tabs",
                   tabPanel("Visual Timetable", plotOutput("timetable_2_graph")),
-                  tabPanel("More detailed Timetable", tableOutput("timetable_2"))), style='width: 900px'))),
+                  tabPanel("More detailed Timetable", tableOutput("timetable_2"))), style='width: 100%'))),
 
   tabPanel(
     "Semester 3",
@@ -359,7 +359,7 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(tabsetPanel(type = "tabs",
                   tabPanel("Visual Timetable", plotOutput("timetable_3_graph")),
-                  tabPanel("More detailed Timetable", tableOutput("timetable_3"))), style='width: 900px'))))
+                  tabPanel("More detailed Timetable", tableOutput("timetable_3"))), style='width: 100%'))))
 ```
 
 ```{r, warning=FALSE, error=FALSE}
