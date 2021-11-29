@@ -285,7 +285,10 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
           `selected-text-format` = "count > 3"),
         multiple = TRUE)),
     # Show a plot of the generated distribution
-    mainPanel(tableOutput("timetable_1"))),
+    mainPanel(mainPanel(tabsetPanel(type = "tabs",
+                  tabPanel("Visual Timetable", plotOutput("timetable_1_graph")),
+                  tabPanel("More detailed Timetable", tableOutput("timetable_1"))), style='width: 900px'))),
+  
 
   tabPanel(
     "Semester 2",
@@ -318,7 +321,9 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
           `selected-text-format` = "count > 3"),
         multiple = TRUE)),
     # Show a plot of the generated distribution
-    mainPanel(tableOutput("timetable_2"))),
+    mainPanel(mainPanel(tabsetPanel(type = "tabs",
+                  tabPanel("Visual Timetable", plotOutput("timetable_2_graph")),
+                  tabPanel("More detailed Timetable", tableOutput("timetable_2"))), style='width: 900px'))),
 
   tabPanel(
     "Semester 3",
@@ -354,7 +359,7 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(tabsetPanel(type = "tabs",
                   tabPanel("Visual Timetable", plotOutput("timetable_3_graph")),
-                  tabPanel("More detailed Timetable", tableOutput("timetable_3")))))))
+                  tabPanel("More detailed Timetable", tableOutput("timetable_3"))), style='width: 900px'))))
 ```
 
 ```{r, warning=FALSE, error=FALSE}
@@ -459,6 +464,72 @@ server <- function(input, output, session) {
       filter(Choice == 1) %>%
       select(-V1, -V2, -Choice)
   })
+  
+  output$timetable_1_graph <- renderPlot({
+  # Period of the day
+  Moments_1 <- reactive(input$Moments_1)
+  for (i in 1:length(moments_semester[[1]])) {
+    moments_constraints[[1]][i] <- moments_semester[[1]][i] %in%  Moments_1()
+  }
+
+  Classes_1 <- reactive(input$Classes_1)
+  for (i in 1:length(classes_semester[[1]])) {
+    classes_constraints[[1]][i] <- classes_semester[[1]][i] %in% Classes_1()
+  }
+
+    # Set right hand side coefficients
+  f.rhs_1 <- c(
+    reactive(input$credits_1)(),    # Credits constraint
+    reactive(input$CORE_credits_1)(), # CORE Credits constraint
+    reactive(input$ELECTIVE_credits_1)(), # ELECTIVE Credits constraint
+    length(classes_constraints[[1]])*moments_constraints[[1]], # Chunk of the day constraints
+    rep.int(1, nb_of_timeslot[[1]]), # Time constraints
+    classes_constraints[[1]]) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+ cbind(
+    as.numeric(lp("min",
+      f.obj[[1]],
+      f.con[[1]],
+      f.dir[[1]],
+      f.rhs_1,
+      all.bin = TRUE,
+      presolve = 1)$solution),
+  colnames(HEC_dummies_BA[[1]])) %>%
+    as.data.frame() %>%
+    mutate(Choice = V1, Class = V2) %>%
+    left_join(raw_input[[1]]) %>%
+    filter(Choice == 1) %>%
+    select(-V1,-V2,-Choice) %>%
+    transmute(
+      x1 = as.numeric(Day) - 0.5,
+      x2 = as.numeric(Day) + 0.5,
+      y1 = Start,
+      y2 = End,
+      t = CORE,
+      r = Class) %>%
+    ggplot() +
+    geom_rect(
+      mapping = aes(
+        xmin = x1,
+        xmax = x2,
+        ymin = y1,
+        ymax = y2,
+        fill = r),
+      color = "black",
+      size = 0,
+      alpha = 0.5)  +
+    labs(x = "", y = "Hours") +
+    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
+    scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
+    geom_label(aes(
+      x = x1 + (x2 - x1) / 2,
+      y = y1 + (y2 - y1) / 2,
+      label = r),
+    size = 2) +
+    theme(legend.position = "none") +
+    theme(axis.ticks = element_blank())
+  })
 
   output$timetable_2 <- renderTable({
 
@@ -492,6 +563,72 @@ server <- function(input, output, session) {
       left_join(nice_input[[2]]) %>%
       filter(Choice == 1) %>%
       select(-V1, -V2, -Choice)
+  })
+  
+  output$timetable_2_graph <- renderPlot({
+  # Period of the day
+  Moments_2 <- reactive(input$Moments_2)
+  for (i in 1:length(moments_semester[[2]])) {
+    moments_constraints[[2]][i] <- moments_semester[[2]][i] %in%  Moments_2()
+  }
+
+  Classes_2 <- reactive(input$Classes_2)
+  for (i in 1:length(classes_semester[[2]])) {
+    classes_constraints[[2]][i] <- classes_semester[[2]][i] %in% Classes_2()
+  }
+
+    # Set right hand side coefficients
+  f.rhs_2 <- c(
+    reactive(input$credits_2)(),    # Credits constraint
+    reactive(input$CORE_credits_2)(), # CORE Credits constraint
+    reactive(input$ELECTIVE_credits_2)(), # ELECTIVE Credits constraint
+    length(classes_constraints[[2]])*moments_constraints[[2]], # Chunk of the day constraints
+    rep.int(1, nb_of_timeslot[[2]]), # Time constraints
+    classes_constraints[[2]]) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+ cbind(
+    as.numeric(lp("min",
+      f.obj[[2]],
+      f.con[[2]],
+      f.dir[[2]],
+      f.rhs_2,
+      all.bin = TRUE,
+      presolve = 1)$solution),
+  colnames(HEC_dummies_BA[[2]])) %>%
+    as.data.frame() %>%
+    mutate(Choice = V1, Class = V2) %>%
+    left_join(raw_input[[2]]) %>%
+    filter(Choice == 1) %>%
+    select(-V1,-V2,-Choice) %>%
+    transmute(
+      x1 = as.numeric(Day) - 0.5,
+      x2 = as.numeric(Day) + 0.5,
+      y1 = Start,
+      y2 = End,
+      t = CORE,
+      r = Class) %>%
+    ggplot() +
+    geom_rect(
+      mapping = aes(
+        xmin = x1,
+        xmax = x2,
+        ymin = y1,
+        ymax = y2,
+        fill = r),
+      color = "black",
+      size = 0,
+      alpha = 0.5)  +
+    labs(x = "", y = "Hours") +
+    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
+    scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
+    geom_label(aes(
+      x = x1 + (x2 - x1) / 2,
+      y = y1 + (y2 - y1) / 2,
+      label = r),
+    size = 2) +
+    theme(legend.position = "none") +
+    theme(axis.ticks = element_blank())
   })
 
   output$timetable_3 <- renderTable({
