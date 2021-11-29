@@ -10,6 +10,7 @@ runtime: shiny
 ```{r, warning=FALSE}
 source(here::here("scripts/setup.R"))
 library("pkggroup2")
+library("shiny")
 # Obtain the dummies and all necessary variables from this package
 dummy_creation()
 ```
@@ -144,31 +145,30 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
 server <- function(input, output, session) {
   
   output$timetable_1 <- renderTable({
-  # Period of the day
+    
+    # Period of the day
   Moments_1 <- reactive(input$Moments_1)
   for (i in 1:length(moments_semester[[1]])) {
-    moments_constraints[[1]][i] <-
-      moments_semester[[1]][i] %in% Moments_1()
+    moments_constraints[[1]][i] <- moments_semester[[1]][i] %in%  Moments_1()
   }
-  
+
   Classes_1 <- reactive(input$Classes_1)
   for (i in 1:length(classes_semester[[1]])) {
-    classes_constraints[[1]][i] <-
-      classes_semester[[1]][i] %in%  Classes_1()
+    classes_constraints[[1]][i] <- classes_semester[[1]][i] %in%  Classes_1()
   }
-  
-  # Set right hand side coefficients
+
+    # Set right hand side coefficients
   f.rhs_1 <- c(
     reactive(input$credits_1)(),    # Credits constraint
     reactive(input$CORE_credits_1)(), # CORE Credits constraint
     reactive(input$ELECTIVE_credits_1)(), # ELECTIVE Credits constraint
     length(classes_constraints[[1]])*moments_constraints[[1]], # Chunk of the day constraints
     rep.int(1, nb_of_timeslot[[1]]), # Time constraints
-    classes_constraints[[1]]) # Classes constraints  
-    
-  # Variables choices (1 if class is taken, 0 otherwise)
-  timetable_1 <- cbind(as.numeric(
-            lp("min", f.obj[[1]], f.con[[1]], f.dir[[1]], 
+    classes_constraints[[1]]) # Classes constraints
+
+    # Variables choices (1 if class is taken, 0 otherwise)
+    timetable_1 <- cbind(as.numeric(
+            lp("min", f.obj[[1]], f.con[[1]], f.dir[[1]],
                f.rhs_1, all.bin = TRUE, presolve = 1)$solution),
                        colnames(HEC_dummies_BA[[1]])) %>%
       as.data.frame() %>%
@@ -176,6 +176,13 @@ server <- function(input, output, session) {
       left_join(nice_input[[1]]) %>%
       filter(Choice == 1) %>%
       select(-V1, -V2, -Choice)
+    # 
+    # class_optim(1,
+    #             input$credits_1,
+    #             input$CORE_credits_1,
+    #             input$ELECTIVE_credits_1,
+    #             moments_constraints[[1]],
+    #             classes_constraints[[1]])
   })
   
   output$timetable_1_graph <- renderPlot({
@@ -200,7 +207,7 @@ server <- function(input, output, session) {
     classes_constraints[[1]]) # Classes constraints
 
     # Variables choices (1 if class is taken, 0 otherwise)
- cbind(
+ final_choice_1 <- cbind(
     as.numeric(lp("min",
       f.obj[[1]],
       f.con[[1]],
@@ -220,28 +227,9 @@ server <- function(input, output, session) {
       y1 = Start,
       y2 = End,
       t = CORE,
-      r = Class) %>%
-    ggplot() +
-    geom_rect(
-      mapping = aes(
-        xmin = x1,
-        xmax = x2,
-        ymin = y1,
-        ymax = y2,
-        fill = r),
-      color = "black",
-      size = 0,
-      alpha = 0.5)  +
-    labs(x = "", y = "Hours") +
-    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
-    scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
-    geom_label(aes(
-      x = x1 + (x2 - x1) / 2,
-      y = y1 + (y2 - y1) / 2,
-      label = r),
-    size = 2) +
-    theme(legend.position = "none") +
-    theme(axis.ticks = element_blank())
+      r = Class) 
+ 
+ pkggroup2::display_visual_timetable(final_choice_1)
   })
 
   output$timetable_2 <- renderTable({
@@ -300,7 +288,7 @@ server <- function(input, output, session) {
     classes_constraints[[2]]) # Classes constraints
 
     # Variables choices (1 if class is taken, 0 otherwise)
- cbind(
+ final_choice_2 <- cbind(
     as.numeric(lp("min",
       f.obj[[2]],
       f.con[[2]],
@@ -320,28 +308,10 @@ server <- function(input, output, session) {
       y1 = Start,
       y2 = End,
       t = CORE,
-      r = Class) %>%
-    ggplot() +
-    geom_rect(
-      mapping = aes(
-        xmin = x1,
-        xmax = x2,
-        ymin = y1,
-        ymax = y2,
-        fill = r),
-      color = "black",
-      size = 0,
-      alpha = 0.5)  +
-    labs(x = "", y = "Hours") +
-    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
-    scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
-    geom_label(aes(
-      x = x1 + (x2 - x1) / 2,
-      y = y1 + (y2 - y1) / 2,
-      label = r),
-    size = 2) +
-    theme(legend.position = "none") +
-    theme(axis.ticks = element_blank())
+      r = Class) 
+ 
+  pkggroup2::display_visual_timetable(final_choice_2)
+
   })
 
   output$timetable_3 <- renderTable({
@@ -400,7 +370,7 @@ server <- function(input, output, session) {
     classes_constraints[[3]]) # Classes constraints
 
     # Variables choices (1 if class is taken, 0 otherwise)
- cbind(
+ final_choice_3 <- cbind(
     as.numeric(lp("min",
       f.obj[[3]],
       f.con[[3]],
@@ -420,28 +390,9 @@ server <- function(input, output, session) {
       y1 = Start,
       y2 = End,
       t = CORE,
-      r = Class) %>%
-    ggplot() +
-    geom_rect(
-      mapping = aes(
-        xmin = x1,
-        xmax = x2,
-        ymin = y1,
-        ymax = y2,
-        fill = r),
-      color = "black",
-      size = 0,
-      alpha = 0.5)  +
-    labs(x = "", y = "Hours") +
-    scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
-    scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
-    geom_label(aes(
-      x = x1 + (x2 - x1) / 2,
-      y = y1 + (y2 - y1) / 2,
-      label = r),
-    size = 2) +
-    theme(legend.position = "none") +
-    theme(axis.ticks = element_blank())
+      r = Class) 
+ 
+ pkggroup2::display_visual_timetable(final_choice_3)
   })
 }
 ```
