@@ -1,4 +1,4 @@
-Package: pkggroup2
+Package: hectimetables
 Type: Package
 Title: HEC timetable creation - functions for ShinyApp
 Version: 0.1.0
