@@ -144,9 +144,6 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
 ```{r, warning=FALSE, error=FALSE}
 server <- function(input, output, session) {
   
-  output$timetable_1 <- renderTable({ 
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
   for (i in 1:length(moments_semester[[1]])) {
     moments_constraints[[1]][i] <- moments_semester[[1]][i] %in% reactive(input$Moments_1)()}
 
@@ -162,7 +159,11 @@ server <- function(input, output, session) {
    length(classes_constraints[[1]])*moments_constraints[[1]], # Chunk of the day constraints
    rep.int(1, nb_of_timeslot[[1]]),      # Time constraints
    classes_constraints[[1]])             # Classes constraints
-     
+  
+  
+  output$timetable_1 <- renderTable({ 
+  ## ALL REACTIVE INPUTS FROM USER
+  # Period of the day
   # Optimization of classes in form of a textual timetable
   class_1 <- pkggroup2::class_optim(1, f.obj, f.con, f.dir, f.rhs_1)
   pkggroup2::display_text_timetable(1, class_1)
