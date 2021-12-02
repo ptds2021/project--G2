@@ -9,10 +9,11 @@ runtime: shiny
 
 ```{r, warning=FALSE}
 source(here::here("scripts/setup.R"))
-library("pkggroup2")
+library("hectimetables")
 library("shiny")
 # Obtain the dummies and all necessary variables from this package
-pkggroup2::dummy_creation()
+# Simply copy paste to console if it is not working directly. 
+hectimetables::dummy_creation()
 ```
 
 ```{r, warning=FALSE, error=FALSE}
@@ -143,155 +144,38 @@ ui <- navbarPage(theme = shinytheme("cerulean"),
 
 ```{r, warning=FALSE, error=FALSE}
 server <- function(input, output, session) {
-
-  output$timetable_1 <- renderTable({ 
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
-  for (i in 1:length(moments_semester[[1]])) {
-    moments_constraints[[1]][i] <- moments_semester[[1]][i] %in% reactive(input$Moments_1)()}
-
-  # Classes chosen
-  for (i in 1:length(classes_semester[[1]])) {
-    classes_constraints[[1]][i] <- classes_semester[[1]][i] %in% reactive(input$Classes_1)()}
-    
-  # Right hand side of constraints based on user inputs 
-  f.rhs_1 <- c(
-   reactive(input$credits_1)(),          # Credits constraint
-   reactive(input$CORE_credits_1)(),     # CORE Credits constraint
-   reactive(input$ELECTIVE_credits_1)(), # ELECTIVE Credits constraint
-   length(classes_constraints[[1]])*moments_constraints[[1]], # Chunk of the day constraints
-   rep.int(1, nb_of_timeslot[[1]]),      # Time constraints
-   classes_constraints[[1]])             # Classes constraints
-    
-  # Optimization of classes in form of a textual timetable
-  class_1 <- pkggroup2::class_optim(1, f.obj, f.con, f.dir, f.rhs_1)
-  pkggroup2::display_text_timetable(1, class_1)
-  })
   
+  semester_1 <- reactive({
+      hectimetables::class_optim(1, f.obj, f.con, f.dir,
+              input$credits_1, input$CORE_credits_1, input$ELECTIVE_credits_1, input$Moments_1, class=input$Classes_1)})
+
+  output$timetable_1 <- renderTable({
+    hectimetables::display_text_timetable(1, semester_1())})
+
   output$timetable_1_graph <- renderPlot({
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
-  for (i in 1:length(moments_semester[[1]])) {
-    moments_constraints[[1]][i] <- moments_semester[[1]][i] %in% reactive(input$Moments_1)()}
-
-  # Classes chosen
-  for (i in 1:length(classes_semester[[1]])) {
-    classes_constraints[[1]][i] <- classes_semester[[1]][i] %in% reactive(input$Classes_1)()}
-    
-  # Right hand side of constraints based on user inputs 
-  f.rhs_1 <- c(
-   reactive(input$credits_1)(),          # Credits constraint
-   reactive(input$CORE_credits_1)(),     # CORE Credits constraint
-   reactive(input$ELECTIVE_credits_1)(), # ELECTIVE Credits constraint
-   length(classes_constraints[[1]])*moments_constraints[[1]], # Chunk of the day constraints
-   rep.int(1, nb_of_timeslot[[1]]),      # Time constraints
-   classes_constraints[[1]])             # Classes constraints
-     
-  # Optimization of classes in form of a visual timetable
-  class_1 <- pkggroup2::class_optim(1, f.obj, f.con, f.dir, f.rhs_1)
-  pkggroup2::display_visual_timetable(1, class_1)
+    hectimetables::display_visual_timetable(1, semester_1())})
   
-  })
-
-  output$timetable_2 <- renderTable({ 
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
-  for (i in 1:length(moments_semester[[2]])) {
-    moments_constraints[[2]][i] <- moments_semester[[2]][i] %in% reactive(input$Moments_2)()}
-
-  # Classes chosen
-  for (i in 1:length(classes_semester[[2]])) {
-    classes_constraints[[2]][i] <- classes_semester[[2]][i] %in% reactive(input$Classes_2)()}
-    
-  # Right hand side of constraints based on user inputs 
-  f.rhs_2 <- c(
-   reactive(input$credits_2)(),          # Credits constraint
-   reactive(input$CORE_credits_2)(),     # CORE Credits constraint
-   reactive(input$ELECTIVE_credits_2)(), # ELECTIVE Credits constraint
-   length(classes_constraints[[2]])*moments_constraints[[2]], # Chunk of the day constraints
-   rep.int(1, nb_of_timeslot[[2]]),      # Time constraints
-   classes_constraints[[2]])             # Classes constraints
-     
-  # Optimization of classes in form of a textual timetable
-  class_2 <- pkggroup2::class_optim(2, f.obj, f.con, f.dir, f.rhs_2)
-  pkggroup2::display_text_timetable(2, class_2)
+  semester_2 <- reactive({
+    hectimetables::class_optim(2, f.obj, f.con, f.dir,
+              input$credits_2, input$CORE_credits_2, input$ELECTIVE_credits_2,
+              input$Moments_2, class=input$Classes_2)})
   
-  })
-  
+  output$timetable_2 <- renderTable({
+    hectimetables::display_text_timetable(2, semester_2())})
+
   output$timetable_2_graph <- renderPlot({
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
-  for (i in 1:length(moments_semester[[2]])) {
-    moments_constraints[[2]][i] <- moments_semester[[2]][i] %in% reactive(input$Moments_2)()}
+    hectimetables::display_visual_timetable(2, semester_2())})
 
-  # Classes chosen
-  for (i in 1:length(classes_semester[[2]])) {
-    classes_constraints[[2]][i] <- classes_semester[[2]][i] %in% reactive(input$Classes_2)()}
-    
-  # Right hand side of constraints based on user inputs 
-  f.rhs_2 <- c(
-   reactive(input$credits_2)(),          # Credits constraint
-   reactive(input$CORE_credits_2)(),     # CORE Credits constraint
-   reactive(input$ELECTIVE_credits_2)(), # ELECTIVE Credits constraint
-   length(classes_constraints[[2]])*moments_constraints[[2]], # Chunk of the day constraints
-   rep.int(1, nb_of_timeslot[[2]]),      # Time constraints
-   classes_constraints[[2]])             # Classes constraints
-     
-  # Optimization of classes in form of a visual timetable
-  class_2 <- pkggroup2::class_optim(2, f.obj, f.con, f.dir, f.rhs_2)
-  pkggroup2::display_visual_timetable(2, class_2)
-  
-  })
-  
-  output$timetable_3 <- renderTable({ 
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
-  for (i in 1:length(moments_semester[[3]])) {
-    moments_constraints[[3]][i] <- moments_semester[[3]][i] %in% reactive(input$Moments_3)()}
+  semester_3 <- reactive({
+    hectimetables::class_optim(3, f.obj, f.con, f.dir,
+              input$credits_3, input$CORE_credits_3, input$ELECTIVE_credits_3,
+              input$Moments_3, class=input$Classes_3)})
 
-  # Classes chosen
-  for (i in 1:length(classes_semester[[3]])) {
-    classes_constraints[[3]][i] <- classes_semester[[3]][i] %in% reactive(input$Classes_3)()}
-    
-  # Right hand side of constraints based on user inputs 
-  f.rhs_3 <- c(
-   reactive(input$credits_3)(),          # Credits constraint
-   reactive(input$CORE_credits_3)(),     # CORE Credits constraint
-   reactive(input$ELECTIVE_credits_3)(), # ELECTIVE Credits constraint
-   length(classes_constraints[[3]])*moments_constraints[[3]], # Chunk of the day constraints
-   rep.int(1, nb_of_timeslot[[3]]),      # Time constraints
-   classes_constraints[[3]])             # Classes constraints
-     
-  # Optimization of classes in form of a textual timetable
-  class_3 <- pkggroup2::class_optim(3, f.obj, f.con, f.dir, f.rhs_3)
-  pkggroup2::display_text_timetable(3, class_3)
-  
-  })
-  
+  output$timetable_3 <- renderTable({
+  hectimetables::display_text_timetable(3, semester_3())})
+
   output$timetable_3_graph <- renderPlot({
-  ## ALL REACTIVE INPUTS FROM USER
-  # Period of the day
-  for (i in 1:length(moments_semester[[3]])) {
-    moments_constraints[[3]][i] <- moments_semester[[3]][i] %in% reactive(input$Moments_3)()}
-
-  # Classes chosen
-  for (i in 1:length(classes_semester[[3]])) {
-    classes_constraints[[3]][i] <- classes_semester[[3]][i] %in% reactive(input$Classes_3)()}
-    
-  # Right hand side of constraints based on user inputs 
-  f.rhs_3 <- c(
-   reactive(input$credits_3)(),          # Credits constraint
-   reactive(input$CORE_credits_3)(),     # CORE Credits constraint
-   reactive(input$ELECTIVE_credits_3)(), # ELECTIVE Credits constraint
-   length(classes_constraints[[3]])*moments_constraints[[3]], # Chunk of the day constraints
-   rep.int(1, nb_of_timeslot[[3]]),      # Time constraints
-   classes_constraints[[3]])             # Classes constraints
-     
-  # Optimization of classes in form of a visual timetable
-  class_3 <- pkggroup2::class_optim(3, f.obj, f.con, f.dir, f.rhs_3)
-  pkggroup2::display_visual_timetable(3, class_3)
-  
-  })
+    hectimetables::display_visual_timetable(3, semester_3())})
 }
 ```
 
