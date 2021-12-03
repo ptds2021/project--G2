@@ -27,7 +27,7 @@ cols_to_make <- rlang::parse_exprs(
 # Semester 1
 ```{r}
 ## Initial Cleaning of Data
-HEC_sem1_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 1, 
+HEC_sem1_BA <- read_excel(here::here("inst/extdata/HEC_timetables.xlsx"), sheet = 1, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -101,7 +101,7 @@ classes_constraints_1 <- vector(length = length(classes_semester_1))
 # Semester 2
 ```{r}
 ## Initial Cleaning of Data
-HEC_sem2_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 2, 
+HEC_sem2_BA <- read_excel(here::here("inst/extdata/HEC_timetables.xlsx"), sheet = 2, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
@@ -179,7 +179,7 @@ classes_constraints_2 <- vector(length = length(classes_semester_2))
 # Semester 3
 ```{r}
 ## Initial Cleaning of Data
-HEC_sem3_BA <- read_excel(here::here("data/HEC_timetables.xlsx"), sheet = 3, 
+HEC_sem3_BA <- read_excel(here::here("inst/extdata/HEC_timetables.xlsx"), sheet = 3, 
  col_names = c("Start", "NA", "End", "NA", "Class", "NA", "Prof"), 
  col_types = c("text", "skip", "text", "skip", "text", "skip", "text")) %>%
   mutate(Day =  Start, 
