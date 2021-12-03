@@ -17,7 +17,7 @@ hectimetables::display_visual_timetable(***1***, class)
 hectimetables::display_textual_timetable(***1***, class)
 
 ```{r, warning=FALSE}
-source("scripts/setup.R")
+source(here::here("scripts/setup.R"))
 library("hectimetables")
 library("shiny")
 # Obtain the dummies and all necessary variables from this package
@@ -78,56 +78,16 @@ printing_ui <- function(id) {
 printing_server <- function(id, r) {
   moduleServer(id, function(input, output, session) {
     
-    output$timetable <- renderTable({
-      
-      for (i in 1:length(moments_semester[[1]])) {
-        moments_constraints[[1]][i] <-
-          moments_semester[[1]][i] %in% r$Moments
-      }
-      
-      for (i in 1:length(classes_semester[[id]])) {
-        classes_constraints[[1]][i] <-
-          classes_semester[[1]][i] %in% r$Classes
-      }
-      
-      f.rhs_1 <- c(
-        r$credits,
-        r$CORE_credits,
-        r$ELECTIVE_credits,
-        length(classes_constraints[[1]]) * moments_constraints[[1]],
-        rep.int(1, nb_of_timeslot[[1]]),
-        classes_constraints[[1]]
-      )             
-      
-      # Optimization of classes in form of a textual timetable
-      class <- hectimetables::class_optim(1, f.obj, f.con, f.dir, f.rhs_1)
-      hectimetables::display_text_timetable(1, class)
-    })
-    
-    output$timetable_graph <- renderPlot({
-      for (i in 1:length(moments_semester[[1]])) {
-        moments_constraints[[1]][i] <-
-          moments_semester[[1]][i] %in% r$Moments
-      }
-      
-      for (i in 1:length(classes_semester[[1]])) {
-        classes_constraints[[1]][i] <-
-          classes_semester[[1]][i] %in% r$Classes
-      }
-      
-      f.rhs_1 <- c(
-        r$credits,
-        r$CORE_credits,
-        r$ELECTIVE_credits,
-        length(classes_constraints[[1]]) * moments_constraints[[1]],
-        rep.int(1, nb_of_timeslot[[1]]),
-        classes_constraints[[1]]
-      )         
-      
-      class <- hectimetables::class_optim(1, f.obj, f.con, f.dir, f.rhs_1)
-      hectimetables::display_visual_timetable(1, class)
-      
-    })
+  semester <- reactive({
+      hectimetables::class_optim(1, f.obj, f.con, f.dir,
+              input$credits, input$CORE_credits, 
+              input$ELECTIVE_credits, input$Moments, input$Classes)})
+
+  output$timetable <- renderTable({
+    hectimetables::display_text_timetable(1, semester())})
+
+  output$timetable_graph <- renderPlot({
+    hectimetables::display_visual_timetable(1, semester())})
     
   })
 }
@@ -140,17 +100,17 @@ app_ui <- function() {
              fluidPage(
                choice_ui("choice_ui_s1"),
                printing_ui("printing_ui_s1")
-             )),
-    tabPanel("Semester 2",
-             fluidPage(
-               choice_ui("choice_ui_s2"),
-               printing_ui("printing_ui_s2")
-             )),
-    tabPanel("Semester 3",
-             fluidPage(
-               choice_ui("choice_ui_s3"),
-               printing_ui("printing_ui_s3")
-             ))
+             ))#,
+    # tabPanel("Semester 2",
+    #          fluidPage(
+    #            choice_ui("choice_ui_s2"),
+    #            printing_ui("printing_ui_s2")
+    #          )),
+    # tabPanel("Semester 3",
+    #          fluidPage(
+    #            choice_ui("choice_ui_s3"),
+    #            printing_ui("printing_ui_s3")
+    #          ))
   )
 }
 ```
@@ -161,13 +121,13 @@ app_server <- function(input, output, session) {
   choice_server("choice_ui_s1", r = s1)
   printing_server("printing_ui_s1", r = s1)
   
-  s2 <- reactiveValues()
-  choice_server("choice_ui_s2", r = s2)
-  printing_server("printing_ui_s2", r = s2)
-  
-  s3 <- reactiveValues()
-  choice_server("choice_ui_s3", r = s3)
-  printing_server("printing_ui_s3", r = s3)
+  # s2 <- reactiveValues()
+  # choice_server("choice_ui_s2", r = s2)
+  # printing_server("printing_ui_s2", r = s2)
+  # 
+  # s3 <- reactiveValues()
+  # choice_server("choice_ui_s3", r = s3)
+  # printing_server("printing_ui_s3", r = s3)
 }
 ```
 
