@@ -13,7 +13,7 @@
 display_visual_timetable = function(i, choice) {
 
   choice %>%
-    left_join(raw_input[[i]]) %>%
+    left_join(raw_input[[i]], by = "Class") %>%
     filter(Choice == 1) %>%
     select(-V1,-V2,-Choice) %>%
     transmute(

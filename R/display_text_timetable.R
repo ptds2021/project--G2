@@ -13,7 +13,7 @@
 display_text_timetable = function(i, choice) {
 
   choice %>%
-    left_join(nice_input[[i]]) %>%
+    left_join(nice_input[[i]], by = "Class") %>%
     filter(Choice == 1) %>%
     select(-V1,-V2,-Choice)
 }
