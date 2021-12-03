@@ -9,7 +9,6 @@ packages <- c(# general
   "lpSolve", # integer linear programming solver
   "knitr",  # report
   "tinytex", # latex equations
-  "ganttrify", #Gant chart
   "fastDummies", # dummy variables
   "readxl", # open excel files
   "magrittr", # use pipe operator
