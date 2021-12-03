@@ -108,9 +108,9 @@ dummy_creation = function() {
     # Create dummy for last seven weeks
     df_2 <- raw_input[[i]] %>%
       rowwise(.) %>%
-      mutate(!!!cols_to_make_first)  %>%
+      mutate(!!!cols_to_make_last)  %>%
       ungroup %>%
-      pivot_longer(cols = starts_with("ifelse(F"))
+      pivot_longer(cols = starts_with("ifelse(L"))
     part_2[[i]] <- df_2
 
     # Combine dummy for first and last seven weeks
