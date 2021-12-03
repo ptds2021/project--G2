@@ -4,7 +4,7 @@
 
 # load the required packages
 packages <- c(# general
-  "base", "methods", "utils", "grDevices", "here", "tidyr",
+  "base", "methods", "utils", "grDevices", "here", "tidyr", "hectimetables",
   "gdata", "graphics", "stats", "lubridate", "dplyr", "ggplot2",
   "lpSolve", # integer linear programming solver
   "knitr",  # report
