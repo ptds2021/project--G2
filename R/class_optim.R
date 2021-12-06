@@ -46,8 +46,6 @@ class_optim = function(s, f.obj, f.con, f.dir,
     colnames(HEC_dummies_BA[[s]])) %>%
     as.data.frame() %>%
     mutate(Choice = V1, Class = V2)
-  
-  choice <- ifelse(is.na(choice), "There is an error", choice)
 
   return(choice)
 }
