@@ -1,12 +1,11 @@
+hectimetables::dummy_creation()
+library(shinythemes)
+library(shinyWidgets)
 library(shiny)
-library(hectimetables)
 
 # Define UI
 ui <- navbarPage(theme = shinytheme("cerulean"),
                  "HEC Lausanne - Timetable suggestions for Management students",
-                 helpText("If no timetable is displayed, try to relax some constraints.
-           Don't take too many credits per semester, a standard load is 30.
-           Make sure to have over semester 2 & 3 at least 36 core credits."),
                  tabPanel(
                    "Semester 1",
                    sidebarPanel(

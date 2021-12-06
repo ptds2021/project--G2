@@ -11,6 +11,8 @@
 #' @import tidyverse
 #' @export
 display_text_timetable = function(i, choice) {
+  
+  V1 <- V2 <- Choice <- NULL
 
   choice %>%
     left_join(nice_input[[i]], by = "Class") %>%

@@ -5,11 +5,11 @@
 #' @author Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 #' @return Returns many variables in the Global Environement
 #' @importFrom chron times
-#' @importFrom rlang parse_exprs
 #' @importFrom fastDummies dummy_cols
 #' @importFrom here here
 #' @importFrom readxl read_excel
 #' @importFrom tidyr pivot_longer
+#' @import rlang
 #' @import dplyr
 #' @import tidyverse
 #' @export
@@ -69,20 +69,20 @@ dummy_creation = function() {
           "Wednesday" = 3,
           "Thursday" = 4,
           "Friday" = 5),
-        First = `First 7 Weeks`,
-        Last = `Last 7 Weeks`,
-        MANDATORY = `Mandatory BA`,
-        CORE = `BA orientation`,
+        First = First_7_Weeks,
+        Last = Last_7_Weeks,
+        MANDATORY = BA_Mandatory,
+        CORE = BA_orientation,
         CORE_credits = CORE * Credits,
         ELECTIVE = ifelse(CORE == 1, 0, 1),
         ELECTIVE_credits = ELECTIVE * Credits,
         Moment = as.factor(paste0(Day, "_",
                     as.factor(ifelse(End <= 12, "AM", "PM"))))) %>%
       filter(Semester == i) %>%
-      select(-`BA orientation`,
-             -`Mandatory BA`,-Semester,
-             -`Last 7 Weeks`,
-             -`First 7 Weeks`)
+      select(-BA_orientation,
+             -BA_Mandatory,-Semester,
+             -Last_7_Weeks,
+             -First_7_Weeks)
 
     raw_input[[i]] <- df
 

@@ -9,8 +9,11 @@
 #' @import ggplot2
 #' @import scales
 #' @import tidyverse
+#' @import ggfittext 
 #' @export
 display_visual_timetable = function(i, choice) {
+  
+  V1 <- V2 <- Choice <- NULL
 
   choice %>%
     left_join(raw_input[[i]], by = "Class") %>%
@@ -37,12 +40,11 @@ display_visual_timetable = function(i, choice) {
     labs(x = "", y = "Hours") +
     scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
     scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
-    geom_fit_text(data = d_new, 
-                  aes(
+    ggfittext::geom_fit_text(aes(
                     x = x1 + (x2 - x1) / 2,
                     y = y1 + (y2 - y1) / 2,
                     label = r
-                  ), reflow = TRUE) +
+                  ), reflow = TRUE, grow = TRUE) +
     theme(legend.position = "none", 
           axis.ticks = element_blank(), 
           panel.grid.major.x = element_blank(), 

@@ -16,6 +16,7 @@
 #' @import dplyr
 #' @importFrom lpSolve lp
 #' @import tidyverse
+#' @inport base match
 #' @import shiny
 #' @export
 class_optim = function(s, f.obj, f.con, f.dir, 
