@@ -7,6 +7,7 @@
 #' @importFrom chron times
 #' @importFrom rlang parse_exprs
 #' @importFrom fastDummies dummy_cols
+#' @importFrom here here
 #' @importFrom readxl read_excel
 #' @importFrom tidyr pivot_longer
 #' @import dplyr
@@ -58,7 +59,7 @@ dummy_creation = function() {
         '& Start <', hours_of_day,
         '& Day ==',days_of_week, ',1,0)'))
     df <-
-      readxl::read_excel("inst/extdata/Timetable_Master_Management.xlsx") %>%
+      readxl::read_excel(here::here("inst/extdata/Timetable_Master_Management.xlsx")) %>%
       dplyr::mutate(
         Start_nice = chron::times(gsub("1899-12-31 ", "", as.character(Start_nice))),
         End_nice = chron::times(gsub("1899-12-31 ", "", as.character(End_nice))),
