@@ -34,4 +34,7 @@ ggplot() +
              ),
              size = 2) +
   theme(legend.position = "none") + 
-  theme(axis.ticks = element_blank())
+  theme(axis.ticks = element_blank(), 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(), 
+        panel.grid.minor.y = element_blank())
