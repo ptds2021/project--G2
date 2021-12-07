@@ -1,5 +1,7 @@
 server <- function(input, output, session) {
   
+  hectimetables::dummy_creation()
+  
   choice_1 <- eventReactive(input$submit_1,  {
     hectimetables::class_optim(1, f.obj, f.con, f.dir,
                                input$credits_1, 
