@@ -1,4 +1,3 @@
-#remotes::install_github("ptds2021/project--G2")
 hectimetables::dummy_creation()
 library(shinythemes)
 library(shinyWidgets)
