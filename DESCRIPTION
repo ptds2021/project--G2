@@ -2,7 +2,8 @@ Package: hectimetables
 Type: Package
 Title: HEC timetable creation - functions for ShinyApp
 Version: 0.1.0
-Author: Laura Lo Priore
+Authors@R: person("Laura", "Lo Priore", email = "laura.lopriore@unil.ch",
+                  role = c("aut", "cre"))
 Maintainer: The package maintainer <laura.lopriore@unil.ch>
 Description: This packages helps to create a timetable for HEC students. It contains many functions that can be retrieved when creating the ShinyApp. 
 License: MIT + file LICENCE
