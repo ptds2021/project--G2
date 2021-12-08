@@ -1,0 +1,28 @@
+---
+title: "hectimetables"
+author: "Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore"
+date: Sys.Date()
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{hectimetables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# How to install `hectimetables` from GitHub
+
+```{r setup}
+#remotes::install_github("#A COMPLETER")
+
+library(hectimetables)
+```
+
+# How to use the Shiny app
+
+The user has three tabs, one for each semester of his/her master. He/she also has at it disposal a sidebar panel, in which his/her choices can be selected and then, by clicking on "Suggest", a timetable that fit the requirement of the student can be generated. 
+Furthermore, he/she can choose to have a textual or a visual representation of classes.
+
+```{r setup}
+hectimetables::runExample()
+```
+
