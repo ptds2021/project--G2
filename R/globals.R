@@ -1,4 +1,5 @@
-utils::globalVariables(c("nice_input", 
+utils::globalVariables(c("sysdata",
+                         "nice_input", 
                          "raw_input", 
                          "moments_semester", 
                          "moments_constraints", 

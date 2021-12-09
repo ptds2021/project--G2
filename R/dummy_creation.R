@@ -13,7 +13,6 @@
 #' @import dplyr
 #' @import tidyverse
 #' @export
-
 dummy_creation = function() {
 
   # Create list to store necessary variables
