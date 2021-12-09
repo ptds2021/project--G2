@@ -59,10 +59,12 @@ dummy_creation = function() {
         '& Start <', hours_of_day,
         '& Day ==',days_of_week, ',1,0)'))
     
-    df <- HEC_timtables_2020_2022 %>%
+    df <-  read_excel(here::here("inst/raw-data/Timetable_Master_Management.xlsx")) %>%
       dplyr::mutate(
-        Start_nice = chron::times(gsub("1899-12-31 ", "", as.character(Start_nice))),
-        End_nice = chron::times(gsub("1899-12-31 ", "", as.character(End_nice))),
+        Start_nice = as.character(Start_nice), 
+        End_nice = as.character(End_nice), 
+        Start_nice = chron::times(gsub("1899-12-31 ", "", Start_nice)),
+        End_nice = chron::times(gsub("1899-12-31 ", "", End_nice)),
         Day = dplyr::recode_factor(Day,
           "Monday" = 1,
           "Tuesday" = 2,
