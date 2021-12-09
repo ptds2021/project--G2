@@ -59,9 +59,9 @@ dummy_creation = function() {
         '& Start <', hours_of_day,
         '& Day ==',days_of_week, ',1,0)'))
     
-   load("sysdata.rda")
+    load("~/MASTER 2.1/Programming/project--G2/raw-data/sysdata.rda")
     
-    df <-  HEC_timtables_2020_2022
+    df <-  sysdata %>%
       dplyr::mutate(
         Start_nice = as.character(Start_nice), 
         End_nice = as.character(End_nice), 
