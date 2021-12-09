@@ -1,6 +1,6 @@
 library(dplyr)
-library(readxl)
+library()
 
-HEC_timtables_2020_2022 <- read_excel(file = "Timetable_Master_Management.xlsx")
+sysdata <- readxl::read_excel(here::here("raw-data/Timetable_Master_Management.xlsx"))
 
-save(HEC_timtables_2020_2022, file = "HEC_timtables_2020_2022.rda")
+save(sysdata, file = "sysdata.rda")
