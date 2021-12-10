@@ -5,3 +5,5 @@
 R/test.R
 ^_hectimetables\.yml$
 ^_hectimetables$
+^doc$
+^Meta$

@@ -29,5 +29,8 @@ Imports:
     shinytest (>= 1.5.1), 
     ggfittext (>= 0.9.1)
 Suggests: 
+    rmarkdown (>= 2.11),
+    knitr (>= 1.36),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

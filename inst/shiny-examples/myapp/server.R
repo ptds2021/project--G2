@@ -1,3 +1,5 @@
+devtools::install_github("ptds2021/project--G2")
+
 server <- function(input, output, session) {
   choice_1 <- eventReactive(input$submit_1,  {
     hectimetables::class_optim(
