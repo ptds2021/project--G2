@@ -1,3 +1,7 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/ptds2021/pkgtest/workflows/R-CMD-check/badge.svg)](https://github.com/ptds2021/pkgtest/actions)
+<!-- badges: end -->
+
 # `hectimetables`
 
 ## Description
