@@ -20,6 +20,6 @@
 #' @import dplyr
 #' @importFrom readxl read_excel
 
-sysdata <- readxl::read_excel(here::here("raw-data/Timetable_Master_Management.xlsx"))
+sysdata <- readxl::read_excel("extdata/Timetable_Master_Management.xlsx", sheet=1)
 
-save(sysdata, file = "sysdata.rda")
+save(sysdata, file = "R/sysdata.rda")

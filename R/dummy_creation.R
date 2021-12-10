@@ -9,7 +9,6 @@
 #' @importFrom here here
 #' @importFrom readxl read_excel
 #' @importFrom tidyr pivot_longer
-#' @importFrom usethis use_data
 #' @import rlang
 #' @import dplyr
 #' @import tidyverse
@@ -59,11 +58,7 @@ dummy_creation = function() {
         '& Start <', hours_of_day,
         '& Day ==',days_of_week, ',1,0)'))
     
-    # usethis::use_data(., internal = TRUE, overwrite = TRUE)
-    # 
-    # load("~/R/sysdata.rda")
-    
-    df <-  read_excel("extdata/Timetable_Master_Management.xlsx", sheet = 1) %>%  
+    df <- read_excel("extdata/Timetable_Master_Management.xlsx", sheet = 1) %>%  
       dplyr::mutate(
         Start_nice = as.character(Start_nice), 
         End_nice = as.character(End_nice), 
