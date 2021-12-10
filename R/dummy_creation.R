@@ -58,7 +58,11 @@ dummy_creation = function() {
         '& Start <', hours_of_day,
         '& Day ==',days_of_week, ',1,0)'))
     
-    df <- read_excel("extdata/Timetable_Master_Management.xlsx", sheet = 1) %>%  
+    a <- system.file(
+      "extdata/Timetable_Master_Management.xlsx", 
+      package = "hectimetables", mustWork = TRUE)
+    
+    df <- readxl::read_excel(a) %>%  
       dplyr::mutate(
         Start_nice = as.character(Start_nice), 
         End_nice = as.character(End_nice), 
