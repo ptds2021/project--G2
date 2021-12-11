@@ -6,11 +6,11 @@
 
 ## Description
 
-`hectimetables` is an R package containing data set of classes of Business Analytics track of the Master in Management of the University of Lausanne (HEC), for the year 2020-2022. 
+`hectimetables` is an R package aiming at creating possible timetables for Business Analytics track of the Master in Management of the University of Lausanne (HEC), for the year 2020-2022. 
 
 ## Features
 
-A shinyApp is constructed for this aim, which is available by simply loading the package `hectimetables` and running `hectimetables::runDemo()`. 
+The end production is a shinyApp, which can be access on R by running `hectimetables::runDemo()` or online, hosted on the shinyapps.io website. 
 
 Available to the interest user are a set of functions used in the ShinyApp: 
 
@@ -18,4 +18,4 @@ Available to the interest user are a set of functions used in the ShinyApp:
 
 2) `class_optim()`: a function that takes the preferences of the user in the ShinyApp and makes it possible with the matrix of constraints
 
-3) `display_text_timetable()` and `display_visual_timetable()`: two functions to generate some nice table or visual containing which classes to take
+3) `display_text_timetable()` and `display_visual_timetable()`: two functions to generate some nice table as well as a visual containing which classes to take

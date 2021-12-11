@@ -1,11 +1,10 @@
 ---
-title: "Using runDemo on RStudio"
+title: "Using the shinyApp online"
 output: rmarkdown::html_vignette
 description: >
-  Learn how to open the shinyApp specially created to Business Analytics students 
-  in the Master in Management at HEC Lausanne, year 2020-2022 using `runDemo()`.
+  Link to open the shinyApp for BA students for the year 2020-2022
 vignette: >
-  %\VignetteIndexEntry{Using runDemo on RStudio}
+  %\VignetteIndexEntry{Using the shinyApp online}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,25 +13,15 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-# Installing the package
+# Opening the app (on the Internet)
 
-The package required is on GitHub, run the following code in your R console to load it.
+If you do not want to run `hectimetables::runDemo()` in R, but rather want to find the suitable timetable online, you can simply access it with this link.
 
-```{r, eval = FALSE}
-devtools::install_github("ptds2021/project--G2")
+[Link to open the app](https://lauralopriore1997.shinyapps.io/project--G2/)
 
-library("hectimetables")
+Here a previous is displayed:  
 
-hectimetables::runDemo()
-```
-
-# Opening the app (in RStudio)
-
-To open the app using R, simply run this command: 
-
-```{r, eval = FALSE}
-hectimetables::runDemo()
-```
+<iframe src ="https://lauralopriore1997.shinyapps.io/project--G2/" height=1000px width=1000px />
 
 # Understanding the app
 
@@ -72,6 +61,6 @@ Note that if no timetable is displayed, it simply mean your preferences could no
 A good advice is always to start from the first generated timetable. \
 Otherwise, to only add a few favorite classes and then scale it up.
 
-# Why we like this function
+# Why we like this ShinyApp
 
 As former BA students at HEC Lausanne, we struggled to create a suitable timetable which would satisfy all constraints. Here, as part of a Programming class, we coded a possible solution to our problem in a ShinyApp. We made it available, so other students could benefit from it.

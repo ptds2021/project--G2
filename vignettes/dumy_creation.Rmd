@@ -1,0 +1,29 @@
+---
+title: "Understanding dummy_creation()"
+output: rmarkdown::html_vignette
+description: >
+  Learn what the `dummy_creation()` function does in detail 
+vignette: >
+  %\VignetteIndexEntry{Understanding dummy_creation()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Context
+
+This section aims to explain in detail what the function `hectimetables::dummy_creation()` does and how it should be used for future developers who would like to get inspired for their own projects. 
+
+# Parameters
+
+```{r, eval = FALSE}
+devtools::install_github("ptds2021/project--G2")
+
+library("hectimetables")
+
+hectimetables::dummy_creation()
+```
+

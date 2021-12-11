@@ -1,0 +1,37 @@
+---
+title: "Understanding class_optim()"
+output: rmarkdown::html_vignette
+description: >
+  Learn what the `class_optim()` function does in detail 
+vignette: >
+  %\VignetteIndexEntry{Understanding class_optim()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Context
+
+This section aims to explain in detail what the function `hectimetables::class_optim()` does and how it should be used for future developers who would like to get inspired for their own projects. 
+
+# Parameters
+
+```{r, eval = FALSE}
+devtools::install_github("ptds2021/project--G2")
+
+library("hectimetables")
+
+hectimetables::class_optim(s, 
+                           f.obj, 
+                           f.con, 
+                           f.dir, 
+                           credits, 
+                           core, 
+                           elective, 
+                           moment, 
+                           class)
+```
+
