@@ -26,7 +26,7 @@ display_visual_timetable = function(i, choice) {
       y2 = End,
       t = CORE,
       r = Class)  %>%
-  ggplot() +
+  ggplot(fill=r) +
     geom_rect(
       mapping = aes(
         xmin = x1,
@@ -34,9 +34,9 @@ display_visual_timetable = function(i, choice) {
         ymin = y1,
         ymax = y2,
         fill = r),
-      color = "black",
       size = 0,
       alpha = 0.5)  +
+    scale_fill_brewer(palette = "Pastel1") +
     labs(x = "", y = "Hours") +
     scale_x_discrete(limits = c("Monday", "Tuesday", "Wednesday", "Thusrday", "Friday")) +
     scale_y_continuous(breaks = seq(8, 19, by = 1), trans = scales::reverse_trans()) +
