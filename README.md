@@ -19,4 +19,3 @@ Available to the interest user are a set of functions used in the ShinyApp:
 2) `class_optim()`: a function that takes the preferences of the user in the ShinyApp and makes it possible with the matrix of constraints
 
 3) `display_text_timetable()` and `display_visual_timetable()`: two functions to generate some nice table or visual containing which classes to take
-
