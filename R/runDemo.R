@@ -18,12 +18,16 @@ runDemo <- function() {
       "Semester 1",
       sidebarPanel(
         # ECTS choices
-        actionButton(inputId = "submit_1", label = "Suggest timetable"),
+        actionButton(inputId = "submit_1", label = "Suggest timetable!"),
+        helpText("If nothing is displayed, you have impossible preferences."),
+        hr(),
+        helpText("Choose here your preferences."),
         sliderInput(
           inputId = "credits_1",
           min = 0,
           max = 42,
           value = 30,
+          step = 6, ticks = TRUE,
           label = "Total credits"
         ),
         sliderInput(
@@ -31,6 +35,7 @@ runDemo <- function() {
           min = 0,
           max = 36,
           value = 18,
+          step = 6, ticks = TRUE,
           label = "Mandatory credits"
         ),
         sliderInput(
@@ -38,6 +43,7 @@ runDemo <- function() {
           min = 0,
           max = 24,
           value = 12,
+          step = 6, ticks = TRUE,
           label = "Elective credits"
         ),
         #Classes choices
@@ -82,12 +88,16 @@ runDemo <- function() {
       "Semester 2",
       sidebarPanel(
         # ECTS choices
-        actionButton(inputId = "submit_2", label = "Suggest timetable"),
+        actionButton(inputId = "submit_2", label = "Suggest timetable!"),
+        helpText("If nothing is displayed, you have impossible preferences."),
+        hr(),
+        helpText("Choose here your preferences."),
         sliderInput(
           inputId = "credits_2",
           min = 0,
           max = 42,
           value = 30,
+          step = 3, ticks = TRUE,
           label = "Total credits"
         ),
         sliderInput(
@@ -95,6 +105,7 @@ runDemo <- function() {
           min = 0,
           max = 36,
           value = 12,
+          step = 3, ticks = TRUE,
           label = "Mandatory credits"
         ),
         sliderInput(
@@ -102,6 +113,7 @@ runDemo <- function() {
           min = 0,
           max = 24,
           value = 18,
+          step = 3, ticks = TRUE,
           label = "Elective credits"
         ),
         #Classes choices
@@ -144,13 +156,17 @@ runDemo <- function() {
     tabPanel(
       "Semester 3",
       sidebarPanel(
-        actionButton(inputId = "submit_3", label = "Suggest timetable"),
+        actionButton(inputId = "submit_3", label = "Suggest timetable!"),
+        helpText("If nothing is displayed, you have impossible preferences."),
+        hr(),
+        helpText("Choose here your preferences."),
         # ECTS choices
         sliderInput(
           inputId = "credits_3",
           min = 0,
           max = 42,
           value = 30,
+          step = 3, ticks = TRUE,
           label = "Total credits"
         ),
         sliderInput(
@@ -158,6 +174,7 @@ runDemo <- function() {
           min = 0,
           max = 36,
           value = 12,
+          step = 3, ticks = TRUE,
           label = "Mandatory credits"
         ),
         sliderInput(
@@ -165,6 +182,7 @@ runDemo <- function() {
           min = 0,
           max = 24,
           value = 18,
+          step = 3, ticks = TRUE,
           label = "Elective credits"
         ),
         
@@ -206,6 +224,7 @@ runDemo <- function() {
       ))
     )
   )
+  
   
   server <- function(input, output, session) {
     choice_1 <- eventReactive(input$submit_1,  {

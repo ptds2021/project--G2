@@ -82,7 +82,10 @@ ui <- navbarPage(
     "Semester 2",
     sidebarPanel(
       # ECTS choices
-      actionButton(inputId = "submit_2", label = "Suggest timetable"),
+      actionButton(inputId = "submit_2", label = "Suggest timetable!"),
+      helpText("If nothing is displayed, you have impossible preferences."),
+      hr(),
+      helpText("Choose here your preferences."),
       sliderInput(
         inputId = "credits_2",
         min = 0,
@@ -147,7 +150,10 @@ ui <- navbarPage(
   tabPanel(
     "Semester 3",
     sidebarPanel(
-      actionButton(inputId = "submit_3", label = "Suggest timetable"),
+      actionButton(inputId = "submit_3", label = "Suggest timetable!"),
+      helpText("If nothing is displayed, you have impossible preferences."),
+      hr(),
+      helpText("Choose here your preferences."),
       # ECTS choices
       sliderInput(
         inputId = "credits_3",
