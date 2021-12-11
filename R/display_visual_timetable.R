@@ -44,7 +44,7 @@ display_visual_timetable = function(i, choice) {
                     x = x1 + (x2 - x1) / 2,
                     y = y1 + (y2 - y1) / 2,
                     label = r
-                  ), reflow = TRUE, grow = TRUE) +
+                  ), reflow = TRUE) +
     theme(legend.position = "none", 
           axis.ticks = element_blank(), 
           panel.grid.major.x = element_blank(), 
