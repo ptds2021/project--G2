@@ -2,7 +2,7 @@
 % Please edit documentation in R/display_visual_timetable.R
 \name{display_visual_timetable}
 \alias{display_visual_timetable}
-\title{Creation of a appealing timetable of classes}
+\title{Creation of a appealing visual timetable of classes}
 \usage{
 display_visual_timetable(i, choice)
 }
