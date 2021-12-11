@@ -1,4 +1,4 @@
-#' @title Creation of a appealing timetable of classes
+#' @title Creation of a appealing visual timetable of classes
 #' @name display_visual_timetable
 #' @description This function is used to display a visual timetable.
 #' It can be used to optimize the timetable schedule of HEC students.
