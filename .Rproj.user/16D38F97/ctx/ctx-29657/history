@@ -1,0 +1,6 @@
+library(hectimetables)
+remotes::install_github("GrossMatteo/pkggroup2")
+library(hectimetables)
+install.packages("golem")
+library(hectimetables)
+library(hectimetables)
