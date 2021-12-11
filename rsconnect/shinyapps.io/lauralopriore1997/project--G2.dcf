@@ -5,10 +5,10 @@ account: lauralopriore1997
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5309927
-bundleId: 5359362
+bundleId: 5359853
 url: https://lauralopriore1997.shinyapps.io/project--G2/
-when: 1639223525.62897
-lastSyncTime: 1639223525.62897
+when: 1639238471.03238
+lastSyncTime: 1639238471.03238
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .github/.gitignore|.github/workflows/R-CMD-check.yaml|.Rbuildignore|_pkgdown.yml|DESCRIPTION|inst/extdata/Timetable_Master_Management.xlsx|inst/shiny-examples/myapp/rsconnect/shinyapps.io/lauralopriore1997/myapp.dcf|inst/shiny-examples/myapp/server.R|inst/shiny-examples/myapp/ui.R|LICENCE|man/class_optim.Rd|man/display_text_timetable.Rd|man/display_visual_timetable.Rd|man/dummy_creation.Rd|man/runDemo.Rd|Meta/vignette.rds|NAMESPACE|raw-data/data.R|raw-data/Timetable_Master_Management.xlsx|README.md|sysdata|tests/testthat/test-globals.R|tests/testthat.R
+ignoredFiles: .github/.gitignore|.github/workflows/R-CMD-check.yaml|.Rbuildignore|_pkgdown.yml|DESCRIPTION|inst/extdata/Timetable_Master_Management.xlsx|LICENCE|Meta/vignette.rds|NAMESPACE|raw-data/data.R|raw-data/Timetable_Master_Management.xlsx|README.md|tests/testthat/test-globals.R|tests/testthat.R
