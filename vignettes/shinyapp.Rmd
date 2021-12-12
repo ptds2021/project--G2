@@ -46,8 +46,6 @@ Note that the mandatory classes of this master are pre-selected and will be incl
 
 You can of course also input your preferences to have a personalized timetable:
 
--   how many credits you want to obtain at least (total credits) ?
-
 -   how many credits you want to do in the Business Analytics track (core credits) ?
 
 -   how many credits you want to do as elective classes (non mandatory ones) ?

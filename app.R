@@ -17,14 +17,6 @@ ui <- navbarPage(
       hr(),
       helpText("Choose here your preferences."),
       sliderInput(
-        inputId = "credits_1",
-        min = 0,
-        max = 42,
-        value = 30,
-        step = 6, ticks = TRUE,
-        label = "Total credits"
-      ),
-      sliderInput(
         inputId = "CORE_credits_1",
         min = 0,
         max = 36,
@@ -87,14 +79,6 @@ ui <- navbarPage(
       hr(),
       helpText("Choose here your preferences."),
       sliderInput(
-        inputId = "credits_2",
-        min = 0,
-        max = 42,
-        value = 30,
-        step = 3, ticks = TRUE,
-        label = "Total credits"
-      ),
-      sliderInput(
         inputId = "CORE_credits_2",
         min = 0,
         max = 36,
@@ -154,15 +138,6 @@ ui <- navbarPage(
       helpText("If nothing is displayed, you have impossible preferences."),
       hr(),
       helpText("Choose here your preferences."),
-      # ECTS choices
-      sliderInput(
-        inputId = "credits_3",
-        min = 0,
-        max = 42,
-        value = 30,
-        step = 3, ticks = TRUE,
-        label = "Total credits"
-      ),
       sliderInput(
         inputId = "CORE_credits_3",
         min = 0,
@@ -227,7 +202,6 @@ server <- function(input, output, session) {
       f.obj,
       f.con,
       f.dir,
-      input$credits_1,
       input$CORE_credits_1,
       input$ELECTIVE_credits_1,
       input$Moments_1,
@@ -250,7 +224,6 @@ server <- function(input, output, session) {
       f.obj,
       f.con,
       f.dir,
-      input$credits_2,
       input$CORE_credits_2,
       input$ELECTIVE_credits_2,
       input$Moments_2,
@@ -273,7 +246,6 @@ server <- function(input, output, session) {
       f.obj,
       f.con,
       f.dir,
-      input$credits_3,
       input$CORE_credits_3,
       input$ELECTIVE_credits_3,
       input$Moments_3,

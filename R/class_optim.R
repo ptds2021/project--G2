@@ -8,18 +8,18 @@
 #' @param f.obj Objective function
 #' @param f.con Constraints matrix
 #' @param f.dir Sign of equality of constraints
-#' @param credits Total credits choosen by the user
-#' @param core Core credits choosen by the user#' 
-#' @param elective Elective credits choosen by the user
-#' @param moment Moments choosen by the user
-#' @param class Moments choosen by the user
+#' @param core Core credits chosen by the user#' 
+#' @param elective Elective credits chosen by the user
+#' @param moment Moments chosen by the user
+#' @param class Moments chosen by the user
 #' @import dplyr
 #' @importFrom lpSolve lp
 #' @import tidyverse
 #' @import shiny
 #' @export
 class_optim = function(s, f.obj, f.con, f.dir, 
-                       credits, core, elective, moment, class){
+                       ##credits, 
+                       core, elective, moment, class){
   
   for (i in 1:length(moments_semester[[s]])) {
     moments_constraints[[s]][i] <- moments_semester[[s]][i] %in% reactive(moment)()}
@@ -28,7 +28,7 @@ class_optim = function(s, f.obj, f.con, f.dir,
     classes_constraints[[s]][i] <- classes_semester[[s]][i] %in% reactive(class)()}
 
   f.rhs <- c(
-    reactive(credits)(),                  # Credits constraint
+    ##reactive(credits)(),                  # Credits constraint
     reactive(core)(),                     # CORE Credits constraint
     reactive(elective)(),                 # ELECTIVE Credits constraint
     length(classes_constraints[[s]])*moments_constraints[[s]], # Chunk of the day constraints
