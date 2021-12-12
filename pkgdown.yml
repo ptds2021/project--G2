@@ -1,4 +1,4 @@
-pandoc: 2.14.0.3
+pandoc: 2.7.3
 pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
@@ -6,7 +6,7 @@ articles:
   dumy_creation: dumy_creation.html
   runDemo: runDemo.html
   shinyapp: shinyapp.html
-last_built: 2021-12-11T16:26Z
+last_built: 2021-12-12T09:49Z
 urls:
   reference: https://ptds2021.github.io/project--G2/reference
   article: https://ptds2021.github.io/project--G2/articles
