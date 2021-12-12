@@ -19,7 +19,7 @@ runDemo <- function() {
       sidebarPanel(
         # ECTS choices
         actionButton(inputId = "submit_1", label = "Suggest timetable!"),
-        helpText("If nothing is displayed, you have impossible preferences."),
+        helpText("Click here to display a custom timetable."),
         hr(),
         helpText("Choose here your preferences."),
         sliderInput(
@@ -81,7 +81,7 @@ runDemo <- function() {
       sidebarPanel(
         # ECTS choices
         actionButton(inputId = "submit_2", label = "Suggest timetable!"),
-        helpText("If nothing is displayed, you have impossible preferences."),
+        helpText("Click here to display a custom timetable."),
         hr(),
         helpText("Choose here your preferences."),
         sliderInput(
@@ -141,7 +141,7 @@ runDemo <- function() {
       "Semester 3",
       sidebarPanel(
         actionButton(inputId = "submit_3", label = "Suggest timetable!"),
-        helpText("If nothing is displayed, you have impossible preferences."),
+        helpText("Click here to display a custom timetable."),
         hr(),
         helpText("Choose here your preferences."),
         # ECTS choices
