@@ -189,14 +189,14 @@ dummy_creation = function() {
     nb_of_class[[i]] <- ncol(HEC_dummies_BA[[i]])
 
     # Set the constraints equals to the dummies
-    f.con[[i]] <- HEC_dummies_BA[[i]]
+    f.con[[i]] <- HEC_dummies_BA[[i]][-1,] ##HEC_dummies_BA[[i]]
 
     # Define the objective (here: min total credits)
     f.obj[[i]] <- HEC_dummies_BA[[i]][1,] %>% unname() %>% unlist()
 
     # Set the direction signs of the constraints matrix
     f.dir[[i]] <- c(
-      ">=", # Credits constraint
+      ##">=", # Credits constraint
       ">=", # CORE Credits constraint
       ">=", # ELECTIVE Credits constraint
       rep("<=", nb_of_moment[[i]]), # Chunk of the day
