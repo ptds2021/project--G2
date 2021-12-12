@@ -26,7 +26,7 @@ display_visual_timetable = function(i, choice) {
       y2 = End,
       t = CORE,
       r = Class)  %>%
-  ggplot(fill=r) +
+  ggplot()+ 
     geom_rect(
       mapping = aes(
         xmin = x1,
@@ -44,7 +44,9 @@ display_visual_timetable = function(i, choice) {
                     x = x1 + (x2 - x1) / 2,
                     y = y1 + (y2 - y1) / 2,
                     label = r
-                  ), reflow = TRUE) +
+                  ), reflow = TRUE,
+                  padding.x = grid::unit(0, "mm"),
+                  padding.y = grid::unit(-5, "mm"),) +
     theme(legend.position = "none", 
           axis.ticks = element_blank(), 
           panel.grid.major.x = element_blank(), 
