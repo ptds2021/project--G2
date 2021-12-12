@@ -4,7 +4,7 @@
 \alias{class_optim}
 \title{Creation of dummies variables and others variables}
 \usage{
-class_optim(s, f.obj, f.con, f.dir, credits, core, elective, moment, class)
+class_optim(s, f.obj, f.con, f.dir, core, elective, moment, class)
 }
 \arguments{
 \item{s}{Semester to be considered (from 1 to 3)}
@@ -15,15 +15,13 @@ class_optim(s, f.obj, f.con, f.dir, credits, core, elective, moment, class)
 
 \item{f.dir}{Sign of equality of constraints}
 
-\item{credits}{Total credits choosen by the user}
+\item{core}{Core credits chosen by the user}
 
-\item{core}{Core credits choosen by the user#'}
+\item{elective}{Elective credits chosen by the user}
 
-\item{elective}{Elective credits choosen by the user}
+\item{moment}{Moments chosen by the user}
 
-\item{moment}{Moments choosen by the user}
-
-\item{class}{Moments choosen by the user}
+\item{class}{Classes chosen by the user}
 }
 \value{
 Final choice of classes of user

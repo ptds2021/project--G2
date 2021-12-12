@@ -8,10 +8,10 @@
 #' @param f.obj Objective function
 #' @param f.con Constraints matrix
 #' @param f.dir Sign of equality of constraints
-#' @param core Core credits chosen by the user#' 
+#' @param core Core credits chosen by the user
 #' @param elective Elective credits chosen by the user
 #' @param moment Moments chosen by the user
-#' @param class Moments chosen by the user
+#' @param class Classes chosen by the user
 #' @import dplyr
 #' @importFrom lpSolve lp
 #' @import tidyverse
