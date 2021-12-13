@@ -18,8 +18,8 @@ runDemo <- function() {
       "Semester 1",
       sidebarPanel(
         # ECTS choices
-        actionButton(inputId = "submit_1", label = "Suggest timetable!"),
         helpText("Click here to display a custom timetable."),
+        actionButton(inputId = "submit_1", label = "Suggest timetable!"),
         hr(),
         helpText("Choose here your preferences."),
         sliderInput(
@@ -66,6 +66,9 @@ runDemo <- function() {
           multiple = TRUE
         ), 
         helpText("Mandatory classes (OMM, QMM, DFSBA) can not be removed."),
+        helpText("If nothing is displayed, you
+               have inputed impossible preferences based on the constraints. Please check
+               the selected classes and half-day periods for incompatibilities."), 
       ),
       # Show a plot of the generated distribution
       mainPanel(mainPanel(
@@ -81,8 +84,8 @@ runDemo <- function() {
       "Semester 2",
       sidebarPanel(
         # ECTS choices
-        actionButton(inputId = "submit_2", label = "Suggest timetable!"),
         helpText("Click here to display a custom timetable."),
+        actionButton(inputId = "submit_2", label = "Suggest timetable!"),
         hr(),
         helpText("Choose here your preferences."),
         sliderInput(
@@ -128,6 +131,8 @@ runDemo <- function() {
           multiple = TRUE
         ), 
         helpText("Mandatory (Company Project) can not be removed."),
+        helpText("If nothing is displayed, you have inputed impossible preferences based on the constraints.
+               Please check the selected classes and half-day periods for incompatibilities."), 
       ),
       # Show a plot of the generated distribution
       mainPanel(mainPanel(
@@ -141,8 +146,8 @@ runDemo <- function() {
     ),
     tabPanel(
       "Semester 3",
+      actionButton(inputId = "submit_3", label = "Suggest timetable!"),
       sidebarPanel(
-        actionButton(inputId = "submit_3", label = "Suggest timetable!"),
         helpText("Click here to display a custom timetable."),
         hr(),
         helpText("Choose here your preferences."),
@@ -189,7 +194,9 @@ runDemo <- function() {
             `selected-text-format` = "count > 3"
           ),
           multiple = TRUE
-        )
+        ),
+        helpText("If nothing is displayed, you have inputed impossible preferences based on the constraints.
+               Please check the selected classes and half-day periods for incompatibilities."), 
       ),
       # Show a plot of the generated distribution
       mainPanel(mainPanel(

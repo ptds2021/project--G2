@@ -12,8 +12,8 @@ ui <- navbarPage(
     "Semester 1",
     sidebarPanel(
       # ECTS choices
-      actionButton(inputId = "submit_1", label = "Suggest timetable!"),
       helpText("Click here to display a custom timetable."),
+      actionButton(inputId = "submit_1", label = "Suggest timetable!"),
       hr(),
       helpText("Choose here your preferences."),
       sliderInput(
@@ -60,6 +60,9 @@ ui <- navbarPage(
         multiple = TRUE
       ), 
       helpText("Mandatory classes (OMM, QMM, DFSBA) can not be removed."),
+      helpText("If nothing is displayed, you
+               have inputed impossible preferences based on the constraints. Please check
+               the selected classes and half-day periods for incompatibilities."), 
     ),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(
@@ -75,8 +78,8 @@ ui <- navbarPage(
     "Semester 2",
     sidebarPanel(
       # ECTS choices
-      actionButton(inputId = "submit_2", label = "Suggest timetable!"),
       helpText("Click here to display a custom timetable."),
+      actionButton(inputId = "submit_2", label = "Suggest timetable!"),
       hr(),
       helpText("Choose here your preferences."),
       sliderInput(
@@ -122,6 +125,8 @@ ui <- navbarPage(
         multiple = TRUE
       ), 
       helpText("Mandatory class (Company Project) can not be removed."),
+      helpText("If nothing is displayed, you have inputed impossible preferences based on the constraints.
+               Please check the selected classes and half-day periods for incompatibilities."), 
     ),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(
@@ -136,8 +141,8 @@ ui <- navbarPage(
   tabPanel(
     "Semester 3",
     sidebarPanel(
-      actionButton(inputId = "submit_3", label = "Suggest timetable!"),
       helpText("Click here to display a custom timetable."),
+      actionButton(inputId = "submit_3", label = "Suggest timetable!"),
       hr(),
       helpText("Choose here your preferences."),
       sliderInput(
@@ -182,7 +187,9 @@ ui <- navbarPage(
           `selected-text-format` = "count > 3"
         ),
         multiple = TRUE
-      )
+      ),
+      helpText("If nothing is displayed, you have inputed impossible preferences based on the constraints.
+               Please check the selected classes and half-day periods for incompatibilities."), 
     ),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(
