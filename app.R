@@ -58,7 +58,8 @@ ui <- navbarPage(
           `selected-text-format` = "count > 3"
         ),
         multiple = TRUE
-      )
+      ), 
+      helpText("Mandatory classes (OMM, QMM, DFSBA) can not be removed."),
     ),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(
@@ -119,7 +120,8 @@ ui <- navbarPage(
           `selected-text-format` = "count > 3"
         ),
         multiple = TRUE
-      )
+      ), 
+      helpText("Mandatory class (Company Project) can not be removed."),
     ),
     # Show a plot of the generated distribution
     mainPanel(mainPanel(

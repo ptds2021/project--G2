@@ -12,14 +12,14 @@
 #' @export
 display_text_timetable = function(i, choice) {
   
-  # if(sum(as.numeric(choice$Choice))==0){
-  #   stop("You have inputed impossible preferences based on the constraints. 
-  #        In fact, you might have selected classes that take place at the same time.
-  #        Or you might have mandatory classes on certain days and not selected those days
-  #        (such as QMM - Tuesday, OMM - Friday afternoon, DFSBA - Wednesday 
-  #        afternoon for Semester 1 or Company Project - Friday morning for Semester 2). 
-  #        To find a suitable timetable, refresh the page and select those timeslots.")}
-  
+  if(sum(as.numeric(choice$Choice))==0){
+    stop("You have inputed impossible preferences based on the constraints.
+         In fact, you might have selected classes that take place at the same time.
+         Or you might have mandatory classes on certain days and not selected those days
+         (such as QMM - Tuesday, OMM - Friday afternoon, DFSBA - Wednesday
+         afternoon for Semester 1 or Company Project - Friday morning for Semester 2).
+         To find a suitable timetable, refresh the page and select those time slots.")}
+
   V1 <- V2 <- Choice <- NULL
   
   choice %>%

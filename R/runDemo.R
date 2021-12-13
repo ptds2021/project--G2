@@ -64,7 +64,8 @@ runDemo <- function() {
             `selected-text-format` = "count > 3"
           ),
           multiple = TRUE
-        )
+        ), 
+        helpText("Mandatory classes (OMM, QMM, DFSBA) can not be removed."),
       ),
       # Show a plot of the generated distribution
       mainPanel(mainPanel(
@@ -125,7 +126,8 @@ runDemo <- function() {
             `selected-text-format` = "count > 3"
           ),
           multiple = TRUE
-        )
+        ), 
+        helpText("Mandatory (Company Project) can not be removed."),
       ),
       # Show a plot of the generated distribution
       mainPanel(mainPanel(
