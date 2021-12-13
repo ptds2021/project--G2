@@ -13,52 +13,11 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-# Opening the app (on the Internet)
+If you do not want to run `hectimetables::runDemo()` in R, but rather want to find the suitable timetable online, you can simply access it with this [link](https://lauralopriore1997.shinyapps.io/project--G2/).
 
-If you do not want to run `hectimetables::runDemo()` in R, but rather want to find the suitable timetable online, you can simply access it with this link.
+Here a preview is displayed, but it is much easier using the link above: 
 
-[Link to open the app](https://lauralopriore1997.shinyapps.io/project--G2/)
+<iframe src = "https://lauralopriore1997.shinyapps.io/project--G2" height=800px width=1000px>
 
-Here a previous is displayed:  
 
-<iframe src ="https://lauralopriore1997.shinyapps.io/project--G2/" height=1000px width=1000px />
 
-# Understanding the app
-
-## Semesters' choice
-
-There are three tabs, for the three semesters of classes of the Master. \
-You can navigate across them by simply clicking on it at the top of the page.
-
-## Initial timetable suggestion
-
-To display an initial timetable, click on "Suggest" on the sidebar panel.
-
-You have the choice to either view, by moving across tabs in the main panel:
-
--   a textual summary of the selected classes
-
--   a visual representation of the selected classes
-
-Note that the mandatory classes of this master are pre-selected and will be included in the suggested timetable even if de-selected them from the list of preferred classes.
-
-## User's preferences
-
-You can of course also input your preferences to have a personalized timetable:
-
--   how many credits you want to do in the Business Analytics track (core credits) ?
-
--   how many credits you want to do as elective classes (non mandatory ones) ?
-
--   which days (divided in morning and afternoon) you want to have class ?
-
-## Issues 
-
-Note that if no timetable is displayed, it simply mean your preferences could not be satisfied. In this case, you need to either choose more days and remove conflicting classes.
-
-A good advice is always to start from the first generated timetable. \
-Otherwise, to only add a few favorite classes and then scale it up.
-
-# Why we like this ShinyApp
-
-As former BA students at HEC Lausanne, we struggled to create a suitable timetable which would satisfy all constraints. Here, as part of a Programming class, we coded a possible solution to our problem in a ShinyApp. We made it available, so other students could benefit from it.

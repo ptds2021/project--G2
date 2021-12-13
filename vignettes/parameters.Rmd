@@ -1,0 +1,49 @@
+---
+title: "Understanding the app"
+output: rmarkdown::html_vignette
+description: >
+  Explain in detail the parameters used to select the class timetable
+vignette: >
+  %\VignetteIndexEntry{Understanding the app}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Semesters' choice
+
+There are three tabs, for the three semesters of classes of the Master. \
+You can navigate across them by simply clicking on it at the top of the page.
+
+# Initial timetable suggestion
+
+To display an initial timetable, click on "Suggest" on the sidebar panel.
+
+You have the choice to either view, by moving across tabs in the main panel:
+
+-   a textual summary of the selected classes
+
+-   a visual representation of the selected classes
+
+Note that the mandatory classes of this master are pre-selected and will be included in the suggested timetable even if de-selected them from the list of preferred classes.
+
+# User's preferences
+
+You can of course also input your preferences to have a personalized timetable:
+
+-   how many credits you want to do in the Business Analytics track (core credits) ?
+
+-   how many credits you want to do as elective classes (non mandatory ones) ?
+
+-   which half-days you want to have class ?
+
+# Issues 
+
+Note that if no timetable is displayed, it simply mean your preferences could not be satisfied. In this case, you need to either choose more days and remove conflicting classes.
+
+A good advice is always to start from the first generated timetable.   \
+Otherwise, to only add a few favorite classes and then scale it up.
+
