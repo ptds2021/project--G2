@@ -283,3 +283,5 @@ runDemo <- function() {
   shinyApp(ui = ui, server = server)
 
 }
+#' @example
+#' \dontrun{runDemo()}
