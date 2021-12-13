@@ -81,13 +81,18 @@
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
-<p>The end production is a shinyApp, which can be access on R by running <code><a href="reference/runDemo.html">hectimetables::runDemo()</a></code> or online, hosted on the shinyapps.io website (<a href="https://lauralopriore1997.shinyapps.io/project--G2/" class="external-link uri">https://lauralopriore1997.shinyapps.io/project--G2/</a>).</p>
+<p>The end product is a shinyApp, which can be access on R by running <code><a href="reference/runDemo.html">hectimetables::runDemo()</a></code> or online, hosted on the shinyapps.io website (<a href="https://lauralopriore1997.shinyapps.io/project--G2/" class="external-link uri">https://lauralopriore1997.shinyapps.io/project--G2/</a>).</p>
 <p>Available to the interest user are a set of functions used in the ShinyApp:</p>
 <ol style="list-style-type: decimal">
-<li><p><code><a href="reference/dummy_creation.html">dummy_creation()</a></code>: a function to create a matrix of constraints used to perform a binary optimization of classes to select or not, on how many core and elective credits he/she wants to do, as well as some half-days moment he/she does not want any class (Monday to Friday, AM or PM)</p></li>
-<li><p><code><a href="reference/class_optim.html">class_optim()</a></code>: a function that takes the preferences of the user in the ShinyApp and makes it possible with the matrix of constraints</p></li>
-<li><p><code><a href="reference/display_text_timetable.html">display_text_timetable()</a></code> and <code><a href="reference/display_visual_timetable.html">display_visual_timetable()</a></code>: two functions to generate some nice table as well as a visual containing which classes to take</p></li>
+<li><p><code><a href="reference/dummy_creation.html">dummy_creation()</a></code>: a function to create a matrix of constraints used to perform an integer optimization of classes, which is used in <code><a href="reference/class_optim.html">class_optim()</a></code></p></li>
+<li><p><code><a href="reference/class_optim.html">class_optim()</a></code>: a function that takes the preferences of the user in the ShinyApp (how many core and elective credits a student wants to do, as well as some half-days moment he/she does not want any class (Monday to Friday, AM or PM) and suggest classes that would satisfy the matrix of constraints created with <code><a href="reference/dummy_creation.html">dummy_creation()</a></code></p></li>
+<li><p><code><a href="reference/display_text_timetable.html">display_text_timetable()</a></code> and <code><a href="reference/display_visual_timetable.html">display_visual_timetable()</a></code>: two functions to generate a nice table as well as a visual representation of classes to take</p></li>
 </ol>
+</div>
+<div class="section level2">
+<h2 id="why-we-like-it">Why we like it<a class="anchor" aria-label="anchor" href="#why-we-like-it"></a>
+</h2>
+<p>As former BA students at HEC Lausanne, we struggled every semester to create a suitable timetable which would satisfy all constraints and preferences. Here, as part of a Programming class, we coded a possible solution to our problem with a ShinyApp. We made it available so other students could benefit from it.</p>
 </div>
 </div>
 
