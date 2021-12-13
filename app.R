@@ -59,7 +59,7 @@ ui <- navbarPage(
         ),
         multiple = TRUE
       ), 
-      helpText("Mandatory classes (OMM, QMM, DFSBA) can not be removed."),
+      helpText("Mandatory classes (OMM, QMM, DFSBA) should not be removed."),
       helpText("If nothing is displayed, you
                have inputed impossible preferences based on the constraints. Please check
                the selected classes and half-day periods for incompatibilities."), 
@@ -124,7 +124,7 @@ ui <- navbarPage(
         ),
         multiple = TRUE
       ), 
-      helpText("Mandatory class (Company Project) can not be removed."),
+      helpText("Mandatory class (Company Project) should not be removed."),
       helpText("If nothing is displayed, you have inputed impossible preferences based on the constraints.
                Please check the selected classes and half-day periods for incompatibilities."), 
     ),
