@@ -10,8 +10,8 @@ runDemo()
 Open the app for Master BA students in 2020-2022
 }
 \description{
-This function is used to demostrate how the shiny app works.
+This function is used to demonstrate how the shiny app works.
 }
 \author{
-Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 }

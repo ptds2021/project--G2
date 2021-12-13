@@ -9,15 +9,14 @@ display_text_timetable(i, choice)
 \arguments{
 \item{i}{Semester to be considered (from 1 to 3)}
 
-\item{choice}{Result of the function class_optim to be displayed}
+\item{choice}{Result of the function class_optim}
 }
 \value{
 Visually appealing textual timetable object
 }
 \description{
 This function is used to display a table timetable.
-It can be used to optimize the timetable schedule of HEC students.
 }
 \author{
-Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 }

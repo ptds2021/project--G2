@@ -11,8 +11,78 @@ Returns many variables in the Global Environement
 }
 \description{
 This function is used to generate necessary dummy variables.
-It can be used to optimise the timetable schedule of HEC students.
+It can be used to optimize the timetable schedule of HEC students, as it generates all the necessary inputs.
+
+
+
+
+It uses a excel file which contains 13 columns, which are: 
+
+
+
+
+- Semester (numerical, e.g. 3)
+
+
+
+
+- Day (character, e.g. Monday)
+
+
+
+
+- Class (character, e.g. Programming Tools in Data Science)
+
+
+
+
+- Professor (character, S. Orso)
+
+
+
+
+- Credits (numerical, e.g. 6)
+
+
+
+
+- First_7_Weeks (binary, e.g. 1)
+
+
+
+
+- Last_7_weeks (binary, e.g 1)
+
+
+
+
+- Start (decimal hour, e.g. 8.5)
+
+
+
+
+- End (decimal hour, e.g. 12.00)
+
+
+
+
+- Start_nice (POSIXct, e.g. 1899-12-31 08:30:00)
+
+
+
+
+- End_nice (POSIXct, e.g. 1899-12-31 12:00:00)
+
+
+
+
+- BA_orientation (binary, e.g. 1)
+
+
+
+
+- BA_Mandatory (binary, e.g. 0)
 }
 \author{
-Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 }

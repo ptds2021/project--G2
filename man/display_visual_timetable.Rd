@@ -7,17 +7,16 @@
 display_visual_timetable(i, choice)
 }
 \arguments{
-\item{i}{Semester to be considered (from 1 to 3)}
+\item{i}{Semester to be considered}
 
-\item{choice}{Result of the function class_optim to be displayed}
+\item{choice}{Result of the function class_optim}
 }
 \value{
 Visually appealing timetable ggplot2 object
 }
 \description{
-This function is used to display a visual timetable.
-It can be used to optimize the timetable schedule of HEC students.
+This function is used to display a visual timetable using ggplot2.
 }
 \author{
-Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 }

@@ -1,24 +1,27 @@
-#' @title Creation of dummies variables and others variables
+#' @title Integer optimization of timetable
 #' @name class_optim
-#' @description This function is used to perform the integer optimization.
-#' It can be used within the ShinyApp settings.
-#' @author Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
-#' @return Final choice of classes of user
-#' @param s Semester to be considered (from 1 to 3)
-#' @param f.obj Objective function
+#' @description This function is used to perform the integer optimization using lpSolve::lp. 
+#' 
+#' 
+#' 
+#' 
+#' For more information, please refer to the lpSolve package in R. 
+#' @author Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+#' @return Final choice of classes of user (binary vector)
+#' @param s Semester to be considered (numerical)
+#' @param f.obj Objective function (to be minimized)
 #' @param f.con Constraints matrix
-#' @param f.dir Sign of equality of constraints
-#' @param core Core credits chosen by the user
-#' @param elective Elective credits chosen by the user
-#' @param moment Moments chosen by the user
-#' @param class Classes chosen by the user
+#' @param f.dir Sign of equality of constraints (">=", "<=", ...) (numerical vectors)
+#' @param core Core credits chosen by the user by semester (numerical value)
+#' @param elective Elective credits chosen by the user (numerical value)
+#' @param moment Moments chosen by the user (binary vector)
+#' @param class Classes chosen by the user (binary vector)
 #' @import dplyr
 #' @importFrom lpSolve lp
 #' @import tidyverse
 #' @import shiny
 #' @export
 class_optim = function(s, f.obj, f.con, f.dir, 
-                       ##credits, 
                        core, elective, moment, class){
   
   for (i in 1:length(moments_semester[[s]])) {

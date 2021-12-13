@@ -2,34 +2,38 @@
 % Please edit documentation in R/class_optim.R
 \name{class_optim}
 \alias{class_optim}
-\title{Creation of dummies variables and others variables}
+\title{Integer optimization of timetable}
 \usage{
 class_optim(s, f.obj, f.con, f.dir, core, elective, moment, class)
 }
 \arguments{
-\item{s}{Semester to be considered (from 1 to 3)}
+\item{s}{Semester to be considered (numerical)}
 
-\item{f.obj}{Objective function}
+\item{f.obj}{Objective function (to be minimized)}
 
 \item{f.con}{Constraints matrix}
 
-\item{f.dir}{Sign of equality of constraints}
+\item{f.dir}{Sign of equality of constraints (">=", "<=", ...) (numerical vectors)}
 
-\item{core}{Core credits chosen by the user}
+\item{core}{Core credits chosen by the user by semester (numerical value)}
 
-\item{elective}{Elective credits chosen by the user}
+\item{elective}{Elective credits chosen by the user (numerical value)}
 
-\item{moment}{Moments chosen by the user}
+\item{moment}{Moments chosen by the user (binary vector)}
 
-\item{class}{Classes chosen by the user}
+\item{class}{Classes chosen by the user (binary vector)}
 }
 \value{
-Final choice of classes of user
+Final choice of classes of user (binary vector)
 }
 \description{
-This function is used to perform the integer optimization.
-It can be used within the ShinyApp settings.
+This function is used to perform the integer optimization using lpSolve::lp. 
+
+
+
+
+For more information, please refer to the lpSolve package in R.
 }
 \author{
-Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 }
