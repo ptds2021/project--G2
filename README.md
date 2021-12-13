@@ -10,11 +10,11 @@
 
 ## Features
 
-The end production is a shinyApp, which can be access on R by running `hectimetables::runDemo()` or online, hosted on the shinyapps.io website. 
+The end production is a shinyApp, which can be access on R by running `hectimetables::runDemo()` or online, hosted on the shinyapps.io website  (https://lauralopriore1997.shinyapps.io/project--G2/). 
 
 Available to the interest user are a set of functions used in the ShinyApp: 
 
-1) `dummy_creation()`: a function to create a matrix of constraints used to perform a binary optimisation of classes to select or not, depending on how many total credits the student aim to pass in a given semester, how many core and elective credits he/she wants, as well as some half-days moment he/she does not want any class (Monday to Friday, AM or PM)
+1) `dummy_creation()`: a function to create a matrix of constraints used to perform a binary optimization of classes to select or not, on how many core and elective credits he/she wants to do, as well as some half-days moment he/she does not want any class (Monday to Friday, AM or PM)
 
 2) `class_optim()`: a function that takes the preferences of the user in the ShinyApp and makes it possible with the matrix of constraints
 

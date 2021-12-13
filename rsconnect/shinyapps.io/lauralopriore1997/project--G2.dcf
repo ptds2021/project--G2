@@ -5,10 +5,10 @@ account: lauralopriore1997
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5309927
-bundleId: 5363990
+bundleId: 5365919
 url: https://lauralopriore1997.shinyapps.io/project--G2/
-when: 1639351355.05326
-lastSyncTime: 1639351355.05326
+when: 1639388133.37775
+lastSyncTime: 1639388133.37775
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .github/.gitignore|.github/workflows/pkgdown.yaml|.github/workflows/R-CMD-check.yaml|.Rbuildignore|_pkgdown.yml|DESCRIPTION|inst/extdata/Timetable_Master_Management.xlsx|LICENCE|NAMESPACE|raw-data/data.R|raw-data/Timetable_Master_Management.xlsx|README.md|tests/testthat/test-globals.R|tests/testthat.R|vignettes/.gitignore|vignettes/class_optim.Rmd|vignettes/dumy_creation.Rmd|vignettes/runDemo.Rmd|vignettes/shinyapp.Rmd|man|pkgdown|R
+ignoredFiles: .github/.gitignore|.github/workflows/pkgdown.yaml|.github/workflows/R-CMD-check.yaml|.Rbuildignore|_pkgdown.yml|DESCRIPTION|inst/extdata/Timetable_Master_Management.xlsx|LICENCE|NAMESPACE|raw-data/data.R|raw-data/Timetable_Master_Management.xlsx|README.md|tests/testthat/test-globals.R|tests/testthat.R|man|pkgdown|R
