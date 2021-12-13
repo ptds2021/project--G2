@@ -1,11 +1,13 @@
 #' @title Demonstration of shiny app
 #' @name runDemo
-#' @description This function is used to demostrate how the shiny app works. 
-#' @author Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
+#' @description This function is used to demonstrate how the shiny app works. 
+#' @author Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
 #' @return Open the app for Master BA students in 2020-2022
 #' @import shiny
 #' @import shinythemes
 #' @import shinyWidgets
+#' @example
+#' \dontrun{hectimetables::runDemo()}
 #' @export
 runDemo <- function() {
   
@@ -25,7 +27,7 @@ runDemo <- function() {
         sliderInput(
           inputId = "CORE_credits_1",
           min = 0,
-          max = 36,
+          max = 18,
           value = 18,
           step = 6, ticks = TRUE,
           label = "Mandatory credits"
@@ -65,7 +67,7 @@ runDemo <- function() {
           ),
           multiple = TRUE
         ), 
-        helpText("Mandatory classes (OMM, QMM, DFSBA) should not be removed."),
+        helpText("Mandatory classes (OMM, QMM, DSFBA) should not be removed."),
         helpText("If nothing is displayed, you
                have inputed impossible preferences based on the constraints. Please check
                the selected classes and half-day periods for incompatibilities."), 
@@ -146,8 +148,8 @@ runDemo <- function() {
     ),
     tabPanel(
       "Semester 3",
-      actionButton(inputId = "submit_3", label = "Suggest timetable!"),
       sidebarPanel(
+        actionButton(inputId = "submit_3", label = "Suggest timetable!"),
         helpText("Click here to display a custom timetable."),
         hr(),
         helpText("Choose here your preferences."),
@@ -283,5 +285,3 @@ runDemo <- function() {
   shinyApp(ui = ui, server = server)
 
 }
-#' @example
-#' \dontrun{runDemo()}

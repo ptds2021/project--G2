@@ -19,7 +19,7 @@ ui <- navbarPage(
       sliderInput(
         inputId = "CORE_credits_1",
         min = 0,
-        max = 36,
+        max = 18,
         value = 18,
         step = 6, ticks = TRUE,
         label = "Mandatory credits"
@@ -59,7 +59,7 @@ ui <- navbarPage(
         ),
         multiple = TRUE
       ), 
-      helpText("Mandatory classes (OMM, QMM, DFSBA) should not be removed."),
+      helpText("Mandatory classes (OMM, QMM, DSIBA) should not be removed."),
       helpText("If nothing is displayed, you
                have inputed impossible preferences based on the constraints. Please check
                the selected classes and half-day periods for incompatibilities."), 
