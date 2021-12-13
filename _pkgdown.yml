@@ -1,5 +1,8 @@
+title: hectimetables
 url: https://ptds2021.github.io/project--G2
 template:
   bootstrap: 5
   bootswatch: cerulean
+  bslib:
+    pkgdown-nav-height: 50px
 
