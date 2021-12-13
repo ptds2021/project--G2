@@ -2,11 +2,10 @@ pandoc: 2.7.3
 pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
-  class_optim: class_optim.html
-  dumy_creation: dumy_creation.html
+  parameters: parameters.html
   runDemo: runDemo.html
   shinyapp: shinyapp.html
-last_built: 2021-12-13T14:29Z
+last_built: 2021-12-13T14:30Z
 urls:
   reference: https://ptds2021.github.io/project--G2/reference
   article: https://ptds2021.github.io/project--G2/articles
