@@ -5,9 +5,10 @@ library(shiny)
 hectimetables::dummy_creation()
 
 # Define UI
+
 ui <- navbarPage(
   theme = shinytheme("cerulean"),
-  "HEC Lausanne - Timetable suggestions for Management students",
+  "HEC Lausanne - Timetable suggestions for BA students",
   tabPanel(
     "Semester 1",
     sidebarPanel(
@@ -68,7 +69,8 @@ ui <- navbarPage(
     mainPanel(mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Visual Timetable", plotOutput("timetable_1_graph")),
+        tabPanel("Visual Timetable (first seven weeks)", plotOutput("timetable_1_graph_F")),
+        tabPanel("Visual Timetable (last seven weeks)", plotOutput("timetable_1_graph_L")),
         tabPanel("More detailed Timetable", tableOutput("timetable_1"))
       ),
       style = 'width: 100%'
@@ -132,7 +134,8 @@ ui <- navbarPage(
     mainPanel(mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Visual Timetable", plotOutput("timetable_2_graph")),
+        tabPanel("Visual Timetable (first seven weeks)", plotOutput("timetable_2_graph_F")),
+        tabPanel("Visual Timetable (last seven weeks)", plotOutput("timetable_2_graph_L")),
         tabPanel("More detailed Timetable", tableOutput("timetable_2"))
       ),
       style = 'width: 100%'
@@ -145,6 +148,7 @@ ui <- navbarPage(
       actionButton(inputId = "submit_3", label = "Suggest timetable!"),
       hr(),
       helpText("Choose here your preferences."),
+      # ECTS choices
       sliderInput(
         inputId = "CORE_credits_3",
         min = 0,
@@ -195,7 +199,8 @@ ui <- navbarPage(
     mainPanel(mainPanel(
       tabsetPanel(
         type = "tabs",
-        tabPanel("Visual Timetable", plotOutput("timetable_3_graph")),
+        tabPanel("Visual Timetable (first seven weeks)", plotOutput("timetable_3_graph_F")),
+        tabPanel("Visual Timetable (last seven weeks)", plotOutput("timetable_3_graph_L")),
         tabPanel("More detailed Timetable", tableOutput("timetable_3"))
       ),
       style = 'width: 100%'
@@ -203,7 +208,7 @@ ui <- navbarPage(
   )
 )
 
-
+# Define server
 server <- function(input, output, session) {
   choice_1 <- eventReactive(input$submit_1,  {
     hectimetables::class_optim(
@@ -222,9 +227,14 @@ server <- function(input, output, session) {
     renderTable({
       hectimetables::display_text_timetable(1, choice_1())
     })
-  output$timetable_1_graph <-
+  output$timetable_1_graph_F <-
     renderPlot({
-      hectimetables::display_visual_timetable(1, choice_1())
+      hectimetables::display_visual_timetable(1, choice_1(), 1)
+    })
+  
+  output$timetable_1_graph_L <-
+    renderPlot({
+      hectimetables::display_visual_timetable(1, choice_1(), 2)
     })
   
   choice_2 <- eventReactive(input$submit_2, {
@@ -244,9 +254,14 @@ server <- function(input, output, session) {
     renderTable({
       hectimetables::display_text_timetable(2, choice_2())
     })
-  output$timetable_2_graph <-
+  output$timetable_2_graph_F <-
     renderPlot({
-      hectimetables::display_visual_timetable(2, choice_2())
+      hectimetables::display_visual_timetable(2, choice_2(), 1)
+    })
+  
+  output$timetable_2_graph_L <-
+    renderPlot({
+      hectimetables::display_visual_timetable(2, choice_2(), 2)
     })
   
   choice_3 <- eventReactive(input$submit_3, {
@@ -266,9 +281,15 @@ server <- function(input, output, session) {
     renderTable({
       hectimetables::display_text_timetable(3, choice_3())
     })
-  output$timetable_3_graph <-
+  
+  output$timetable_3_graph_F <-
     renderPlot({
-      hectimetables::display_visual_timetable(3, choice_3())
+      hectimetables::display_visual_timetable(3, choice_3(), 1)
+    })
+  
+  output$timetable_3_graph_L <-
+    renderPlot({
+      hectimetables::display_visual_timetable(3, choice_3(), 2)
     })
   
 }

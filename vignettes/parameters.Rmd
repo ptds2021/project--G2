@@ -15,7 +15,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 # Semesters' choice
 
-There are three tabs, for the three semesters of classes of the Master. \
+There are three tabs, for the three semesters of classes of the Master.\
 You can navigate across them by simply clicking on it at the top of the page.
 
 # Initial timetable suggestion
@@ -24,9 +24,13 @@ To display an initial timetable, click on "Suggest" on the sidebar panel.
 
 You have the choice to either view, by moving across tabs in the main panel:
 
--   a textual summary of the selected classes
+-   two visual representations of the selected classes (half-semester classes):
 
--   a visual representation of the selected classes
+    -   one for the first seven weeks of the semester
+
+    -   one for the last seven weeks of the semester
+
+-   a textual summary of the selected classes
 
 Note that the mandatory classes of this master are pre-selected and will be included in the suggested timetable even if de-selected them from the list of preferred classes.
 
@@ -40,10 +44,10 @@ You can of course also input your preferences to have a personalized timetable:
 
 -   which half-days you want to have class ?
 
-# Issues 
+# Issues
 
-Note that if no timetable is displayed, it simply mean your preferences could not be satisfied. In this case, you need to either choose more days and remove conflicting classes.
+Note that if no timetable is displayed, it simply mean your preferences could not be satisfied. \
+In this case, you need to either choose more days and remove conflicting classes.
 
-A good advice is always to start from the first generated timetable.   \
+A good advice is always to start from the first generated timetable.\
 Otherwise, to only add a few favorite classes and then scale it up.
-

@@ -2,15 +2,16 @@
 #' @name display_visual_timetable
 #' @description This function is used to display a visual timetable using ggplot2.
 #' @author Group 2 composed of Matteo Gross, Alessia Di Pietro, Martina Celic, Ana Gabriela Garcia, Laura Lo Priore
-#' @return Visually appealing timetable ggplot2 object
+#' @return Visually appealing timetable (ggplot2 object)
 #' @param i Semester to be considered
 #' @param choice Result of the function class_optim
+#' @param week First (1) or second (2) half of the semester
 #' @import ggplot2
 #' @import scales
 #' @import tidyverse
 #' @import ggfittext 
 #' @export
-display_visual_timetable = function(i, choice) {
+display_visual_timetable = function(i, choice, week) {
   
   # if(sum(as.numeric(choice$Choice))==0){
   #   stop("You have inputed impossible preferences based on the constraints.
@@ -22,8 +23,28 @@ display_visual_timetable = function(i, choice) {
 
   V1 <- V2 <- Choice <- NULL
 
+  weeks <- ifelse(week == 1, "First", "Last")
+  
+  temp <- readxl::read_excel(system.file(
+    "extdata/Timetable_Master_Management.xlsx", 
+    package = "hectimetables", mustWork = TRUE)) %>%
+    mutate(Day = as.factor(Day), 
+           Day = recode_factor(Day,
+                               "Monday" = 1,
+                               "Tuesday" =  2,
+                               "Wednesday" = 3,
+                               "Thursday" = 4,
+                               "Friday" = 5)) %>%
+    transmute(jointure = paste(Class, Day, Start, End), 
+              Weeks = ifelse(First_7_Weeks==1 & Last_7_Weeks==0, "First",
+                             ifelse(First_7_Weeks==0 & Last_7_Weeks==1, "Last",
+                                    ifelse(First_7_Weeks==1 & Last_7_Weeks==1, "All", NA)))) 
+  
   choice %>%
     left_join(raw_input[[i]], by = "Class") %>%
+    mutate(jointure = paste(Class, Day, Start, End)) %>%
+    left_join(temp, by = "jointure") %>%
+    filter(Weeks %in% c(weeks, "All")) %>%
     filter(Choice == 1) %>%
     select(-V1,-V2,-Choice) %>%
     transmute(
@@ -32,8 +53,8 @@ display_visual_timetable = function(i, choice) {
       y1 = Start,
       y2 = End,
       t = CORE,
-      r = Class)  %>%
-  ggplot()+ 
+      r = Class) %>% 
+  ggplot() + 
     geom_rect(
       mapping = aes(
         xmin = x1,

@@ -6,7 +6,7 @@
 
 ## Description
 
-`hectimetables` is an R package aiming at creating possible timetables for Business Analytics track of the Master in Management of the University of Lausanne (HEC), for the year 2020-2022. 
+`hectimetables` is an R package aiming at creating possible timetables for students in the Business Analytics  track of the Master in Management of the University of Lausanne (HEC), for the year 2020-2022. 
 
 ## Features
 

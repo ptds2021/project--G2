@@ -31,7 +31,6 @@ class_optim = function(s, f.obj, f.con, f.dir,
     classes_constraints[[s]][i] <- classes_semester[[s]][i] %in% reactive(class)()}
 
   f.rhs <- c(
-    ##reactive(credits)(),                  # Credits constraint
     reactive(core)(),                     # CORE Credits constraint
     reactive(elective)(),                 # ELECTIVE Credits constraint
     length(classes_constraints[[s]])*moments_constraints[[s]], # Chunk of the day constraints

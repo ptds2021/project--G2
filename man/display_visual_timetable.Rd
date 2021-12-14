@@ -4,15 +4,17 @@
 \alias{display_visual_timetable}
 \title{Creation of a appealing visual timetable of classes}
 \usage{
-display_visual_timetable(i, choice)
+display_visual_timetable(i, choice, week)
 }
 \arguments{
 \item{i}{Semester to be considered}
 
 \item{choice}{Result of the function class_optim}
+
+\item{week}{First (1) or second (2) half of the semester}
 }
 \value{
-Visually appealing timetable ggplot2 object
+Visually appealing timetable (ggplot2 object)
 }
 \description{
 This function is used to display a visual timetable using ggplot2.
