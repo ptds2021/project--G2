@@ -1,0 +1,29 @@
+---
+title: "Using runDemo on RStudio"
+author: "Group 2"
+date: 2021-12-15T21:13:14-05:00
+categories: ["R"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Installing the package
+
+The package required is on GitHub, run the following code in your R console to load it.
+
+```{r, eval = FALSE}
+devtools::install_github("ptds2021/project--G2")
+
+library("hectimetables")
+```
+
+# Opening the app (in RStudio)
+
+To open the app using R, simply run this command: 
+
+```{r, eval = FALSE}
+hectimetables::runDemo()
+```
+

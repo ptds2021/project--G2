@@ -1,0 +1,12 @@
+---
+title: "Why we like it"
+author: "Group 2"
+date: 2021-12-15T21:13:14-05:00
+categories: ["R"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+As former BA students we struggled every semester to create a suitable timetable which would satisfy all constraints and preferences. Here, as part of a Programming class, we coded a possible solution to our problem with a ShinyApp. We made it available so other students could benefit from it.
