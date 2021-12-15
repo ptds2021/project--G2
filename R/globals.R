@@ -1,4 +1,7 @@
 utils::globalVariables(c("sysdata",
+                         "Day_nice", 
+                         "BA",
+                         "Weeks",
                          "nice_input", 
                          "raw_input", 
                          "moments_semester", 
