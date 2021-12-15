@@ -1,0 +1,100 @@
+"0","source(here::here(""scripts/setup.R""))"
+"2","here() starts at /Users/martinacelic/Desktop/SCHOOL/MASTER/Third Semester/Programming Tools/project--G2
+"
+"2","gdata: read.xls support for 'XLS' (Excel 97-2004) files ENABLED.
+"
+"2","
+"
+"2","gdata: read.xls support for 'XLSX' (Excel 2007+) files ENABLED.
+"
+"2","
+Attaching package: ‘gdata’
+
+"
+"2","The following object is masked from ‘package:stats’:
+
+    nobs
+
+"
+"2","The following object is masked from ‘package:utils’:
+
+    object.size
+
+"
+"2","The following object is masked from ‘package:base’:
+
+    startsWith
+
+"
+"2","
+Attaching package: ‘lubridate’
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    date, intersect, setdiff, union
+
+"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:gdata’:
+
+    combine, first, last
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"2","
+Attaching package: ‘magrittr’
+
+"
+"2","The following object is masked from ‘package:tidyr’:
+
+    extract
+
+"
+"0","## Initial Cleaning of Data"
+"0","HEC_timetables_initial <- read_excel(here::here(""data/HEC_timetables.xlsx""), "
+"0"," col_names = c(""Start"", ""NA"", ""End"", ""NA"", ""Class"", ""NA"", ""Prof""), "
+"0"," col_types = c(""text"", ""skip"", ""text"", ""skip"", ""text"", ""skip"", ""text"")) %>%"
+"0","  mutate(Day =  Start, "
+"0","         Credit = Prof, "
+"0","         Day = gsub(""[0-9]+"", NA, Day), "
+"0","         Credit =as.numeric(gsub(""*?([0-9]+).*"", ""\\1"", Prof))) %>% "
+"0","  fill(Day, .direction = c(""down"")) %>%"
+"0","  fill(Credit, .direction = c(""up"")) %>%"
+"0","  na.omit() %>%"
+"0","  mutate(Start_nice = chron::times(as.numeric(Start)), "
+"0","         End_nice = chron::times(as.numeric(End)),"
+"0","         Start = as.numeric(Start)*24, "
+"0","         End = as.numeric(End)*24, "
+"0","         Credit = ifelse(as.numeric(Credit)==1, 1.5, Credit), "
+"0","         "
+"0","         # Business Analytics (dummy = 1) or not (dummy = 0)"
+"0","         BA = c(0,1,0,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,"
+"0","                       0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,0), "
+"0","         BA_credits = BA*Credit,  # Total of credits per class in BA"
+"0","         "
+"0","         # Management (elective) (dummy = 1) or not (dummy = 0)"
+"0","         MG = ifelse(BA == 1, 0, 1),"
+"0","         MG_credits = MG * Credit,  # Total of credits per class in Management (MG)"
+"0","         "
+"0","         Day = recode(  # Recode days in number (1=Monday, 5=Friday)"
+"0","           as.factor(Day),"
+"0","           ""Lundi"" = 1,"
+"0","           ""Mardi"" = 2,"
+"0","           ""Mercredi"" = 3,"
+"0","           ""Jeudi"" = 4,"
+"0","           ""Vendredi"" = 5), "
+"0","         Moment = as.factor(paste0("
+"0","           Day, ""_"", as.factor(ifelse(End <=12, ""AM"", ""PM"")))))"

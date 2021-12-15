@@ -1,0 +1,4 @@
+"0","# Import lpSolve package"
+"0","library(lpSolve)"
+"2","Error in library(lpSolve) : there is no package called ‘lpSolve’
+"
