@@ -23,3 +23,8 @@ Available to the interest user are a set of functions used in the ShinyApp:
 ## Why we like it
 
 As former BA students at HEC Lausanne, we struggled every semester to create a suitable timetable which would satisfy all constraints and preferences. Here, as part of a Programming class, we coded a possible solution to our problem with a ShinyApp. We made it available so other students could benefit from it.
+
+## Website 
+
+You can also acess some additional resources, such as a Tutorial on YouTube on how to use the app. 
+Please click on the following link: https://blogdown-g2.netlify.app/2021/12/15/tutorial-on-youtube/. 
