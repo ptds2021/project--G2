@@ -27,4 +27,5 @@ As former BA students at HEC Lausanne, we struggled every semester to create a s
 ## Website 
 
 You can also acess some additional resources on this website (https://blogdown-g2.netlify.app/). 
+
 A tutorial on how to use the app is made available: https://blogdown-g2.netlify.app/2021/12/15/tutorial-on-youtube/. 
